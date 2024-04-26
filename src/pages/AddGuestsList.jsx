@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Button, Grid } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
 import { Link } from "react-router-dom";
@@ -40,18 +40,18 @@ const AddGuestsList = () => {
 
           <Grid item xs={12}>
             <Box mt={10} display="flex" justifyContent="flex-end">
-              <Link to="/createwedding">
+              <Link to="/weddings">
                 <Button
                   type="submit"
                   variant="outlined"
                   color="secondary"
                   style={{ marginRight: "10px" }}
                 >
-                  Regresar
+                  Cancelar
                 </Button>
               </Link>
               <Link to="/weddings">
-                <Button variant="contained">Crear boda</Button>
+                <Button variant="contained">Cargar lista</Button>
               </Link>
             </Box>
           </Grid>

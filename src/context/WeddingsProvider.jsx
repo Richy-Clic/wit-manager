@@ -1,4 +1,5 @@
-import React, { useState, createContext } from "react";
+import { useState, createContext } from "react";
+import PropTypes from 'prop-types'; // Importa PropTypes
 import axios from "axios";
 
 
@@ -20,10 +21,15 @@ export const WeddingsProvider = (props) => {
                 });
         }, 1000);
     }
-    
+
     return (
         <WeddingsContext.Provider value={{ weddings, setWeddings, getWeddings }}>
             {props.children}
         </WeddingsContext.Provider>
     )
 }
+
+// Define PropTypes para WeddingsProvider
+WeddingsProvider.propTypes = {
+    children: PropTypes.node.isRequired // Suponiendo que children es una propiedad requerida
+};

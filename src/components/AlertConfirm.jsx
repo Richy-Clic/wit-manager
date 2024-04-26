@@ -1,27 +1,19 @@
-import React, { useState } from 'react';
+import React, {  } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-export default function AlertConfirm() {
-  const [open, setOpen] = useState(false);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+export default function AlertConfirm(props) {
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-
+  // console.log(props.row);
   return (
     <React.Fragment>
-      <Button variant="outlined" onClick={handleClickOpen}>
-        Open alert dialog
-      </Button>
+      
       <Dialog
-        open={open}
-        onClose={handleClose}
+        open={props.show}
+        // onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        
       >
         <DialogTitle id="alert-dialog-title">
           {"Atención!"}
@@ -32,8 +24,8 @@ export default function AlertConfirm() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancelar</Button>
-          <Button onClick={handleClose} autoFocus color={'error'} variant='contained'>
+          <Button onClick={props.onHide}>Cancelar</Button>
+          <Button onClick={props.onHide} autoFocus color={'error'} variant='contained'>
             Aceptar
           </Button>
         </DialogActions>
@@ -41,3 +33,10 @@ export default function AlertConfirm() {
     </React.Fragment>
   );
 }
+
+// Define la validación de props
+AlertConfirm.propTypes = {
+  show: PropTypes.bool.isRequired, // Asegúrate de que 'show' sea un booleano y sea requerido
+  onHide: PropTypes.func.isRequired, // Asegúrate de que 'onHide' sea una función y sea requerida
+  row: PropTypes.object.isRequired,
+};
