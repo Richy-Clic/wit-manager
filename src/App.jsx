@@ -22,7 +22,7 @@ function App() {
             <Route path="/weddings/:wedding/guests" element={<Guests />} />
 
             <Route path="/weddings/addwedding" element={<NewWedding />} />
-            <Route path="/createwedding/addguestslist" element={<AddGuestsList />} />
+            <Route path="/weddings/:wedding/addguestslist" element={<AddGuestsList />} />
 
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="*" element={<NotFound />} />

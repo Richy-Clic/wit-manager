@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useState } from "react";
-import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, Button, CircularProgress } from "@mui/material";
+import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, Button, CircularProgress, Tooltip } from "@mui/material";
 import { WeddingsContext } from "../context/WeddingsProvider";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -50,7 +50,7 @@ export default function Weddings() {
     try {
       setTimeout(() => {
         getWeddings()
-      }, 1500);
+      }, 1000);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -72,7 +72,9 @@ export default function Weddings() {
 
             {
               weddings ?
-                weddings.map((wedding, index) => {
+                weddings
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((wedding, index) => {
                   const dateTime = new Date(wedding.date).toISOString().slice(0, 16).split('T')[0]
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={index}>
@@ -83,9 +85,9 @@ export default function Weddings() {
                       <TableCell key={wedding.id} align={wedding.align}>{wedding.location}</TableCell>
                       <TableCell key={wedding.id} align={wedding.align}>{wedding.status}</TableCell>
                       <TableCell key={wedding.id} align={wedding.align}>
-                        <Link to={`/weddings/${wedding.uuid}`}><Button variant="text" color="warning"><EditIcon /></Button></Link>
-                        <Link to={`/weddings/${wedding.uuid}/guests`}><Button variant="text" color="success"><ViewListIcon /></Button></Link>
-                        <Button variant="text" color="error" onClick={() => openAlertConfirm(wedding)}><DeleteIcon /></Button>
+                        <Link to={`/weddings/${wedding.uuid}`}><Tooltip arrow title="Editar"><Button variant="text"  color="warning"><EditIcon /></Button></Tooltip></Link>
+                        <Link to={`/weddings/${wedding.uuid}/guests`}><Tooltip arrow title="Lista de invitados"><Button variant="text" color="success"><ViewListIcon /></Button></Tooltip></Link>
+                        <Tooltip arrow title="Eliminar"><Button variant="text" color="error" onClick={() => openAlertConfirm(wedding)}><DeleteIcon /></Button></Tooltip>
                       </TableCell>
                     </TableRow>
                   );

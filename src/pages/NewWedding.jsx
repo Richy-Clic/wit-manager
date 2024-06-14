@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TextField, Box, Button, Grid } from "@mui/material";
+import { TextField, Box, Button, Grid, Typography } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
 import { Link } from "react-router-dom";
 import { DatePicker } from '@mui/x-date-pickers';
@@ -20,8 +20,8 @@ export default function NewWedding() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const responseBody = formData.date ? { ...formData, "date": formData.date.format("YYYY-MM-DD")} : { ...formData, "date": null}
-    try {      
+    const responseBody = formData.date ? { ...formData, "date": formData.date.format("YYYY-MM-DD") } : { ...formData, "date": "1999-01-01" }
+    try {
 
       const response = await axios.post(`http://localhost:3001/weddings`, responseBody);
       console.log("Se agrego con éxito la boda:", response);
@@ -34,9 +34,9 @@ export default function NewWedding() {
   return (
     <Grid container spacing={1} justifyContent="center">
       <Navbar />
-      <Grid item xs={12} sm={8} md={4}>
-        <h1>Nueva boda</h1>
-        <Box component="form" sx={{ p: 2 }} onSubmit={handleSubmit}>
+      <Grid item xs={12} sm={8} md={5} lg={4} mt={4}>
+        <Typography variant="h4">Nueva Boda</Typography>
+        <Box component="form" onSubmit={handleSubmit}>
           <TextField
             id="boyfriend"
             label="Nombre del Novio"
@@ -69,9 +69,10 @@ export default function NewWedding() {
           <DatePicker
             label="Fecha"
             value={formData.date}
+            isRequired={true} //necesito agregar la validacion en el handleSubmit
+            textField={(params) => <TextField {...params} />}
+            sx={{ width: '100%', mt: "16px", mb: "8px" }}
             onChange={(date) => handleChange("date", date)}
-            isRequired={true}
-            textField={(params) => <TextField {...params} margin="normal" />}
           />
           <TextField
             id="location"
@@ -85,12 +86,12 @@ export default function NewWedding() {
           <Grid item xs={12}>
             <Box mt={2} display="flex" justifyContent="flex-end">
               <Link to="/weddings">
-                <Button variant="outlined" color="secondary" style={{ marginRight: '10px' }}>
+                <Button style={{ marginRight: '10px' }}>
                   Cancelar
                 </Button>
               </Link>
               <Button type="submit" variant="contained">
-                Siguiente
+                Guardar
               </Button>
             </Box>
           </Grid>
