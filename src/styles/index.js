@@ -1,4 +1,4 @@
-import { styled } from '@mui/material/styles';
+import { TableCell, tableCellClasses, styled } from "@mui/material";
 
 export const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -11,3 +11,13 @@ export const VisuallyHiddenInput = styled('input')({
     whiteSpace: 'nowrap',
     width: 1,
   });
+
+export const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    [`&.${tableCellClasses.head}`]: {
+      backgroundColor: "#1976d2",
+      color: theme.palette.common.white,
+    },
+    [`&.${tableCellClasses.body}`]: {
+      fontSize: 14,
+    }
+  }));

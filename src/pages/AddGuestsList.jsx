@@ -1,25 +1,46 @@
-import React, { useState } from "react";
-import { Box, Button, Grid } from "@mui/material";
+import { useState } from "react";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { VisuallyHiddenInput } from "../styles/index.js";
+import axios from "axios";
+
 
 const AddGuestsList = () => {
   const [file, setfile] = useState({
     status: false,
     file: null,
   });
+  const { wedding } = useParams();
 
   const handleFileChange = (e) => {
     setfile({ status: true, file: e.target.files[0] });
   };
 
+  const handleUpload = async () => {
+    try {
+      if (file) {
+        const formData = new FormData();
+        formData.append('csvFile', file.file);
+        await axios({
+          method: 'POST',
+          url: `http://localhost:3001/guests/${wedding}`,
+          data: formData
+        });
+        window.location.href = `http://localhost:5173/weddings/${wedding}/guests`;
+      }
+    } catch (error) {
+      console.log('Error al cargar archivo de Excel: ', error);
+    }
+  }
+
   return (
+
     <Grid container spacing={1} justifyContent="center">
       <Navbar />
-      <Grid item xs={12} sm={8} md={4}>
-        <h1>Agregar lista de invitados</h1>
+      <Grid item xs={12} sm={8} md={4} mt={4}>
+        <Typography variant="h4">Agregar lista de invitados</Typography>
         <Box component="form" sx={{ p: 2 }}>
           <Button
             component="label"
@@ -40,19 +61,12 @@ const AddGuestsList = () => {
 
           <Grid item xs={12}>
             <Box mt={10} display="flex" justifyContent="flex-end">
-              <Link to="/createwedding">
-                <Button
-                  type="submit"
-                  variant="outlined"
-                  color="secondary"
-                  style={{ marginRight: "10px" }}
-                >
-                  Regresar
+              <Link to="/weddings">
+                <Button style={{ marginRight: "10px" }}>
+                  Cancelar
                 </Button>
               </Link>
-              <Link to="/weddings">
-                <Button variant="contained">Crear boda</Button>
-              </Link>
+              <Button variant="contained" onClick={handleUpload}>Cargar lista</Button>
             </Box>
           </Grid>
         </Box>
