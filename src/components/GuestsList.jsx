@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, Button, CircularProgress } from "@mui/material";
+import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, Button, CircularProgress, Tooltip } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Link } from "react-router-dom";
 import { StyledTableCell } from "../styles/index.js";
-import AlertConfirm from "../components/AlertConfirm.jsx";
+import DeleteGuestConfirm from "../components/DeleteGuestConfirm.jsx";
 import axios from "axios";
 
 
@@ -18,8 +18,7 @@ const columns = [
 ];
 
 
-export default function Weddings(params) {
-
+export const GuestsList = (params) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [openModal, setOpenModal] = useState(false);
@@ -32,6 +31,7 @@ export default function Weddings(params) {
   };
 
   const closeAlertConfirm = () => {
+    guetGuestList(params.uuid)
     setOpenModal(false);
   };
 
@@ -62,9 +62,9 @@ export default function Weddings(params) {
     } catch (error) {
       console.error('Error fetching data:', error);
     }
-  }, []);
+  }, [params.uuid]);
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
+     <Paper sx={{ width: "100%", overflow: "hidden" }}>
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -92,8 +92,8 @@ export default function Weddings(params) {
                         <TableCell key={wedding.id} align={wedding.align}>{wedding.mate}</TableCell>
                         <TableCell key={wedding.id} align={wedding.align}>{wedding.attendance}</TableCell>
                         <TableCell key={wedding.id} align={wedding.align}>
-                          <Link to={`/weddings/${wedding.uuid_wedding}`}><Button variant="text" color="warning"><EditIcon /></Button></Link>
-                          <Button variant="text" color="error" onClick={() => openAlertConfirm(wedding)}><DeleteIcon /></Button>
+                          <Link to={`/weddings/${wedding.uuid_wedding}`}><Tooltip arrow title="Editar"><Button variant="text" color="warning"><EditIcon /></Button></Tooltip></Link>
+                          <Tooltip arrow title="Eliminar"><Button variant="text" color="error" onClick={() => openAlertConfirm(wedding)}><DeleteIcon /></Button></Tooltip>
                         </TableCell>
                       </TableRow>
                     );
@@ -114,7 +114,7 @@ export default function Weddings(params) {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      <AlertConfirm show={openModal} onHide={closeAlertConfirm} row={row} />
+      <DeleteGuestConfirm show={openModal} onHide={closeAlertConfirm} row={row} />
     </Paper>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import GuestsList from "../components/GuestsList.jsx";
+import { GuestsList } from "../components/GuestsList.jsx";
 import { Grid, Box, Button, Typography } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
 import { Link, useParams } from "react-router-dom";
@@ -18,19 +18,20 @@ const Weddings = () => {
             <Button style={{ marginRight: '10px' }}>
               Cancelar
             </Button>
-            {
-              hasGuests ?
-                <Button variant="contained" color="error" style={{ marginRight: '10px' }}>
-                  Borrar Lista
-                </Button>
-                :
-                <Link to={`/weddings/${wedding}/addguestslist`}>
-                  <Button variant="contained" color="success">
-                    Subir lista
-                  </Button>
-                </Link>
-            }
           </Link>
+          {
+            hasGuests ?
+              <Button variant="contained" color="error" style={{ marginRight: '10px' }}>
+                Borrar Lista
+              </Button>
+              :
+              <Link to={`/weddings/${wedding}/addguestslist`}>
+                <Button variant="contained" color="success">
+                  Subir lista
+                </Button>
+              </Link>
+          }
+
         </Box>
       </Grid>
       <Grid item xs={12}>
