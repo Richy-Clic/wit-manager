@@ -4,10 +4,8 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogAc
 import axios from "axios";
 
 export default function DeleteGuestConfirm(props) {
-  console.log(props.row);
   const handleDelete = async () => {
     try {
-      console.log(props.row.uuid)
         await axios({
             method: 'delete',
             url: `http://localhost:3001/guests/wedding/${props.row.uuid_wedding}/guest/${props.row.uuid}`,
@@ -23,11 +21,8 @@ export default function DeleteGuestConfirm(props) {
       
       <Dialog
         open={props.show}
-       
-        // onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
-        
       >
         <DialogTitle id="alert-dialog-title">
           {"Atención!"}

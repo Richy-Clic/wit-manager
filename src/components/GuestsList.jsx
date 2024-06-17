@@ -58,7 +58,7 @@ export const GuestsList = (params) => {
     try {
       setTimeout(() => {
         guetGuestList(params.uuid)
-      }, 1500);
+      }, 500);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -92,7 +92,7 @@ export const GuestsList = (params) => {
                         <TableCell key={wedding.id} align={wedding.align}>{wedding.mate}</TableCell>
                         <TableCell key={wedding.id} align={wedding.align}>{wedding.attendance}</TableCell>
                         <TableCell key={wedding.id} align={wedding.align}>
-                          <Link to={`/weddings/${wedding.uuid_wedding}`}><Tooltip arrow title="Editar"><Button variant="text" color="warning"><EditIcon /></Button></Tooltip></Link>
+                          <Link to={`/weddings/${wedding.uuid_wedding}/guest/${wedding.uuid}`}><Tooltip arrow title="Editar"><Button variant="text" color="warning"><EditIcon /></Button></Tooltip></Link>
                           <Tooltip arrow title="Eliminar"><Button variant="text" color="error" onClick={() => openAlertConfirm(wedding)}><DeleteIcon /></Button></Tooltip>
                         </TableCell>
                       </TableRow>
