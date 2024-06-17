@@ -50,7 +50,7 @@ export default function Weddings() {
     try {
       setTimeout(() => {
         getWeddings()
-      }, 1000);
+      }, 500);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
