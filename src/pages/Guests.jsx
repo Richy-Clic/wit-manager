@@ -1,4 +1,4 @@
-import { GuestsList } from "../components/GuestsList.jsx";
+import GuestsList from "../components/GuestsList.jsx";
 import { Grid, Box, Button, Typography } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
 import { Link, useParams } from "react-router-dom";

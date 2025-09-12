@@ -11,13 +11,13 @@ import AlertConfirm from "../components/AlertConfirm.jsx";
 
 
 const columns = [
-  { id: "index", minWidth: 20},
+  { id: "index", minWidth: 20 },
   { id: "novios", label: "Novios", minWidth: 220 },
   { id: "invitados", label: "Invitados" },
   { id: "fecha", label: "Fecha" },
   { id: "ubicacion", label: "Ubicación", minWidth: 170 },
   { id: "eStatus", label: "Estatus" },
-  { id: "acciones", minWidth: 200},
+  { id: "acciones", minWidth: 200 },
 ];
 
 
@@ -63,51 +63,51 @@ export default function Weddings() {
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth}}>
+                <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
                   {column.label}
                 </StyledTableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
-  {weddings ?
-    weddings
-      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-      .map((wedding, index) => {
-        const dateTime = new Date(wedding.date).toISOString().slice(0, 16).split('T')[0];
-        return (
-          <TableRow hover role="checkbox" tabIndex={-1} key={wedding.id}>
-            <TableCell> {index + 1} </TableCell>
-            <TableCell>{`${wedding.girlfriend_name} & ${wedding.boyfriend_name}`}</TableCell>
-            <TableCell align={wedding.align}>{wedding.num_guest}</TableCell>
-            <TableCell align={wedding.align}>{dateTime}</TableCell>
-            <TableCell align={wedding.align}>{wedding.location}</TableCell>
-            <TableCell align={wedding.align}>{wedding.status}</TableCell>
-            <TableCell align={wedding.align}>
-              <Link to={`/weddings/${wedding.uuid}`}>
-                <Tooltip arrow title="Editar">
-                  <Button variant="text" color="warning"><EditIcon /></Button>
-                </Tooltip>
-              </Link>
-              <Link to={`/weddings/${wedding.uuid}/guests`}>
-                <Tooltip arrow title="Lista de invitados">
-                  <Button variant="text" color="success"><ViewListIcon /></Button>
-                </Tooltip>
-              </Link>
-              <Tooltip arrow title="Eliminar">
-                <Button variant="text" color="error" onClick={() => openAlertConfirm(wedding)}>
-                  <DeleteIcon />
-                </Button>
-              </Tooltip>
-            </TableCell>
-          </TableRow>
-        );
-      })
-    : <TableRow hover role="checkbox" tabIndex={1}>
-        <TableCell colSpan={8} align="center"><CircularProgress /></TableCell>
-      </TableRow>
-  }
-</TableBody>
+            {weddings ?
+              weddings
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((wedding, index) => {
+                  const dateTime = new Date(wedding.date).toISOString().slice(0, 16).split('T')[0];
+                  return (
+                    <TableRow hover role="checkbox" tabIndex={-1} key={wedding.id}>
+                      <TableCell> {index + 1} </TableCell>
+                      <TableCell>{`${wedding.girlfriend_name} & ${wedding.boyfriend_name}`}</TableCell>
+                      <TableCell align={wedding.align}>{wedding.num_guest}</TableCell>
+                      <TableCell align={wedding.align}>{dateTime}</TableCell>
+                      <TableCell align={wedding.align}>{wedding.location}</TableCell>
+                      <TableCell align={wedding.align}>{wedding.status}</TableCell>
+                      <TableCell align={wedding.align}>
+                        <Link to={`/weddings/${wedding.id}`}>
+                          <Tooltip arrow title="Editar">
+                            <Button variant="text" color="warning"><EditIcon /></Button>
+                          </Tooltip>
+                        </Link>
+                        <Link to={`/weddings/${wedding.id}/guests`}>
+                          <Tooltip arrow title="Lista de invitados">
+                            <Button variant="text" color="success"><ViewListIcon /></Button>
+                          </Tooltip>
+                        </Link>
+                        <Tooltip arrow title="Eliminar">
+                          <Button variant="text" color="error" onClick={() => openAlertConfirm(wedding)}>
+                            <DeleteIcon />
+                          </Button>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              : <TableRow hover role="checkbox" tabIndex={1}>
+                <TableCell colSpan={8} align="center"><CircularProgress /></TableCell>
+              </TableRow>
+            }
+          </TableBody>
 
         </Table>
       </TableContainer>
@@ -120,7 +120,7 @@ export default function Weddings() {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      <AlertConfirm show={openModal} onHide={closeAlertConfirm} row={row}/>
+      <AlertConfirm show={openModal} onHide={closeAlertConfirm} row={row} />
     </Paper>
   );
 }
