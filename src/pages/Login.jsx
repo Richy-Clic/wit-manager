@@ -11,7 +11,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Link as RouterLink } from "react-router-dom";
+import supabase from "../lib/supabaseClient";
 
 function Copyright(props) {
   return (
@@ -26,18 +26,30 @@ function Copyright(props) {
   );
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
-
 const defaultTheme = createTheme();
 
 export default function SignIn() {
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+
+    const email = data.get("email");
+    const password = data.get("password");
+
+    const { data: sessionData, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
+
+    if (error) {
+      console.error("Error al iniciar sesión:", error.message);
+      return;
+    }
+
+    console.log("Usuario logueado:", sessionData.user);
+    console.log("Token:", sessionData.session?.access_token);
+
+    window.location.href = "/dashboard";
   };
 
   return (
@@ -64,8 +76,8 @@ export default function SignIn() {
               required
               fullWidth
               id="email"
-              label="Username"
-              name="username"
+              label="Email"
+              name="email"
               autoComplete="email"
               autoFocus
             />
@@ -83,16 +95,14 @@ export default function SignIn() {
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
-            <RouterLink to="/dashboard">
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Sign In
-              </Button>
-            </RouterLink>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign In
+            </Button>
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2">
