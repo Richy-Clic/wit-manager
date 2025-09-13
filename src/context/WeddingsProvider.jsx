@@ -1,5 +1,5 @@
 import { useState, createContext, useEffect } from "react";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import supabase from "../lib/supabaseClient";
 
 export const WeddingsContext = createContext();
@@ -8,13 +8,18 @@ export const WeddingsProvider = ({ children }) => {
   const [weddings, setWeddings] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Obtener bodas del usuario logueado
+  const [templates, setTemplates] = useState([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(true);
+
+  // ========================
+  //  BODAS
+  // ========================
   const getWeddings = async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from("weddings")
-        .select("*"); // RLS filtra automáticamente solo las bodas del usuario
+        .select("*"); // RLS ya filtra por user_id
 
       if (error) throw error;
 
@@ -27,16 +32,34 @@ export const WeddingsProvider = ({ children }) => {
     }
   };
 
-  // Crear nueva boda
   const createWedding = async (wedding) => {
     try {
+      const authData = localStorage.getItem(
+        "sb-kwawewgowfcxilsewbts-auth-token"
+      );
+
+      if (!authData) throw new Error("No hay usuario logueado");
+
+      const { access_token } = JSON.parse(authData);
+
+      // Obtener user desde el token
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser(access_token);
+
+      if (userError) throw userError;
+
+      const payload = { ...wedding, user_id: user.id };
+
       const { data, error } = await supabase
         .from("weddings")
-        .insert([wedding])
-        .select(); // devuelve la fila insertada
+        .insert([payload])
+        .select();
 
       if (error) throw error;
-      setWeddings(prev => [...prev, ...data]);
+
+      setWeddings((prev) => [...(prev || []), ...data]);
       return data;
     } catch (err) {
       console.error("Error creating wedding:", err.message);
@@ -44,7 +67,6 @@ export const WeddingsProvider = ({ children }) => {
     }
   };
 
-  // Actualizar boda
   const updateWedding = async (id, updates) => {
     try {
       const { data, error } = await supabase
@@ -55,7 +77,9 @@ export const WeddingsProvider = ({ children }) => {
 
       if (error) throw error;
 
-      setWeddings(prev => prev.map(w => (w.id === id ? data[0] : w)));
+      setWeddings((prev) =>
+        prev.map((w) => (w.id === id ? data[0] : w))
+      );
       return data[0];
     } catch (err) {
       console.error("Error updating wedding:", err.message);
@@ -63,7 +87,6 @@ export const WeddingsProvider = ({ children }) => {
     }
   };
 
-  // Eliminar boda
   const deleteWedding = async (id) => {
     try {
       const { error } = await supabase
@@ -72,7 +95,8 @@ export const WeddingsProvider = ({ children }) => {
         .eq("id", id);
 
       if (error) throw error;
-      setWeddings(prev => prev.filter(w => w.id !== id));
+
+      setWeddings((prev) => prev.filter((w) => w.id !== id));
       return true;
     } catch (err) {
       console.error("Error deleting wedding:", err.message);
@@ -80,17 +104,45 @@ export const WeddingsProvider = ({ children }) => {
     }
   };
 
-  // Traer bodas al cargar el context
-  useEffect(() => {
-    getWeddings();
+  // ========================
+  //  TEMPLATES
+  // ========================
+  const getTemplates = async () => {
+    setLoadingTemplates(true);
+    try {
+      const { data, error } = await supabase
+        .from("templates")
+        .select("*");
 
-    // Opcional: subscribirse a cambios en tiempo real
+      if (error) throw error;
+      setTemplates(data);
+    } catch (err) {
+      console.error("Error fetching templates:", err.message);
+      setTemplates([]);
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
+
+  // ========================
+  //  INIT
+  // ========================
+  useEffect(() => {
+    // Cargar bodas y templates una vez al montar
+    getWeddings();
+    getTemplates();
+
+    // Suscripción SOLO para weddings
     const subscription = supabase
-      .channel('weddings')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'weddings' }, payload => {
-        console.log('Cambio en weddings:', payload);
-        getWeddings(); // refresca la lista
-      })
+      .channel("weddings")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "weddings" },
+        (payload) => {
+          console.log("Cambio en weddings:", payload);
+          getWeddings(); // refresca la lista
+        }
+      )
       .subscribe();
 
     return () => {
@@ -99,19 +151,24 @@ export const WeddingsProvider = ({ children }) => {
   }, []);
 
   return (
-    <WeddingsContext.Provider value={{
-      weddings,
-      loading,
-      getWeddings,
-      createWedding,
-      updateWedding,
-      deleteWedding
-    }}>
+    <WeddingsContext.Provider
+      value={{
+        weddings,
+        loading,
+        getWeddings,
+        createWedding,
+        updateWedding,
+        deleteWedding,
+        templates,
+        loadingTemplates,
+        getTemplates,
+      }}
+    >
       {children}
     </WeddingsContext.Provider>
   );
 };
 
 WeddingsProvider.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };

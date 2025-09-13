@@ -1,18 +1,22 @@
 import { useState } from "react";
-import { TextField, Box, Button, Grid, Typography } from "@mui/material";
+import { TextField, Box, Button, Grid, Typography, MenuItem } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
 import { Link } from "react-router-dom";
 import { DatePicker } from '@mui/x-date-pickers';
-import axios from "axios";
+import { useWeddings } from "../hooks/useWeddings.js";
+import { useNavigate } from "react-router-dom";
 
 export default function NewWedding() {
+  const { createWedding, templates, loadingTemplates } = useWeddings();
   const [formData, setFormData] = useState({
     boyfriend: "",
     girlfriend: "",
-    guests: "",
     date: null,
-    location: ""
+    location: "",
+    template_id: ""
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (id, value) => {
     setFormData({ ...formData, [id]: value });
@@ -20,15 +24,19 @@ export default function NewWedding() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const responseBody = formData.date ? { ...formData, "date": formData.date.format("YYYY-MM-DD") } : { ...formData, "date": "1999-01-01" }
-    try {
-
-      const response = await axios.post(`http://localhost:3001/weddings`, responseBody);
-      console.log("Se agrego con éxito la boda:", response);
-      window.location.href = `http://localhost:5173/weddings/${response.data.uuid}/guests`;
-    } catch (error) {
-      console.log('Ocurrio un error al obtener la lista de invitados', error)
+    if (!formData.boyfriend || !formData.girlfriend || !formData.date || !formData.template_id) {
+      alert("Por favor llena los campos obligatorios");
+      return;
     }
+    
+    const result = await createWedding(formData);
+
+  if (result) {
+    alert("Boda creada exitosamente ✅");
+    navigate("/weddings");
+  } else {
+    alert("Ocurrió un error al crear la boda ❌");
+  }
   };
 
   return (
@@ -57,20 +65,10 @@ export default function NewWedding() {
             value={formData.girlfriend}
             onChange={(e) => handleChange("girlfriend", e.target.value)}
           />
-          <TextField
-            id="guests"
-            label="Invitados"
-            type="text"
-            fullWidth
-            margin="normal"
-            value={formData.guests}
-            onChange={(e) => handleChange("guests", e.target.value)}
-          />
           <DatePicker
             label="Fecha"
             value={formData.date}
-            isRequired={true} //necesito agregar la validacion en el handleSubmit
-            textField={(params) => <TextField {...params} />}
+            textField={(params) => <TextField {...params} fullWidth margin="normal" required />}
             sx={{ width: '100%', mt: "16px", mb: "8px" }}
             onChange={(date) => handleChange("date", date)}
           />
@@ -83,6 +81,27 @@ export default function NewWedding() {
             value={formData.location}
             onChange={(e) => handleChange("location", e.target.value)}
           />
+           <TextField
+            id="template_id"
+            select
+            label="Plantilla"
+            fullWidth
+            margin="normal"
+            value={formData.template_id}
+            onChange={(e) => handleChange("template_id", e.target.value)}
+          >
+            {loadingTemplates ? (
+              <MenuItem disabled>Cargando...</MenuItem>
+            ) : templates.length > 0 ? (
+              templates.map((tpl) => (
+                <MenuItem key={tpl.id} value={tpl.id}>
+                  {tpl.name}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>No hay plantillas</MenuItem>
+            )}
+          </TextField>
           <Grid item xs={12}>
             <Box mt={2} display="flex" justifyContent="flex-end">
               <Link to="/weddings">
