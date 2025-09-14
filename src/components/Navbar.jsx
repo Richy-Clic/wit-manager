@@ -184,6 +184,7 @@ function Navbar() {
                   onClick={() => {
                     handleCloseUserMenu();
                     if (setting === "Logout") handleLogout();
+                    if(setting === "Profile") navigate("/profile");
                   }}
                 >
                   <Typography textAlign="center">{setting}</Typography>

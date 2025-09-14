@@ -6,6 +6,7 @@ import EditGuest from "./pages/EditGuest.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Guests from "./pages/Guests.jsx";
 import Login from "./pages/Login.jsx";
+import Profile from "./pages/Profile.jsx";
 import AddGuestsList from "./pages/AddGuestsList.jsx";
 import PrivateRoute from "./components/Privaterouter.jsx";
 import { WeddingsProvider } from "./context/WeddingsProvider.jsx";
@@ -82,6 +83,15 @@ function App() {
                   element={
                     <PrivateRoute>
                       <Dashboard />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path="/profile"
+                  element={
+                    <PrivateRoute>
+                      <Profile />
                     </PrivateRoute>
                   }
                 />
