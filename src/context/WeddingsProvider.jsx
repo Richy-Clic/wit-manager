@@ -11,14 +11,15 @@ export const WeddingsProvider = ({ children }) => {
   const [loadingTemplates, setLoadingTemplates] = useState(true);
 
   // ========================
-  //  BODAS
+  //  WEDDINGS
   // ========================
   const getWeddings = async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from("weddings")
-        .select("*"); // RLS ya filtra por user_id
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
@@ -50,11 +51,12 @@ export const WeddingsProvider = ({ children }) => {
 
       if (error) throw error;
 
-      setWeddings((prev) => [...(prev || []), ...data]);
+      setWeddings(prev => [data[0], ...(prev || [])]);
+
       return data;
-    } catch (err) {
-      console.error("Error creating wedding: ", err.message);
-      throw new Error("Error creating wedding: ", err.message);
+    } catch (error) {
+      console.error("Error creating wedding: ", error.message);
+      throw error
 
     }
   };
@@ -126,7 +128,6 @@ export const WeddingsProvider = ({ children }) => {
   //  INIT
   // ========================
   useEffect(() => {
-    // Cargar bodas y templates una vez al montar
     getWeddings();
     getTemplates();
 
@@ -135,10 +136,11 @@ export const WeddingsProvider = ({ children }) => {
       .channel("weddings")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "weddings" },
+        { event: "*", schema: "public", table: "weddings" },      
         (payload) => {
           console.log("Cambio en weddings:", payload);
-          getWeddings(); // refresca la lista
+          console.log(getWeddings(), "dentro de channel"),  
+          getWeddings();
         }
       )
       .subscribe();

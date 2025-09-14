@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Box, Button, Grid, Typography } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { VisuallyHiddenInput } from "../styles/index.js";
-import axios from "axios";
 
 
 const AddGuestsList = () => {
@@ -12,7 +11,7 @@ const AddGuestsList = () => {
     status: false,
     file: null,
   });
-  const { wedding } = useParams();
+
 
   const handleFileChange = (e) => {
     setfile({ status: true, file: e.target.files[0] });
@@ -20,16 +19,9 @@ const AddGuestsList = () => {
 
   const handleUpload = async () => {
     try {
-      if (file) {
-        const formData = new FormData();
-        formData.append('csvFile', file.file);
-        await axios({
-          method: 'POST',
-          url: `http://localhost:3001/guests/${wedding}`,
-          data: formData
-        });
-        window.location.href = `http://localhost:5173/weddings/${wedding}/guests`;
-      }
+      console.log("Uploading file: ");
+      
+      
     } catch (error) {
       console.log('Error al cargar archivo de Excel: ', error);
     }

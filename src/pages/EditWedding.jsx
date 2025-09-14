@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { TextField, Box, Button, Grid, Typography, MenuItem } from "@mui/material";
-import Navbar from "../components/Navbar.jsx";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { DatePicker } from '@mui/x-date-pickers';
+import { DateTimePicker } from '@mui/x-date-pickers';
 import { useWeddings } from "../hooks/useWeddings.js";
+import Navbar from "../components/Navbar.jsx";
 import moment from 'moment';
 
 export default function EditWedding() {
@@ -15,15 +15,13 @@ export default function EditWedding() {
     girlfriend: "",
     date: moment(),
     location: "",
-    template_id : ""
+    template_id: ""
   });
 
   useEffect(() => {
     if (weddings && weddings.length > 0) {
       const w = weddings.find((w) => w.id === wedding_id);
       if (w) {
-        console.log(w);
-        
         setWeddingData({
           ...w,
           date: moment(w.date),
@@ -39,23 +37,23 @@ export default function EditWedding() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-   if (!weddingData.boyfriend || !weddingData.girlfriend || !weddingData.date) {
-      alert("Por favor llena los campos obligatorios");
-      return;
-    }
+    try {
+      if (!weddingData.boyfriend || !weddingData.girlfriend || !weddingData.date) {
+        alert("Por favor llena los campos obligatorios");
+        return;
+      }
 
-    const updatedData = {
-      ...weddingData,
-      date: weddingData.date.format("YYYY-MM-DD"),
-    };
+      const updatedData = {
+        ...weddingData,
+        date: weddingData.date.format("YYYY-MM-DD HH:mm:ss")
+      };
 
-    const result = await updateWedding(wedding_id, updatedData);
-
-    if (result) {
+      await updateWedding(wedding_id, updatedData);
       alert("Boda actualizada con éxito ✅");
       navigate("/weddings");
-    } else {
-      alert("Ocurrió un error al actualizar la boda ❌");
+
+    } catch (error) {
+      alert("Ocurrió un error al actualizar la boda ❌ " + error.message);
     }
   };
 
@@ -84,13 +82,20 @@ export default function EditWedding() {
             value={weddingData.girlfriend || ""}
             onChange={(e) => handleChange("girlfriend", e.target.value)}
           />
-          <DatePicker
-            label="Fecha"
+          <DateTimePicker
+            label="Fecha y Hora"
             value={weddingData.date}
-            isRequired={true}
-            textField={(params) => <TextField {...params} />}
-            sx={{ width: '100%', mt: "16px", mb: "8px" }}
             onChange={(date) => handleChange("date", date)}
+            sx={{ width: '100%', mt: "16px", mb: "8px" }}
+            textField={(params) => (
+              <TextField
+                {...params}
+                fullWidth
+                margin="normal"
+                required
+              />
+            )}
+            ampm={true} // opcional: usa 24h si quieres
           />
           <TextField
             id="ubicacion"
@@ -121,6 +126,19 @@ export default function EditWedding() {
             ) : (
               <MenuItem disabled>No hay plantillas</MenuItem>
             )}
+          </TextField>
+          <TextField
+            id="state"
+            select
+            label="status"
+            fullWidth
+            margin="normal"
+            value={weddingData.state || ""}
+            onChange={(e) => handleChange("state", e.target.value)}
+          >
+            <MenuItem key={1} value={1}>In progress</MenuItem>
+            <MenuItem key={2} value={2}>Completed</MenuItem>
+            <MenuItem key={3} value={3}>Cancelled</MenuItem>
           </TextField>
           <Grid item xs={12}>
             <Box mt={2} display="flex" justifyContent="flex-end">

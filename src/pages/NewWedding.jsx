@@ -2,7 +2,7 @@ import { useState } from "react";
 import { TextField, Box, Button, Grid, Typography, MenuItem } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
 import { Link } from "react-router-dom";
-import { DatePicker } from '@mui/x-date-pickers';
+import { DateTimePicker } from '@mui/x-date-pickers';
 import { useWeddings } from "../hooks/useWeddings.js";
 import { useNavigate } from "react-router-dom";
 
@@ -24,19 +24,26 @@ export default function NewWedding() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.boyfriend || !formData.girlfriend || !formData.date || !formData.template_id) {
       alert("Por favor llena los campos obligatorios");
       return;
     }
-    
-    const result = await createWedding(formData);
 
-  if (result) {
-    alert("Boda creada exitosamente ✅");
-    navigate("/weddings");
-  } else {
-    alert("Ocurrió un error al crear la boda ❌");
-  }
+    try {
+      const payload = {
+        ...formData,
+        date: formData.date.format("YYYY-MM-DD HH:mm:ss")
+      };
+
+      await createWedding(payload);
+
+      alert("Boda creada exitosamente ✅");
+      navigate("/weddings");
+
+    } catch (error) {
+      alert("Ocurrió un error inesperado ❌: " + error.message);
+    }
   };
 
   return (
@@ -65,12 +72,20 @@ export default function NewWedding() {
             value={formData.girlfriend}
             onChange={(e) => handleChange("girlfriend", e.target.value)}
           />
-          <DatePicker
-            label="Fecha"
+          <DateTimePicker
+            label="Fecha y Hora"
             value={formData.date}
-            textField={(params) => <TextField {...params} fullWidth margin="normal" required />}
-            sx={{ width: '100%', mt: "16px", mb: "8px" }}
             onChange={(date) => handleChange("date", date)}
+            sx={{ width: '100%', mt: "16px", mb: "8px" }}
+            textField={(params) => (
+              <TextField
+                {...params}
+                fullWidth
+                margin="normal"
+                required
+              />
+            )}
+            ampm={true} // opcional: usa 24h si quieres
           />
           <TextField
             id="location"
@@ -81,7 +96,7 @@ export default function NewWedding() {
             value={formData.location}
             onChange={(e) => handleChange("location", e.target.value)}
           />
-           <TextField
+          <TextField
             id="template_id"
             select
             label="Plantilla"
