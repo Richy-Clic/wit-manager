@@ -1,24 +1,18 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-import axios from "axios";
-import { WeddingsContext } from "../context/WeddingsProvider";
+import { useWeddings } from "../hooks/useWeddings.js";
 
 export default function AlertConfirm(props) {
-  const {getWeddings} = useContext(WeddingsContext)
+  const { deleteWedding } = useWeddings();
 
   const handleDelete = async () => {
     try {
-      
-        await axios({
-            method: 'delete',
-            url: `http://localhost:3001/weddings/${props.row.uuid}`,
-        })
-        getWeddings();
-        props.onHide();
-
+      await deleteWedding(props.row.id);
+      alert("Boda eliminada exitosamente");
+      props.onHide();
     } catch (error) {
-      console.log('Error al intentar eliminar la boda', error);
+      alert (error);
     }
   }
 

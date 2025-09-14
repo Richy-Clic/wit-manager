@@ -7,7 +7,6 @@ export const WeddingsContext = createContext();
 export const WeddingsProvider = ({ children }) => {
   const [weddings, setWeddings] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [templates, setTemplates] = useState([]);
   const [loadingTemplates, setLoadingTemplates] = useState(true);
 
@@ -34,24 +33,16 @@ export const WeddingsProvider = ({ children }) => {
 
   const createWedding = async (wedding) => {
     try {
-      const authData = localStorage.getItem(
-        "sb-kwawewgowfcxilsewbts-auth-token"
-      );
+      const authData = localStorage.getItem("sb-kwawewgowfcxilsewbts-auth-token");
 
-      if (!authData) throw new Error("No hay usuario logueado");
+      if (!authData) throw new Error("No hay usuario logueado, por favor inicia sesión.");
 
       const { access_token } = JSON.parse(authData);
-
-      // Obtener user desde el token
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser(access_token);
+      const { data: { user }, error: userError } = await supabase.auth.getUser(access_token);
 
       if (userError) throw userError;
 
       const payload = { ...wedding, user_id: user.id };
-
       const { data, error } = await supabase
         .from("weddings")
         .insert([payload])
@@ -62,8 +53,9 @@ export const WeddingsProvider = ({ children }) => {
       setWeddings((prev) => [...(prev || []), ...data]);
       return data;
     } catch (err) {
-      console.error("Error creating wedding:", err.message);
-      return null;
+      console.error("Error creating wedding: ", err.message);
+      throw new Error("Error creating wedding: ", err.message);
+
     }
   };
 
@@ -82,19 +74,25 @@ export const WeddingsProvider = ({ children }) => {
       );
       return data[0];
     } catch (err) {
-      console.error("Error updating wedding:", err.message);
-      return null;
+      console.error("Error updating wedding: ", err.message);
+      throw new Error("Error updating wedding: ", err.message);
     }
   };
 
   const deleteWedding = async (id) => {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("weddings")
         .delete()
-        .eq("id", id);
+        .eq("id", id)
+        .select();
 
       if (error) throw error;
+
+      if (data.length === 0) {
+        console.warn("No se borró ninguna boda. Revisa tus policies o el id.");
+        return false;
+      }
 
       setWeddings((prev) => prev.filter((w) => w.id !== id));
       return true;
