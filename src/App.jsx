@@ -7,34 +7,92 @@ import NotFound from "./pages/NotFound.jsx";
 import Guests from "./pages/Guests.jsx";
 import Login from "./pages/Login.jsx";
 import AddGuestsList from "./pages/AddGuestsList.jsx";
+import PrivateRoute from "./components/Privaterouter.jsx";
 import { WeddingsProvider } from "./context/WeddingsProvider.jsx";
 import { GuestsProvider } from "./context/GuestsProvider.jsx";
+import { AuthProvider } from "./context/AuthProvider.jsx"; // 👈 importante
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 
 function App() {
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>
-      <WeddingsProvider>
-        <GuestsProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/weddings" element={<Weddings />} />
-            <Route path="/weddings/:wedding_id" element={<EditWedding />} />
-            <Route path="/weddings/:wedding_id/guests" element={<Guests />} />
-            <Route path="/weddings/:weddin_id/guest/:guest_id" element={<EditGuest />} />
-            <Route path="/weddings/addwedding" element={<NewWedding />} />
-            <Route path="/weddings/:wedding_id/addguestslist" element={<AddGuestsList />} />
+      <AuthProvider>
+        <WeddingsProvider>
+          <GuestsProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Rutas públicas */}
+                <Route path="/" element={<Login />} />
+                
+                {/* Rutas privadas */}
+                <Route
+                  path="/weddings"
+                  element={
+                    <PrivateRoute>
+                      <Weddings />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/weddings/:wedding_id"
+                  element={
+                    <PrivateRoute>
+                      <EditWedding />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/weddings/:wedding_id/guests"
+                  element={
+                    <PrivateRoute>
+                      <Guests />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/weddings/:wedding_id/guest/:guest_id"
+                  element={
+                    <PrivateRoute>
+                      <EditGuest />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/weddings/addwedding"
+                  element={
+                    <PrivateRoute>
+                      <NewWedding />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/weddings/:wedding_id/addguestslist"
+                  element={
+                    <PrivateRoute>
+                      <AddGuestsList />
+                    </PrivateRoute>
+                  }
+                />
 
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="*" element={<NotFound />} />
-            <Route path="/" element={<Login />} />
-          </Routes>
-        </BrowserRouter>
-        </GuestsProvider>
-      </WeddingsProvider>
+                <Route
+                  path="/dashboard"
+                  element={
+                    <PrivateRoute>
+                      <Dashboard />
+                    </PrivateRoute>
+                  }
+                />
+
+                {/* Not found */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </GuestsProvider>
+        </WeddingsProvider>
+      </AuthProvider>
     </LocalizationProvider>
   );
 }

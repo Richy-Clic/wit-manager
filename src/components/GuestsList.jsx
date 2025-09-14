@@ -1,28 +1,64 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, Button, CircularProgress, Tooltip } from "@mui/material";
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableCell,
+  Button,
+  Tooltip,
+  CircularProgress
+} from "@mui/material";
 import { StyledTableCell } from "../styles/index.js";
 import DeleteGuestConfirm from "../components/DeleteGuestConfirm.jsx";
-import { GuestsContext } from "../context/GuestsProvider.jsx";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import supabase from "../lib/supabaseClient";
 
 const columns = [
   { id: "index", label: "ID" },
   { id: "name", label: "Nombre Invitado", minWidth: 150 },
   { id: "phone", label: "Teléfono" },
   { id: "mate", label: "Acompañante" },
-  { id: "status", label: "Estatus" },
-  { id: "acciones", minWidth: 150 }
+  { id: "attendance", label: "Asistencia" },
+  { id: "acciones", minWidth: 100 }
 ];
 
 export default function GuestsList() {
-  const {wedding_id} = useParams(); // obtiene el uuid_wedding de la URL
-  const {guests, getGuests} = useContext(GuestsContext);
+  const { wedding_id } = useParams();
+  const [guests, setGuests] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [row, setRow] = useState({});
+
+  const fetchGuests = async () => {
+    if (!wedding_id) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("guests")
+        .select("*")
+        .eq("wedding_id", wedding_id);
+
+      if (error) throw error;
+      setGuests(data || []);
+    } catch (err) {
+      console.error("Error fetching guests:", err);
+      setGuests([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGuests();
+  }, [wedding_id]);
 
   const openAlertConfirm = (guest) => {
     setRow(guest);
@@ -31,9 +67,18 @@ export default function GuestsList() {
 
   const closeAlertConfirm = () => {
     setOpenModal(false);
-    // opcional: refrescar lista después de eliminar
-    getGuests(wedding_id);
+    fetchGuests();
   };
+
+  const getStringAttendance = (state) => {
+    const states = new Map([
+      [1, { label: "Pending", color: "black", bg: "orange" }],
+      [2, { label: "Confirmed", color: "white", bg: "green" }],
+      [3, { label: "Declined", color: "white", bg: "red" }],
+    ]);
+
+    return states.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
+  }
 
   const handleChangePage = (event, newPage) => setPage(newPage);
   const handleChangeRowsPerPage = (event) => {
@@ -41,13 +86,14 @@ export default function GuestsList() {
     setPage(0);
   };
 
-  useEffect(() => {
-    console.log(wedding_id);
-    
-    if (wedding_id) {
-      getGuests(wedding_id);
-    }
-  }, [wedding_id]);
+  const paginatedGuests = useMemo(() => {
+    return guests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [guests, page, rowsPerPage]);
+
+  if (loading)
+    return <CircularProgress style={{ margin: 50, display: "block", marginLeft: "auto", marginRight: "auto" }} />;
+  if (!guests.length)
+    return <div style={{ textAlign: "center", marginTop: 50 }}>No hay invitados registrados</div>;
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -63,47 +109,38 @@ export default function GuestsList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {guests && guests.length > 0 ? (
-              guests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((guest, index) => {
-                const guestName = guest.guest_lastName 
-                  ? `${guest.guest_names} ${guest.guest_lastName}` 
-                  : guest.guest_names;
-                return (
-                  <TableRow hover key={guest.uuid}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{guestName}</TableCell>
-                    <TableCell>{guest.telephone}</TableCell>
-                    <TableCell>{guest.mate}</TableCell>
-                    <TableCell>{guest.attendance}</TableCell>
-                    <TableCell>
-                      <Link to={`/weddings/${guest.uuid_wedding}/guest/${guest.uuid}`}>
-                        <Tooltip arrow title="Editar">
-                          <Button variant="text" color="warning"><EditIcon /></Button>
-                        </Tooltip>
-                      </Link>
-                      <Tooltip arrow title="Eliminar">
-                        <Button variant="text" color="error" onClick={() => openAlertConfirm(guest)}>
-                          <DeleteIcon />
-                        </Button>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
-                  <CircularProgress />
+            {paginatedGuests.map((g, index) => (
+              <TableRow hover key={g.id}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{g.name}</TableCell>
+                <TableCell>{g.phone}</TableCell>
+                <TableCell>{g.mate}</TableCell>
+                <TableCell>
+                  <mark style={{ backgroundColor: getStringAttendance(g.attendance).bg, padding: '6px 8px', borderRadius: '4px', color: getStringAttendance(g.attendance).color }}>
+                    {getStringAttendance(g.attendance).label}
+                  </mark>
+                </TableCell>
+                <TableCell>
+                  <Link to={`/weddings/${wedding_id}/guest/${g.uuid}`}>
+                    <Tooltip arrow title="Editar">
+                      <Button variant="text" color="warning"><EditIcon /></Button>
+                    </Tooltip>
+                  </Link>
+                  <Tooltip arrow title="Eliminar">
+                    <Button variant="text" color="error" onClick={() => openAlertConfirm(g)}>
+                      <DeleteIcon />
+                    </Button>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
-            )}
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, 100]}
         component="div"
-        count={guests ? guests.length : 0}
+        count={guests.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

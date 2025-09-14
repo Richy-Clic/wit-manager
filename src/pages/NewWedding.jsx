@@ -47,7 +47,7 @@ export default function NewWedding() {
   };
 
   return (
-    <Grid container spacing={1} justifyContent="center">
+    <Grid container spacing={2} justifyContent="center">
       <Navbar />
       <Grid item xs={12} sm={8} md={5} lg={4} mt={4}>
         <Typography variant="h4">Nueva Boda</Typography>

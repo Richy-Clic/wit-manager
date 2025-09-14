@@ -3,12 +3,12 @@ import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, Ta
 import { Link } from "react-router-dom";
 import { StyledTableCell } from "../styles/index.js";
 import { useWeddings } from "../hooks/useWeddings.js";
+import { format, parseISO } from "date-fns";
+import { es } from 'date-fns/locale';
 import AlertConfirm from "../components/AlertConfirm.jsx";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ViewListIcon from '@mui/icons-material/ViewList';
-import { format, parseISO } from "date-fns";
-import { es } from 'date-fns/locale';
 
 
 
@@ -23,7 +23,6 @@ const columns = [
 
 
 export default function Weddings() {
-
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const { weddings, loading } = useWeddings();
@@ -92,7 +91,7 @@ export default function Weddings() {
                     {getStringState(w.state).label}
                   </mark>
                 </TableCell>
-                <TableCell align={w.align}>
+                <TableCell>
                   <Link to={`/weddings/${w.id}`}>
                     <Tooltip arrow title="Editar">
                       <Button variant="text" color="warning"><EditIcon /></Button>

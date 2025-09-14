@@ -6,11 +6,11 @@ import { Link } from "react-router-dom";
 const Weddings = () => {
   return (
 
-    <Grid container spacing={1}>
-      <Navbar />
+    <Grid container spacing={2}>
 
+      <Navbar />
       <Container maxWidth="lg">
-        
+      
         <Grid item xs={12} mt={4} mb={1} container justifyContent="space-between">
           <Grid item>
             <Typography variant="h4">Lista de Bodas</Typography>
@@ -27,9 +27,7 @@ const Weddings = () => {
             <WeddingsList />
           </Box>
         </Grid>
-
       </Container>
-
     </Grid >
 
   );

@@ -7,22 +7,25 @@ export const GuestsContext = createContext();
 
 export const GuestsProvider = ({ children }) => {
   const [guests, setGuests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const getGuests = async (wedding_id) => {
-    if (!wedding_id) {
-      setGuests([]);
-      return;
-    }
-    const { data, error } = await supabase
-      .from("guests")
-      .select("*")
-      .eq("wedding_id", wedding_id);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("guests")
+        .select("*")
+        .eq("wedding_id", wedding_id);
 
-    if (error) {
+      if (error) throw error;
+
+      setGuests(data);
+    } catch (error) {
       console.error("Error fetching guests:", error);
-      return;
+      setGuests([]);
+    } finally {
+      setLoading(false);
     }
-    setGuests(data);
   };
 
   const addGuest = async (guest) => {
@@ -52,9 +55,19 @@ export const GuestsProvider = ({ children }) => {
   };
 
   return (
-      <GuestsContext.Provider value={{ guests, getGuests, addGuest, editGuest, deleteGuest }}>
-    {children}
-  </GuestsContext.Provider>
+    <GuestsContext.Provider
+      value={{
+        guests,
+        getGuests,
+        addGuest,
+        editGuest,
+        deleteGuest,
+        loading,
+        setLoading
+      }}
+    >
+      {children}
+    </GuestsContext.Provider>
   );
 };
 
