@@ -139,7 +139,6 @@ export const WeddingsProvider = ({ children }) => {
         { event: "*", schema: "public", table: "weddings" },      
         (payload) => {
           console.log("Cambio en weddings:", payload);
-          console.log(getWeddings(), "dentro de channel"),  
           getWeddings();
         }
       )

@@ -9,98 +9,90 @@ import Login from "./pages/Login.jsx";
 import Profile from "./pages/Profile.jsx";
 import AddGuestsList from "./pages/AddGuestsList.jsx";
 import PrivateRoute from "./components/Privaterouter.jsx";
+
 import { WeddingsProvider } from "./context/WeddingsProvider.jsx";
 import { GuestsProvider } from "./context/GuestsProvider.jsx";
-import { AuthProvider } from "./context/AuthProvider.jsx"; // 👈 importante
+import { AuthProvider } from "./context/AuthProvider.jsx";
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+
+// 👇 Componente para agrupar las rutas de una boda
+function GuestRoutes() {
+  return (
+    <GuestsProvider>
+      <Routes>
+        <Route path="" element={<EditWedding />} />
+        <Route path="guests" element={<Guests />} />
+        <Route path="guest/:guest_id" element={<EditGuest />} />
+        <Route path="addguestslist" element={<AddGuestsList />} />
+      </Routes>
+    </GuestsProvider>
+  );
+}
 
 function App() {
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <AuthProvider>
         <WeddingsProvider>
-          <GuestsProvider>
-            <BrowserRouter>
-              <Routes>
-                {/* Rutas públicas */}
-                <Route path="/" element={<Login />} />
-                
-                {/* Rutas privadas */}
-                <Route
-                  path="/weddings"
-                  element={
-                    <PrivateRoute>
-                      <Weddings />
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/weddings/:wedding_id"
-                  element={
-                    <PrivateRoute>
-                      <EditWedding />
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/weddings/:wedding_id/guests"
-                  element={
-                    <PrivateRoute>
-                      <Guests />
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/weddings/:wedding_id/guest/:guest_id"
-                  element={
-                    <PrivateRoute>
-                      <EditGuest />
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/weddings/addwedding"
-                  element={
-                    <PrivateRoute>
-                      <NewWedding />
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="/weddings/:wedding_id/addguestslist"
-                  element={
-                    <PrivateRoute>
-                      <AddGuestsList />
-                    </PrivateRoute>
-                  }
-                />
+          <BrowserRouter>
+            <Routes>
+              {/* Rutas públicas */}
+              <Route path="/" element={<Login />} />
 
-                <Route
-                  path="/dashboard"
-                  element={
-                    <PrivateRoute>
-                      <Dashboard />
-                    </PrivateRoute>
-                  }
-                />
+              {/* Rutas privadas */}
+              <Route
+                path="/weddings"
+                element={
+                  <PrivateRoute>
+                    <Weddings />
+                  </PrivateRoute>
+                }
+              />
 
-                <Route
-                  path="/profile"
-                  element={
-                    <PrivateRoute>
-                      <Profile />
-                    </PrivateRoute>
-                  }
-                />
+              <Route
+                path="/weddings/addwedding"
+                element={
+                  <PrivateRoute>
+                    <NewWedding />
+                  </PrivateRoute>
+                }
+              />
 
-                {/* Not found */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </GuestsProvider>
+              {/* 👇 Todas las rutas que dependen de wedding_id */}
+              <Route
+                path="/weddings/:wedding_id/*"
+                element={
+                  <PrivateRoute>
+                    <GuestRoutes />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route
+                path="/dashboard"
+                element={
+                  <PrivateRoute>
+                    <Dashboard />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route
+                path="/profile"
+                element={
+                  <PrivateRoute>
+                    <Profile />
+                  </PrivateRoute>
+                }
+              />
+
+              {/* Not found */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
         </WeddingsProvider>
       </AuthProvider>
     </LocalizationProvider>

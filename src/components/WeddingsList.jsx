@@ -23,9 +23,9 @@ const columns = [
 
 
 export default function Weddings() {
+  const { weddings, loading } = useWeddings();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const { weddings, loading } = useWeddings();
   const [openModal, setOpenModal] = useState(false);
   const [row, setRow] = useState({});
 

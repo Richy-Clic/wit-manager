@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar.jsx";
 import { Link, useParams } from "react-router-dom";
 
 const Weddings = () => {
-  const { wedding } = useParams();
+  const { wedding_id } = useParams();
 
   return (
     <Grid container spacing={2}>
@@ -25,7 +25,7 @@ const Weddings = () => {
               + Nuevo Invitado
             </Button>
 
-            <Link to={`/weddings/${wedding}/addguestslist`}>
+            <Link to={`/weddings/${wedding_id}/addguestslist`}>
               <Button variant="contained" color="success">
                 Subir lista
               </Button>
@@ -35,7 +35,7 @@ const Weddings = () => {
         </Grid>
         <Grid item xs={12}>
           <Box>
-            <GuestsList uuid={wedding} />
+            <GuestsList/>
           </Box>
         </Grid>
         <Grid container item xs={11} justifyContent="flex-end">

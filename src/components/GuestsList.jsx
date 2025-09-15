@@ -1,23 +1,11 @@
-import { useEffect, useState, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TableCell,
-  Button,
-  Tooltip,
-  CircularProgress
-} from "@mui/material";
+import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, Button, Tooltip, CircularProgress } from "@mui/material";
 import { StyledTableCell } from "../styles/index.js";
+import { useGuests } from "../hooks/useGuests.js";
 import DeleteGuestConfirm from "../components/DeleteGuestConfirm.jsx";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import supabase from "../lib/supabaseClient";
 
 const columns = [
   { id: "index", label: "ID" },
@@ -29,36 +17,12 @@ const columns = [
 ];
 
 export default function GuestsList() {
-  const { wedding_id } = useParams();
-  const [guests, setGuests] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { guests, loading} = useGuests();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [row, setRow] = useState({});
-
-  const fetchGuests = async () => {
-    if (!wedding_id) return;
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("guests")
-        .select("*")
-        .eq("wedding_id", wedding_id);
-
-      if (error) throw error;
-      setGuests(data || []);
-    } catch (err) {
-      console.error("Error fetching guests:", err);
-      setGuests([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchGuests();
-  }, [wedding_id]);
+  const { wedding_id } = useParams();
 
   const openAlertConfirm = (guest) => {
     setRow(guest);
@@ -67,7 +31,15 @@ export default function GuestsList() {
 
   const closeAlertConfirm = () => {
     setOpenModal(false);
-    fetchGuests();
+  };
+
+   const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+    const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
   };
 
   const getStringAttendance = (state) => {
@@ -80,20 +52,10 @@ export default function GuestsList() {
     return states.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
   }
 
-  const handleChangePage = (event, newPage) => setPage(newPage);
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
+    if (loading) return <CircularProgress style={{ margin: 50, display: "block", marginLeft: "auto", marginRight: "auto" }} />;
+    if (!guests?.length) return <div style={{ textAlign: "center", marginTop: 50 }}>No tienes invitados registrados</div>;
 
-  const paginatedGuests = useMemo(() => {
-    return guests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [guests, page, rowsPerPage]);
 
-  if (loading)
-    return <CircularProgress style={{ margin: 50, display: "block", marginLeft: "auto", marginRight: "auto" }} />;
-  if (!guests.length)
-    return <div style={{ textAlign: "center", marginTop: 50 }}>No hay invitados registrados</div>;
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -109,8 +71,8 @@ export default function GuestsList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedGuests.map((g, index) => (
-              <TableRow hover key={g.id}>
+            {guests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((g, index) => (
+              <TableRow key={g.id} hover>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{g.name}</TableCell>
                 <TableCell>{g.phone}</TableCell>
@@ -121,7 +83,7 @@ export default function GuestsList() {
                   </mark>
                 </TableCell>
                 <TableCell>
-                  <Link to={`/weddings/${wedding_id}/guest/${g.uuid}`}>
+                  <Link to={`/weddings/${wedding_id}/guest/${g.id}`}>
                     <Tooltip arrow title="Editar">
                       <Button variant="text" color="warning"><EditIcon /></Button>
                     </Tooltip>

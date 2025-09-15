@@ -3,23 +3,27 @@ import { TextField, Box, Button, Grid, Typography} from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
+import { useWeddings } from "../hooks/useWeddings.js";
+import { useGuests } from "../hooks/useGuests.js";
 
 export default function EditGuest() {
-  const { wedding, guestId } = useParams();
+  const { wedding_id } = useParams();
   const [guest, setGuest] = useState({})
+  const { weddings } = useWeddings();
 
-  const getGuest = async (uui_wedding, uuid_guest) => {
-    try {
-      const response = await axios.get(`http://localhost:3001/wedding/${uui_wedding}/guest/${uuid_guest}`);
-      setGuest({ ...response.data.guest[0]});
-    } catch (error) {
-      console.log(`Ocurrió un error al obtener la información de la boda ${wedding}:`, error);
-    }
-  };
+ 
 
   useEffect(() => {
-    getGuest(wedding, guestId);
-  }, []);
+      if (weddings && weddings.length > 0) {
+        const w = weddings.find((w) => w.id === wedding_id);
+        if (w) {
+          setWeddingData({
+            ...w,
+            date: moment(w.date),
+          });
+        }
+      }
+    }, [wedding_id, weddings]);
 
   const handleChange = (id, value) => {
     setGuest({ ...guest, [id]: value });
@@ -28,9 +32,9 @@ export default function EditGuest() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try{
-      const response = await axios.put(`http://localhost:3001/wedding/${wedding}/guest/${guest.uuid}`, guest);
+      const response = await axios.put(`http://localhost:3001/wedding/${wedding_id}/guest/${guest.uuid}`, guest);
       console.log("Se actualizó con éxito la boda:", response);
-      window.location.href = `http://localhost:5173/weddings/${wedding}/guests`;
+      window.location.href = `http://localhost:5173/weddings/${wedding_id}/guests`;
     } catch (error) {
       console.log('Ocurrio un error al editar la información de la boda', error);
     }
@@ -91,7 +95,7 @@ export default function EditGuest() {
           />
           <Grid item xs={12}>
             <Box mt={2} display="flex" justifyContent="flex-end">
-              <Link to="/weddings">
+              <Link to={`/weddings/${wedding_id}/guests`}>
                 <Button type="submit" style={{ marginRight: '10px' }}>
                   Cancelar
                 </Button>
