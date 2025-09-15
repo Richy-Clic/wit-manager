@@ -1,5 +1,5 @@
 // src/context/GuestsProvider.jsx
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom"; // 👈 import correcto
 import supabase from "../lib/supabaseClient";
 import PropTypes from "prop-types";
@@ -11,8 +11,9 @@ export const GuestsProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const { wedding_id } = useParams();
 
-  const getGuests = async () => {
-    if (!wedding_id) return;
+
+  const getGuests = useCallback(async () => {
+    if (!wedding_id) throw new Error("No se proporcionó wedding_id");
 
     setLoading(true);
     try {
@@ -30,7 +31,7 @@ export const GuestsProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [wedding_id]);
 
   // const addGuest = async (guest) => {
   //   const { data, error } = await supabase.from("guests").insert([guest]);
@@ -84,7 +85,7 @@ export const GuestsProvider = ({ children }) => {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [wedding_id]); // if wedding_id changes, re-run the effect
+  }, [wedding_id, getGuests]); // if wedding_id changes, re-run the effect
 
   return (
     <GuestsContext.Provider
