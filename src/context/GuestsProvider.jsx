@@ -42,17 +42,23 @@ export const GuestsProvider = ({ children }) => {
   //   setGuests((prev) => [...prev, data[0]]);
   // };
 
-  // const editGuest = async (uuid, guest) => {
-  //   const { data, error } = await supabase
-  //     .from("guests")
-  //     .update(guest)
-  //     .eq("uuid", uuid);
-  //   if (error) {
-  //     console.error("Error editing guest:", error);
-  //     return;
-  //   }
-  //   setGuests((prev) => prev.map((g) => (g.uuid === uuid ? data[0] : g)));
-  // };
+  const updateGuest = async (id, updates) => {
+    try {
+      const { data, error } = await supabase
+        .from("guests")
+        .update(updates)
+        .eq("id", id)
+        .select();
+
+      if (error) throw error;
+
+      setGuests((prev) => prev.map((g) => (g.id === id ? data[0] : g)));
+      return data[0];
+    } catch (error) {
+      console.error("Error updating guest:", error);
+      throw new Error("Error updating guest", error);
+    }
+  };
 
   // const deleteGuest = async (uuid) => {
   //   const { error } = await supabase.from("guests").delete().eq("uuid", uuid);
@@ -93,7 +99,7 @@ export const GuestsProvider = ({ children }) => {
         guests,
         getGuests,
         // addGuest,
-        // editGuest,
+        updateGuest,
         // deleteGuest,
         loading,
         setLoading,
