@@ -5,6 +5,7 @@ import EditWedding from "./pages/EditWedding.jsx";
 import EditGuest from "./pages/EditGuest.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Guests from "./pages/Guests.jsx";
+import NewGuest from "./pages/newGuest.jsx";
 import Login from "./pages/Login.jsx";
 import Profile from "./pages/Profile.jsx";
 import AddGuestsList from "./pages/AddGuestsList.jsx";
@@ -25,6 +26,7 @@ function GuestRoutes() {
       <Routes>
         <Route path="" element={<EditWedding />} />
         <Route path="guests" element={<Guests />} />
+        <Route path="newguest" element={<NewGuest/>} />
         <Route path="guest/:guest_id" element={<EditGuest />} />
         <Route path="addguestslist" element={<AddGuestsList />} />
       </Routes>

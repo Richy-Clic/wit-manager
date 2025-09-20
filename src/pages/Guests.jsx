@@ -1,10 +1,15 @@
 import GuestsList from "../components/GuestsList.jsx";
 import { Grid, Box, Button, Typography, Container } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate} from "react-router-dom";
 
 const Weddings = () => {
   const { wedding_id } = useParams();
+   const navigate = useNavigate();
+
+  const goToNewGuest = () => {
+    navigate(`/weddings/${wedding_id}/newguest`);
+  }
 
   return (
     <Grid container spacing={2}>
@@ -21,7 +26,7 @@ const Weddings = () => {
               </Button>
             </Link>
 
-            <Button variant="contained" color="info" style={{ marginRight: '10px' }}>
+            <Button variant="contained" onClick={goToNewGuest} color="info" style={{ marginRight: '10px' }}>
               + Nuevo Invitado
             </Button>
 
