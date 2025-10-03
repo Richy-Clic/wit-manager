@@ -3,15 +3,43 @@ import { TextField, Box, Button, Grid, Typography, MenuItem } from "@mui/materia
 import Navbar from "../components/Navbar.jsx";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import { useGuests } from "../hooks/useGuests.js";
+import { CustomizedSnackbars } from "../components/Snackbar.jsx";
+import { useNavigate } from "react-router-dom";
 
 export default function NewGuestForm() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [mateId, setMateId] = useState(null);
+  const [mateId, setMateId] = useState("");
   const { wedding_id } = useParams();
+  const { addGuest } = useGuests();
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    try {
+      const payload = {
+      name,
+      phone,
+      mate_id: mateId || null,
+      wedding_id
+    };
+
+    await addGuest(payload);
+    
+    setSnackbar({open: true, message: "Invitado creado con éxito", severity: "success"});
+
+    setTimeout(() => {
+      navigate(`/weddings/${wedding_id}/guests`);
+    }, 2000);
+    } catch (error) {
+      setSnackbar({open: true, message: "Error al crear el invitado: " + error.message, severity: "error"});
+    }
+
+    
   };
 
   return (
@@ -75,6 +103,7 @@ export default function NewGuestForm() {
           </Grid>
         </Box>
       </Grid>
+      <CustomizedSnackbars snackbar={snackbar} setSnackbar={setSnackbar}/>
     </Grid>
   );
 }

@@ -3,11 +3,13 @@ import { TextField, Box, Button, Grid, Typography, MenuItem } from "@mui/materia
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useWeddings } from "../hooks/useWeddings.js";
+import { CustomizedSnackbars } from "../components/Snackbar.jsx";
 import Navbar from "../components/Navbar.jsx";
 import moment from 'moment';
 
 export default function EditWedding() {
   const { wedding_id } = useParams();
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const navigate = useNavigate();
   const { weddings, updateWedding, loadingTemplates, templates } = useWeddings();
   const [weddingData, setWeddingData] = useState({
@@ -49,11 +51,14 @@ export default function EditWedding() {
       };
 
       await updateWedding(wedding_id, updatedData);
-      alert("Boda actualizada con éxito ✅");
-      navigate("/weddings");
+      // alert("");
+      setSnackbar({open: true, message: "Boda actualizada con éxito", severity: "success"});
+      setTimeout(() => {
+         navigate("/weddings");
+      }, 2000);
 
     } catch (error) {
-      alert("Ocurrió un error al actualizar la boda ❌ " + error.message);
+      setSnackbar({open: true, message: "Error al actualizar la boda: " + error.message, severity: "error"});
     }
   };
 
@@ -154,6 +159,7 @@ export default function EditWedding() {
           </Grid>
         </Box>
       </Grid>
+      <CustomizedSnackbars snackbar={snackbar} setSnackbar={setSnackbar}/>
     </Grid>
   );
 }

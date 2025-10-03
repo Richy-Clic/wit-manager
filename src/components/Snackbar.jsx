@@ -2,26 +2,26 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import PropTypes from 'prop-types';  // Importar PropTypes
 
-export const CustomizedSnackbars = ({ state, setState, message }) => {
+export const CustomizedSnackbars = ({ snackbar, setSnackbar}) => {
 
     const handleClose = (reason) => {
         if (reason === 'clickaway') {
             return;
         }
 
-        setState(false);
+        setSnackbar({ ...setSnackbar, open: false });
     };
-
+    
     return (
         <div>
-            <Snackbar open={state} autoHideDuration={6000} onClose={handleClose}>
+            <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleClose}>
                 <Alert
                     onClose={handleClose}
-                    severity="success"
+                    severity={snackbar.severity || "info"}
                     variant="filled"
                     sx={{ width: '100%' }}
                 >
-                    {message}
+                    {snackbar.message}
                 </Alert>
             </Snackbar>
         </div>
@@ -30,7 +30,10 @@ export const CustomizedSnackbars = ({ state, setState, message }) => {
 
 // Validación de las props
 CustomizedSnackbars.propTypes = {
-    state: PropTypes.bool.isRequired,
-    setState: PropTypes.func.isRequired,
-    message: PropTypes.string
+    snackbar: PropTypes.shape({
+        open: PropTypes.bool.isRequired,
+        message: PropTypes.string.isRequired,
+        severity: PropTypes.oneOf(['success', 'info', 'warning', 'error']).isRequired,
+    }).isRequired,
+    setSnackbar: PropTypes.func.isRequired,
 };

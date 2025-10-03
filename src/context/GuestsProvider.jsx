@@ -1,6 +1,6 @@
 // src/context/GuestsProvider.jsx
 import { createContext, useState, useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom"; // 👈 import correcto
+import { useParams } from "react-router-dom";
 import supabase from "../lib/supabaseClient";
 import PropTypes from "prop-types";
 
@@ -33,14 +33,23 @@ export const GuestsProvider = ({ children }) => {
     }
   }, [wedding_id]);
 
-  // const addGuest = async (guest) => {
-  //   const { data, error } = await supabase.from("guests").insert([guest]);
-  //   if (error) {
-  //     console.error("Error adding guest:", error);
-  //     return;
-  //   }
-  //   setGuests((prev) => [...prev, data[0]]);
-  // };
+  const addGuest = async (guest) => {
+    try {
+      const { data, error } = await supabase
+        .from("guests")
+        .insert([guest])
+        .select();
+
+      if (error) throw error;
+
+      setGuests((prev) => [...prev, data[0]]);
+
+      return data;
+    } catch (error) {
+      console.error("Error adding guest:", error);
+      throw new Error("Error adding guest", error);
+    }
+  }
 
   const updateGuest = async (id, updates) => {
     try {
@@ -98,7 +107,7 @@ export const GuestsProvider = ({ children }) => {
       value={{
         guests,
         getGuests,
-        // addGuest,
+        addGuest,
         updateGuest,
         // deleteGuest,
         loading,

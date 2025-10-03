@@ -5,9 +5,11 @@ import { Link } from "react-router-dom";
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useWeddings } from "../hooks/useWeddings.js";
 import { useNavigate } from "react-router-dom";
+import { CustomizedSnackbars } from "../components/Snackbar.jsx";
 
 export default function NewWedding() {
   const { createWedding, templates, loadingTemplates } = useWeddings();
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [formData, setFormData] = useState({
     boyfriend: "",
     girlfriend: "",
@@ -38,11 +40,14 @@ export default function NewWedding() {
 
       await createWedding(payload);
 
-      alert("Boda creada exitosamente ✅");
-      navigate("/weddings");
+      setSnackbar({open: true, message: "Boda creada con éxito", severity: "success"});
+
+      setTimeout(() => {
+        navigate("/weddings");
+      }, 2000);
 
     } catch (error) {
-      alert("Ocurrió un error inesperado ❌: " + error.message);
+      setSnackbar({open: true, message: "Error al crear la boda: " + error.message, severity: "error"});
     }
   };
 
@@ -131,6 +136,7 @@ export default function NewWedding() {
           </Grid>
         </Box>
       </Grid>
+      <CustomizedSnackbars snackbar={snackbar} setSnackbar={setSnackbar}/>
     </Grid>
   );
 }
