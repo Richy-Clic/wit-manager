@@ -6,7 +6,6 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import { useWeddings } from "../hooks/useWeddings.js";
 import { useNavigate } from "react-router-dom";
 import { CustomizedSnackbars } from "../components/Snackbar.jsx";
-
 export default function NewWedding() {
   const { createWedding, templates, loadingTemplates } = useWeddings();
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });

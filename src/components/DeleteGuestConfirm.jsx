@@ -1,22 +1,20 @@
-import React from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
+import { useGuests } from "../hooks/useGuests.js";
+import { CustomizedSnackbars } from "../components/Snackbar.jsx";
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-// import supabase from '../lib/supabaseClient';
 
 export default function DeleteGuestConfirm(props) {
+  const { deleteGuest } = useGuests();
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+
   const handleDelete = async () => {
     try {
-      
-      
-      // const { error } = await supabase
-      //   .from("guests")
-      //   .delete()
-      //   .eq("uuid", uuid);
-
-      // if (!error) setGuests((prev) => prev.filter((g) => g.uuid !== uuid));
+      await deleteGuest(props.row.id);
+      setSnackbar({ open: true, message: "Invitado eliminada con éxito", severity: "success" });
       props.onHide();
     } catch (error) {
-      console.log('Error al intentar eliminar al invitado', error);
+      setSnackbar({ open: true, message: "Error al eliminar el invitado: " + error.message, severity: "error" });
     }
   }
 
@@ -43,6 +41,7 @@ export default function DeleteGuestConfirm(props) {
           </Button>
         </DialogActions>
       </Dialog>
+      <CustomizedSnackbars snackbar={snackbar} setSnackbar={setSnackbar} />
     </React.Fragment>
   );
 }

@@ -69,10 +69,29 @@ export const GuestsProvider = ({ children }) => {
     }
   };
 
-  // const deleteGuest = async (uuid) => {
-  //   const { error } = await supabase.from("guests").delete().eq("uuid", uuid);
-  //   if (!error) setGuests((prev) => prev.filter((g) => g.uuid !== uuid));
-  // };
+
+
+  const deleteGuest = async (id) => {
+    try {
+      const { data, error } = await supabase
+        .from("guests")
+        .delete()
+        .eq("id", id)
+        .select();
+
+      if (error) throw error;
+
+      if (data.length === 0) {
+        console.warn("No se borró ningun Invitado. Revisa tus policies o el id.");
+        return false;
+      }
+      
+      setGuests((prev) => prev.filter((g) => g.id !== id));
+    } catch (error) {
+      console.error("Error deleting guest:", error);
+      throw new Error("Error deleting guest", error);
+    }
+  };
 
   useEffect(() => {
     getGuests();
@@ -109,7 +128,7 @@ export const GuestsProvider = ({ children }) => {
         getGuests,
         addGuest,
         updateGuest,
-        // deleteGuest,
+        deleteGuest,
         loading,
         setLoading,
       }}
