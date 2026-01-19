@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TextField, Box, Button, Grid, Typography, MenuItem } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
 import { Link } from "react-router-dom";
@@ -7,12 +7,14 @@ import { useGuests } from "../hooks/useGuests.js";
 import { CustomizedSnackbars } from "../components/Snackbar.jsx";
 import { useNavigate } from "react-router-dom";
 
+
+
 export default function NewGuestForm() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [mateId, setMateId] = useState("");
+  const [groupid, setGroupId] = useState("");
   const { wedding_id } = useParams();
-  const { addGuest } = useGuests();
+  const { addGuest, getMainGuests, mainGuests, createGroup } = useGuests();
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   const navigate = useNavigate();
@@ -21,26 +23,37 @@ export default function NewGuestForm() {
     e.preventDefault();
 
     try {
-      const payload = {
-      name,
-      phone,
-      mate_id: mateId || null,
-      wedding_id
-    };
+      if (groupid === "new") {
+        setGroupId(await createGroup({
+          wedding_id,
+        }));
+      }
 
-    await addGuest(payload);
-    
-    setSnackbar({open: true, message: "Invitado creado con éxito", severity: "success"});
+      await addGuest({
+        name,
+        phone,
+        group_id: groupid,
+        wedding_id
+      });
 
-    setTimeout(() => {
-      navigate(`/weddings/${wedding_id}/guests`);
-    }, 2000);
+      setSnackbar({ open: true, message: "Invitado creado con éxito", severity: "success" });
+
+      setTimeout(() => {
+        navigate(`/weddings/${wedding_id}/guests`);
+      }, 2000);
     } catch (error) {
-      setSnackbar({open: true, message: "Error al crear el invitado: " + error.message, severity: "error"});
+      setSnackbar({ open: true, message: "Error al crear el invitado: " + error.message, severity: "error" });
     }
-
-    
   };
+
+  useEffect(() => {
+    if (!wedding_id) return;
+    getMainGuests(wedding_id);
+  }, [getMainGuests, wedding_id]);
+
+  useEffect(() => {
+    console.log("mainGuests updated:", mainGuests);
+  }, [mainGuests]);
 
   return (
     <Grid container spacing={2} justifyContent="center">
@@ -68,26 +81,27 @@ export default function NewGuestForm() {
             onChange={(e) => setPhone(e.target.value)}
           />
           <TextField
-            id="mate_id"
+            id="group_id"
             select
-            label="Pareja"
+            label="Invitado de"
             fullWidth
             margin="normal"
-            value={mateId}
-            onChange={(e) => setMateId(e.target.value)}
+            value={groupid}
+            onChange={(e) => setGroupId(e.target.value)}
           >
-            <MenuItem disabled>Cargando...</MenuItem>
-            {/* {loadingGuest ? (
-              <MenuItem disabled>Cargando...</MenuItem>
-            ) : templates.length > 0 ? (
-              templates.map((tpl) => (
-                <MenuItem key={tpl.id} value={tpl.id}>
-                  {tpl.name}
+            <MenuItem value="new">
+              <em>Es invitado principal</em>
+            </MenuItem>
+
+            {mainGuests?.length > 0 ? (
+              mainGuests.map((guest) => (
+                <MenuItem key={guest.id} value={guest.group_id}>
+                  {guest.name}
                 </MenuItem>
               ))
             ) : (
-              <MenuItem disabled>No hay plantillas</MenuItem>
-            )} */}
+              <MenuItem disabled>No hay invitados principales</MenuItem>
+            )}
           </TextField>
           <Grid item xs={12}>
             <Box mt={2} display="flex" justifyContent="flex-end">
@@ -103,7 +117,7 @@ export default function NewGuestForm() {
           </Grid>
         </Box>
       </Grid>
-      <CustomizedSnackbars snackbar={snackbar} setSnackbar={setSnackbar}/>
+      <CustomizedSnackbars snackbar={snackbar} setSnackbar={setSnackbar} />
     </Grid>
   );
 }

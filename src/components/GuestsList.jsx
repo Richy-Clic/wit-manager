@@ -11,13 +11,13 @@ const columns = [
   { id: "index", label: "ID" },
   { id: "name", label: "Nombre Invitado", minWidth: 150 },
   { id: "phone", label: "Teléfono" },
-  { id: "mate", label: "Acompañante" },
+  { id: "mate", label: "Invitado por" },
   { id: "attendance", label: "Asistencia" },
   { id: "acciones", minWidth: 100 }
 ];
 
 export default function GuestsList() {
-  const { guests, loading} = useGuests();
+  const { guests, loading } = useGuests();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
@@ -33,11 +33,11 @@ export default function GuestsList() {
     setOpenModal(false);
   };
 
-   const handleChangePage = (event, newPage) => {
+  const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
-    const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
@@ -52,8 +52,8 @@ export default function GuestsList() {
     return states.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
   }
 
-    if (loading) return <CircularProgress style={{ margin: 50, display: "block", marginLeft: "auto", marginRight: "auto" }} />;
-    if (!guests?.length) return <div style={{ textAlign: "center", marginTop: 50 }}>No tienes invitados registrados</div>;
+  if (loading) return <CircularProgress style={{ margin: 50, display: "block", marginLeft: "auto", marginRight: "auto" }} />;
+  if (!guests?.length) return <div style={{ textAlign: "center", marginTop: 50 }}>No tienes invitados registrados</div>;
 
 
 
@@ -71,31 +71,40 @@ export default function GuestsList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {guests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((g, index) => (
-              <TableRow key={g.id} hover>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{g.name}</TableCell>
-                <TableCell>{g.phone}</TableCell>
-                <TableCell>{g.mate}</TableCell>
-                <TableCell>
-                  <mark style={{ backgroundColor: getStringAttendance(g.attendance).bg, padding: '6px 8px', borderRadius: '4px', color: getStringAttendance(g.attendance).color }}>
-                    {getStringAttendance(g.attendance).label}
-                  </mark>
-                </TableCell>
-                <TableCell>
-                  <Link to={`/weddings/${wedding_id}/guest/${g.id}`}>
-                    <Tooltip arrow title="Editar">
-                      <Button variant="text" color="warning"><EditIcon /></Button>
-                    </Tooltip>
-                  </Link>
-                  <Tooltip arrow title="Eliminar">
-                    <Button variant="text" color="error" onClick={() => openAlertConfirm(g)}>
-                      <DeleteIcon />
-                    </Button>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
+            {guests
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((g, index) => {
+                const mainGuest = g.groups?.guests?.[0];
+                const mate = g.is_main
+                  ? "—"
+                  : mainGuest?.name ?? "—";
+
+                return (
+                  <TableRow key={g.id} hover>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{g.name}</TableCell>
+                    <TableCell>{g.phone}</TableCell>
+                    <TableCell>{mate}</TableCell>
+                    <TableCell>
+                      <mark style={{ backgroundColor: getStringAttendance(g.attendance).bg, padding: '6px 8px', borderRadius: '4px', color: getStringAttendance(g.attendance).color }}>
+                        {getStringAttendance(g.attendance).label}
+                      </mark>
+                    </TableCell>
+                    <TableCell>
+                      <Link to={`/weddings/${wedding_id}/guest/${g.id}`}>
+                        <Tooltip arrow title="Editar">
+                          <Button variant="text" color="warning"><EditIcon /></Button>
+                        </Tooltip>
+                      </Link>
+                      <Tooltip arrow title="Eliminar">
+                        <Button variant="text" color="error" onClick={() => openAlertConfirm(g)}>
+                          <DeleteIcon />
+                        </Button>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </TableContainer>

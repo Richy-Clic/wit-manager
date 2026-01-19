@@ -8,6 +8,7 @@ export const GuestsContext = createContext();
 
 export const GuestsProvider = ({ children }) => {
   const [guests, setGuests] = useState(null);
+  const [mainGuests, setMainGuests] = useState(null);
   const [loading, setLoading] = useState(true);
   const { wedding_id } = useParams();
 
@@ -19,8 +20,23 @@ export const GuestsProvider = ({ children }) => {
     try {
       const { data, error } = await supabase
         .from("guests")
-        .select("*")
-        .eq("wedding_id", wedding_id);
+        .select(`
+          id,
+          name,
+          phone,
+          attendance,
+          is_main,
+          group_id,
+          groups (
+            guests (
+              id,
+              name,
+              is_main
+            )
+          )
+        `)
+        .eq("wedding_id", wedding_id)
+        .eq("groups.guests.is_main", true);
 
       if (error) throw error;
 
@@ -28,6 +44,28 @@ export const GuestsProvider = ({ children }) => {
     } catch (error) {
       console.error("Error fetching guests:", error);
       setGuests([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [wedding_id]);
+
+  const getMainGuests = useCallback(async () => {
+    if (!wedding_id) return;
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("guests")
+        .select("*")
+        .eq("wedding_id", wedding_id)
+        .eq("is_main", true);
+
+      if (error) throw error;
+
+      setMainGuests(data);
+    } catch (error) {
+      console.error("Error fetching main guests:", error);
+      setMainGuests([]);
     } finally {
       setLoading(false);
     }
@@ -47,7 +85,24 @@ export const GuestsProvider = ({ children }) => {
       return data;
     } catch (error) {
       console.error("Error adding guest:", error);
-      throw new Error("Error adding guest", error);
+      throw error;
+    }
+  }
+
+  const addGuestsBatch = async (guestsToInsert) => {
+    try {
+      const { data, error } = await supabase
+        .from("guests")
+        .insert(guestsToInsert)
+        .select()
+
+      if (error) throw error
+
+      setGuests(prev => [...prev, ...data])
+      return data
+    } catch (error) {
+      console.error("Error batch inserting guests:", error)
+      throw error
     }
   }
 
@@ -65,11 +120,27 @@ export const GuestsProvider = ({ children }) => {
       return data[0];
     } catch (error) {
       console.error("Error updating guest:", error);
-      throw new Error("Error updating guest", error);
+      throw error;
     }
   };
 
+  const updateGuestsBatch = async (updates) => {
+    try {
+      for (const u of updates) {
+        const { error } = await supabase
+          .from("guests")
+          .update({ mate_id: u.mate_id })
+          .eq("id", u.id)
 
+        if (error) throw error
+      }
+
+      await getGuests() // refrescar todo al final
+    } catch (error) {
+      console.error("Error batch updating guests:", error)
+      throw error
+    }
+  }
 
   const deleteGuest = async (id) => {
     try {
@@ -85,13 +156,32 @@ export const GuestsProvider = ({ children }) => {
         console.warn("No se borró ningun Invitado. Revisa tus policies o el id.");
         return false;
       }
-      
+
       setGuests((prev) => prev.filter((g) => g.id !== id));
     } catch (error) {
       console.error("Error deleting guest:", error);
-      throw new Error("Error deleting guest", error);
+      throw error;
     }
   };
+
+  const createGroup = async (group) => {
+    try {
+      const { data, error } = await supabase
+        .from("groups")
+        .insert(group)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return data;
+    } catch (error) {
+      console.error("Error creating group for guest:", error);
+      throw error;
+    }
+  }
+
+
 
   useEffect(() => {
     getGuests();
@@ -127,10 +217,15 @@ export const GuestsProvider = ({ children }) => {
         guests,
         getGuests,
         addGuest,
+        addGuestsBatch,
         updateGuest,
+        updateGuestsBatch,
         deleteGuest,
         loading,
         setLoading,
+        getMainGuests,
+        mainGuests,
+        createGroup
       }}
     >
       {children}
