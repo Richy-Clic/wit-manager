@@ -8,7 +8,7 @@ export const GuestsContext = createContext();
 
 export const GuestsProvider = ({ children }) => {
   const [guests, setGuests] = useState(null);
-  const [mainGuests, setMainGuests] = useState(null);
+  const [mainGuests, setMainGuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const { wedding_id } = useParams();
 
@@ -39,7 +39,7 @@ export const GuestsProvider = ({ children }) => {
         .eq("groups.guests.is_main", true);
 
       if (error) throw error;
-
+          console.log("ghuest from priver", data);
       setGuests(data);
     } catch (error) {
       console.error("Error fetching guests:", error);
@@ -112,10 +112,26 @@ export const GuestsProvider = ({ children }) => {
         .from("guests")
         .update(updates)
         .eq("id", id)
-        .select();
+        .select(`
+          id,
+          name,
+          phone,
+          attendance,
+          is_main,
+          group_id,
+          groups (
+            guests (
+              id,
+              name,
+              is_main
+            )
+          )
+        `)
+        .eq("wedding_id", wedding_id)
+        .eq("groups.guests.is_main", true);
 
       if (error) throw error;
-
+      
       setGuests((prev) => prev.map((g) => (g.id === id ? data[0] : g)));
       return data[0];
     } catch (error) {
@@ -164,11 +180,11 @@ export const GuestsProvider = ({ children }) => {
     }
   };
 
-  const createGroup = async (group) => {
+  const createGroup = async (wedding_id) => {
     try {
       const { data, error } = await supabase
         .from("groups")
-        .insert(group)
+        .insert({ wedding_id })
         .select()
         .single();
 
@@ -181,10 +197,28 @@ export const GuestsProvider = ({ children }) => {
     }
   }
 
+  const deleteGroup = async (group_id) => {
+    try {
+      const { data, error } = await supabase
+        .from("groups")
+        .delete()
+        .eq("id", group_id)
+        .select();
+
+      if (error) throw error;
+
+      return data;
+    } catch (error) {
+      console.error("Error deleting group:", error);
+      throw error;
+    }
+  }
+
 
 
   useEffect(() => {
     getGuests();
+    getMainGuests();
 
     if (!wedding_id) throw new Error("No se proporcionó wedding_id");
 
@@ -202,6 +236,7 @@ export const GuestsProvider = ({ children }) => {
         (payload) => {
           console.log("Cambio en guests:", payload);
           getGuests(); // Refresh the list on any change
+          getMainGuests();
         }
       )
       .subscribe();
@@ -225,7 +260,8 @@ export const GuestsProvider = ({ children }) => {
         setLoading,
         getMainGuests,
         mainGuests,
-        createGroup
+        createGroup,
+        deleteGroup
       }}
     >
       {children}

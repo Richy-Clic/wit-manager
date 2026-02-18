@@ -8,7 +8,7 @@ import { es } from 'date-fns/locale';
 import AlertConfirm from "../components/AlertConfirm.jsx";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import ViewListIcon from '@mui/icons-material/ViewList';
+import PeopleIcon from '@mui/icons-material/People';
 
 
 
@@ -99,7 +99,7 @@ export default function Weddings() {
                   </Link>
                   <Link to={`/weddings/${w.id}/guests`}>
                     <Tooltip arrow title="Lista de invitados">
-                      <Button variant="text" color="success"><ViewListIcon /></Button>
+                      <Button variant="text" color="success"><PeopleIcon /></Button>
                     </Tooltip>
                   </Link>
                   <Tooltip arrow title="Eliminar">

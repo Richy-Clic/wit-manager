@@ -42,11 +42,12 @@ export default function GuestsList() {
     setPage(0);
   };
 
+
   const getStringAttendance = (state) => {
     const states = new Map([
-      [1, { label: "Pending", color: "black", bg: "orange" }],
-      [2, { label: "Confirmed", color: "white", bg: "green" }],
-      [3, { label: "Declined", color: "white", bg: "red" }],
+      [1, { label: "Confirmado", color: "white", bg: "green" }],
+      [2, { label: "Pendiente", color: "black", bg: "orange" }],
+      [3, { label: "Declinado", color: "white", bg: "red" }],
     ]);
 
     return states.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
@@ -81,7 +82,7 @@ export default function GuestsList() {
 
                 return (
                   <TableRow key={g.id} hover>
-                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{page * rowsPerPage + index + 1}</TableCell>
                     <TableCell>{g.name}</TableCell>
                     <TableCell>{g.phone}</TableCell>
                     <TableCell>{mate}</TableCell>
