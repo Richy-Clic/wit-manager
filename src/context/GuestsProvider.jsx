@@ -199,6 +199,8 @@ export const GuestsProvider = ({ children }) => {
 
   const deleteGroup = async (group_id) => {
     try {
+      console.log("from supa", group_id);
+      
       const { data, error } = await supabase
         .from("groups")
         .delete()
