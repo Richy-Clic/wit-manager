@@ -40,16 +40,10 @@ export default function EditGuest() {
         return { ...prev, group_id: value };
       }
 
-      console.log("prev", prev);
-      
-
       const hasSubGuests = guests.some(g =>
         g.group_id === originalGroupId.group_id &&
         g.id !== originalGroupId.id
       );
-
-      console.log("hasSubguests", hasSubGuests);
-      
 
       if (hasSubGuests) {
         alert("No puedes cambiar el invitado principal mientras tenga invitados asociados.");
@@ -57,15 +51,12 @@ export default function EditGuest() {
       }
 
       setChangeMainGuest(true);
-
-      console.log(prev.group_id);
       
       return {
         ...prev,
         is_main: false,
         group_id: value
       };
-      
     });
   };
 
@@ -97,11 +88,7 @@ export default function EditGuest() {
       await updateGuest(guest_id, payload);
 
       //2. delete group_id if it is necessary
-      if (changeMainGuest) {
-        console.log(originalGroupId);
-        
-        await deleteGroup(originalGroupId.group_id);
-      }
+      if (changeMainGuest) await deleteGroup(originalGroupId.group_id);
 
       // 3. confirmation message and navigate back to guests list
       alert("Invitado actualizado con éxito ✅");
