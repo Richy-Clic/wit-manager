@@ -190,6 +190,7 @@ export const GuestsProvider = ({ children }) => {
 
       if (error) throw error;
 
+      getMainGuests(); // refrescar main guests para que el cambio se refleje en la UI
       return data;
     } catch (error) {
       console.error("Error creating group for guest:", error);
@@ -199,8 +200,6 @@ export const GuestsProvider = ({ children }) => {
 
   const deleteGroup = async (group_id) => {
     try {
-      console.log("from supa", group_id);
-      
       const { data, error } = await supabase
         .from("groups")
         .delete()
@@ -209,6 +208,7 @@ export const GuestsProvider = ({ children }) => {
 
       if (error) throw error;
 
+      getMainGuests(); // refrescar main guests para que el cambio se refleje en la UI
       return data;
     } catch (error) {
       console.error("Error deleting group:", error);

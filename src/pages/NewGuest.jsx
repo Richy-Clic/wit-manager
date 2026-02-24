@@ -6,6 +6,8 @@ import { useParams } from "react-router-dom";
 import { useGuests } from "../hooks/useGuests.js";
 import { CustomizedSnackbars } from "../components/Snackbar.jsx";
 import { useNavigate } from "react-router-dom";
+import { toast, Toaster } from "sonner";
+import { StyleSonnar } from "../styles/index.js";
 
 
 
@@ -39,10 +41,16 @@ export default function NewGuestForm() {
       setSnackbar({ open: true, message: "Invitado creado con éxito", severity: "success" });
 
       setTimeout(() => {
-        navigate(`/weddings/${wedding_id}/guests`);
+        navigate(`/weddings/${wedding_id}/guests`, {
+          state: {
+            status: true,
+            message: "Invitado creado con éxito"
+          }
+        });
       }, 2000);
     } catch (error) {
       setSnackbar({ open: true, message: "Error al crear el invitado: " + error.message, severity: "error" });
+      toast.error("Error al crear el invitado: " + error.message);
     }
   };
 
@@ -58,6 +66,11 @@ export default function NewGuestForm() {
   return (
     <Grid container spacing={2} justifyContent="center">
       <Navbar />
+      <Toaster
+        toastOptions={{
+          style: { ...StyleSonnar.error }
+        }}
+      />
       <Grid item xs={12} sm={8} md={5} lg={4} mt={4}>
         <Typography variant="h4">Nuevo Invitado</Typography>
         <Box component="form" onSubmit={handleSubmit}>

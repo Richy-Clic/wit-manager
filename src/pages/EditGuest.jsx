@@ -3,6 +3,9 @@ import { TextField, Box, Button, Grid, Typography, MenuItem } from "@mui/materia
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useGuests } from "../hooks/useGuests.js";
 import Navbar from "../components/Navbar.jsx";
+import { toast, Toaster } from "sonner";
+import { StyleSonnar } from "../styles/index.js";
+
 
 export default function EditGuest() {
   const { guest_id, wedding_id } = useParams();
@@ -36,7 +39,7 @@ export default function EditGuest() {
     }
 
     setGuest(prev => {
-      if (!prev.is_main) {     
+      if (!prev.is_main) {
         return { ...prev, group_id: value };
       }
 
@@ -46,12 +49,12 @@ export default function EditGuest() {
       );
 
       if (hasSubGuests) {
-        alert("No puedes cambiar el invitado principal mientras tenga invitados asociados.");
+        toast.error("No puede dejar de ser principal si tiene invitados asociados.");
         return prev;
       }
 
       setChangeMainGuest(true);
-      
+
       return {
         ...prev,
         is_main: false,
@@ -91,8 +94,12 @@ export default function EditGuest() {
       if (changeMainGuest) await deleteGroup(originalGroupId.group_id);
 
       // 3. confirmation message and navigate back to guests list
-      alert("Invitado actualizado con éxito ✅");
-      navigate(`/weddings/${wedding_id}/guests`);
+      navigate(`/weddings/${wedding_id}/guests`, {
+        state: {
+          status: true,
+          message: "Invitado actualizado con éxito"
+        }
+      });
     } catch (error) {
       console.log("Ocurrió un error al editar", error);
     }
@@ -101,6 +108,11 @@ export default function EditGuest() {
   return (
     <Grid container spacing={1} justifyContent="center">
       <Navbar />
+      <Toaster
+        toastOptions={{
+          style: { ...StyleSonnar.warning }
+        }}
+      />
       <Grid item xs={12} sm={8} md={4} mt={4}>
         <Typography variant="h4">Editar invtiado</Typography>
         <Box component="form" onSubmit={handleSubmit}>

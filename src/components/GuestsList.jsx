@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useState, useEffect} from "react";
+import { Link, useParams, useLocation } from "react-router-dom";
 import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, Button, Tooltip, CircularProgress } from "@mui/material";
-import { StyledTableCell } from "../styles/index.js";
+import { StyledTableCell, StyleSonnar} from "../styles/index.js";
 import { useGuests } from "../hooks/useGuests.js";
 import DeleteGuestConfirm from "../components/DeleteGuestConfirm.jsx";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import { toast, Toaster} from "sonner";
 
 const columns = [
   { id: "index", label: "ID" },
@@ -42,6 +43,15 @@ export default function GuestsList() {
     setPage(0);
   };
 
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log(location);
+    
+    if (location.state?.status) {
+      toast.success(location.state.message);
+    }
+  }, []);
 
   const getStringAttendance = (state) => {
     const states = new Map([
@@ -60,6 +70,11 @@ export default function GuestsList() {
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
+      <Toaster
+        toastOptions={{
+          style: { ...StyleSonnar.success }
+        }}
+      />
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
