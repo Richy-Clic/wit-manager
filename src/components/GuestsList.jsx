@@ -46,8 +46,6 @@ export default function GuestsList() {
   const location = useLocation();
 
   useEffect(() => {
-    console.log(location);
-    
     if (location.state?.status) {
       toast.success(location.state.message);
     }

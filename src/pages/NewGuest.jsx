@@ -4,11 +4,9 @@ import Navbar from "../components/Navbar.jsx";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useGuests } from "../hooks/useGuests.js";
-import { CustomizedSnackbars } from "../components/Snackbar.jsx";
 import { useNavigate } from "react-router-dom";
 import { toast, Toaster } from "sonner";
 import { StyleSonnar } from "../styles/index.js";
-
 
 
 export default function NewGuestForm() {
@@ -16,8 +14,7 @@ export default function NewGuestForm() {
   const [phone, setPhone] = useState("");
   const [groupid, setGroupId] = useState("");
   const { wedding_id } = useParams();
-  const { addGuest, getMainGuests, mainGuests, createGroup } = useGuests();
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const { addGuest, getMainGuests, mainGuests, createGroup, getGuests} = useGuests();
 
   const navigate = useNavigate();
 
@@ -25,31 +22,31 @@ export default function NewGuestForm() {
     e.preventDefault();
 
     try {
+      let newGroupId = groupid;
+      let is_main = false;
+
       if (groupid === "new") {
-        setGroupId(await createGroup({
-          wedding_id,
-        }));
+        let createdGroupId = await createGroup(wedding_id);
+        newGroupId = createdGroupId.id;
+        is_main = true;
       }
 
       await addGuest({
         name,
         phone,
-        group_id: groupid,
-        wedding_id
+        group_id: newGroupId,
+        wedding_id,
+        is_main
       });
+      await getGuests();
 
-      setSnackbar({ open: true, message: "Invitado creado con éxito", severity: "success" });
-
-      setTimeout(() => {
-        navigate(`/weddings/${wedding_id}/guests`, {
-          state: {
-            status: true,
-            message: "Invitado creado con éxito"
-          }
-        });
-      }, 2000);
+      navigate(`/weddings/${wedding_id}/guests`, {
+        state: {
+          status: true,
+          message: "Invitado creado con éxito"
+        }
+      });
     } catch (error) {
-      setSnackbar({ open: true, message: "Error al crear el invitado: " + error.message, severity: "error" });
       toast.error("Error al crear el invitado: " + error.message);
     }
   };
@@ -60,7 +57,6 @@ export default function NewGuestForm() {
   }, [getMainGuests, wedding_id]);
 
   useEffect(() => {
-    console.log("mainGuests updated:", mainGuests);
   }, [mainGuests]);
 
   return (
@@ -130,7 +126,6 @@ export default function NewGuestForm() {
           </Grid>
         </Box>
       </Grid>
-      <CustomizedSnackbars snackbar={snackbar} setSnackbar={setSnackbar} />
     </Grid>
   );
 }

@@ -39,7 +39,6 @@ export const GuestsProvider = ({ children }) => {
         .eq("groups.guests.is_main", true);
 
       if (error) throw error;
-          console.log("ghuest from priver", data);
       setGuests(data);
     } catch (error) {
       console.error("Error fetching guests:", error);
@@ -182,6 +181,8 @@ export const GuestsProvider = ({ children }) => {
 
   const createGroup = async (wedding_id) => {
     try {
+      console.log("from provider", wedding_id);
+      
       const { data, error } = await supabase
         .from("groups")
         .insert({ wedding_id })
