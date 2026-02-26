@@ -126,7 +126,7 @@ export default function GuestsList() {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      <DeleteGuestConfirm show={openModal} onHide={closeAlertConfirm} row={row} />
+      <DeleteGuestConfirm show={openModal} onHide={closeAlertConfirm} row={row} guests={guests} />
     </Paper>
   );
 }
