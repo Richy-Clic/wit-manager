@@ -5,7 +5,7 @@ import EditWedding from "./pages/EditWedding.jsx";
 import EditGuest from "./pages/EditGuest.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Guests from "./pages/Guests.jsx";
-import NewGuest from "./pages/newGuest.jsx";
+import NewGuest from "./pages/NewGuest.jsx";
 import Login from "./pages/Login.jsx";
 import Profile from "./pages/Profile.jsx";
 import AddGuestsList from "./pages/AddGuestsList.jsx";
@@ -19,6 +19,9 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 
+import { Toaster } from "sonner";
+import { StyleSonnar } from "./styles/index.js";
+
 // 👇 Componente para agrupar las rutas de una boda
 function GuestRoutes() {
   return (
@@ -26,7 +29,7 @@ function GuestRoutes() {
       <Routes>
         <Route path="" element={<EditWedding />} />
         <Route path="guests" element={<Guests />} />
-        <Route path="newguest" element={<NewGuest/>} />
+        <Route path="newguest" element={<NewGuest />} />
         <Route path="guest/:guest_id" element={<EditGuest />} />
         <Route path="addguestslist" element={<AddGuestsList />} />
       </Routes>
@@ -40,6 +43,17 @@ function App() {
       <AuthProvider>
         <WeddingsProvider>
           <BrowserRouter>
+            <Toaster
+              richColors
+              toastOptions={{
+                success: {
+                  style: { ...StyleSonnar.success }
+                },
+                error: {
+                  style: { ...StyleSonnar.error }
+                }
+              }}
+            />
             <Routes>
               {/* Rutas públicas */}
               <Route path="/" element={<Login />} />

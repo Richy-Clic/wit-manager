@@ -5,8 +5,7 @@ import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useGuests } from "../hooks/useGuests.js";
 import { useNavigate } from "react-router-dom";
-import { toast, Toaster } from "sonner";
-import { StyleSonnar } from "../styles/index.js";
+import { toast } from "sonner";
 
 
 export default function NewGuestForm() {
@@ -62,11 +61,6 @@ export default function NewGuestForm() {
   return (
     <Grid container spacing={2} justifyContent="center">
       <Navbar />
-      <Toaster
-        toastOptions={{
-          style: { ...StyleSonnar.error }
-        }}
-      />
       <Grid item xs={12} sm={8} md={5} lg={4} mt={4}>
         <Typography variant="h4">Nuevo Invitado</Typography>
         <Box component="form" onSubmit={handleSubmit}>

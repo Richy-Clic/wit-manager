@@ -1,26 +1,24 @@
-import React, {useState} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { useGuests } from "../hooks/useGuests.js";
-import { CustomizedSnackbars } from "../components/Snackbar.jsx";
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import { toast } from 'sonner';
 
 export default function DeleteGuestConfirm(props) {
   const { deleteGuest } = useGuests();
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   const handleDelete = async () => {
     try {
       await deleteGuest(props.row.id);
-      setSnackbar({ open: true, message: "Invitado eliminada con éxito", severity: "success" });
+      toast.success("Invitado eliminado con éxito");
       props.onHide();
     } catch (error) {
-      setSnackbar({ open: true, message: "Error al eliminar el invitado: " + error.message, severity: "error" });
+      toast.error("Error al eliminar el invitado: " + error.message);
     }
   }
 
   return (
     <React.Fragment>
-
       <Dialog
         open={props.show}
         aria-labelledby="alert-dialog-title"
@@ -41,7 +39,6 @@ export default function DeleteGuestConfirm(props) {
           </Button>
         </DialogActions>
       </Dialog>
-      <CustomizedSnackbars snackbar={snackbar} setSnackbar={setSnackbar} />
     </React.Fragment>
   );
 }
