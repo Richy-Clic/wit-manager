@@ -69,7 +69,7 @@ export default function EditGuest() {
 
     try {
       // 1. create new group if the guest is changing to main guest
-      let newGroupId = guest.group_id;
+      let newGroupId = originalGroupId.group_id;
       let newIsMain = guest.is_main;
 
       if (guest.group_id == 2 && !guest.is_main) {
@@ -87,7 +87,7 @@ export default function EditGuest() {
         is_main: newIsMain,
         group_id: newGroupId
       };
-
+      
       await updateGuest(guest_id, payload);
 
       //2. delete group_id if it is necessary
