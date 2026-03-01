@@ -7,6 +7,8 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useGuests } from "../hooks/useGuests.js";
 import { VisuallyHiddenInput } from "../styles/index.js";
 import Papa from "papaparse";
+import { toast } from "sonner";
+
 
 
 // import { supabase } from "../supabaseClient"
@@ -26,7 +28,7 @@ const AddGuestsList = () => {
   const handleUpload = async () => {
     try {
       if (!file?.file) {
-        console.log("No file selected")
+        toast.warning("Por favor selecciona un archivo antes de cargar")
         return
       }
 
