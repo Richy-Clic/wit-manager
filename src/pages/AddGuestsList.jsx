@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
 import { Box, Button, Grid, Typography } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
-import { Link } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useGuests } from "../hooks/useGuests.js";
 import { VisuallyHiddenInput } from "../styles/index.js";
@@ -14,8 +13,9 @@ import { toast } from "sonner";
 // import { supabase } from "../supabaseClient"
 
 const AddGuestsList = () => {
-  const { addGuestsBatch, updateGuestsBatch } = useGuests();
-  const { wedding_id } = useParams();
+  const { importGuestsFromCSV } = useGuests();
+   const { wedding_id } = useParams();
+  const navigate = useNavigate();
   const [file, setfile] = useState({
     status: false,
     file: null,
@@ -31,74 +31,39 @@ const AddGuestsList = () => {
         toast.warning("Por favor selecciona un archivo antes de cargar")
         return
       }
+      const csvData = await parseCSV(file.file);
+      const normalizedGuests = csvData.map((g) => ({
+        n: Number(g.n),
+        nombre: g.nombre?.trim(),
+        telefono: g.telefono?.trim(),
+        pareja: g.pareja ? Number(g.pareja) : null
+      }))
 
-      console.log("Uploading file...")
+      await importGuestsFromCSV(normalizedGuests)
 
-      Papa.parse(file.file, {
-        header: true,
-        skipEmptyLines: true,
-
-        complete: async (results) => {
-          try {
-            const rows = results.data
-
-            console.log("CSV rows:", rows)
-
-            // ─────────────────────────────
-            // 1️⃣ Insertar invitados SIN pareja
-            // ─────────────────────────────
-            const toInsert = rows.map((r) => ({
-              wedding_id: wedding_id,
-              name: r.nombre.trim(),
-              phone: r.telefono || null
-            }))
-
-            const inserted = await addGuestsBatch(toInsert)
-
-            console.log("Inserted:", inserted.length)
-
-            // ─────────────────────────────
-            // 2️⃣ Crear mapa CSV n → UUID real
-            // ─────────────────────────────
-            const idMap = new Map()
-
-            rows.forEach((row, index) => {
-              idMap.set(Number(row.n), inserted[index].id)
-            })
-
-            // ─────────────────────────────
-            // 3️⃣ Resolver parejas
-            // ─────────────────────────────
-            const updates = rows
-              .filter(r => r.pareja)
-              .map(r => ({
-                id: idMap.get(Number(r.n)),
-                mate_id: idMap.get(Number(r.pareja))
-              }))
-              .filter(u => u.id && u.mate_id)
-
-            // ─────────────────────────────
-            // 4️⃣ Aplicar updates
-            // ─────────────────────────────
-            for (const u of updates) {
-              await updateGuestsBatch([u]);
-            }
-
-            console.log("✅ CSV importado correctamente")
-          } catch (err) {
-            console.error("Error procesando CSV:", err)
-          }
-        },
-
-        error: (err) => {
-          console.error("PapaParse error:", err)
+      navigate(`/weddings/${wedding_id}/guests`, {
+        state: {
+          status: true,
+          message: "Lista de invitados importada exitosamente"
         }
-      })
-
+      });
     } catch (error) {
       console.error("Error al cargar archivo:", error)
     }
   }
+
+  const parseCSV = (file) => {
+    return new Promise((resolve, reject) => {
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        dynamicTyping: true,
+        transformHeader: (h) => h.trim(),
+        complete: (results) => resolve(results.data),
+        error: (error) => reject(error)
+      });
+    });
+  };
 
 
   return (

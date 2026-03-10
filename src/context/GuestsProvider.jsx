@@ -14,39 +14,42 @@ export const GuestsProvider = ({ children }) => {
 
 
   const getGuests = useCallback(async () => {
-    if (!wedding_id) throw new Error("No se proporcionó wedding_id");
+  if (!wedding_id) throw new Error("No se proporcionó wedding_id");
 
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("guests")
-        .select(`
-          id,
-          name,
-          phone,
-          attendance,
-          is_main,
-          group_id,
-          groups (
-            guests (
-              id,
-              name,
-              is_main
-            )
+  setLoading(true);
+
+  try {
+    const { data, error } = await supabase
+      .from("guests")
+      .select(`
+        id,
+        name,
+        phone,
+        attendance,
+        is_main,
+        group_id,
+        groups (
+          guests (
+            id,
+            name,
+            is_main
           )
-        `)
-        .eq("wedding_id", wedding_id)
-        .eq("groups.guests.is_main", true);
+        )
+      `)
+      .eq("wedding_id", wedding_id)
+      .eq("is_main", true);   // ← filtras aquí
 
-      if (error) throw error;
-      setGuests(data);
-    } catch (error) {
-      console.error("Error fetching guests:", error);
-      setGuests([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [wedding_id]);
+    if (error) throw error;
+
+    setGuests(data);
+
+  } catch (error) {
+    console.error("Error fetching guests:", error);
+    setGuests([]);
+  } finally {
+    setLoading(false);
+  }
+}, [wedding_id]);
 
   const getMainGuests = useCallback(async () => {
     if (!wedding_id) return;
@@ -88,20 +91,29 @@ export const GuestsProvider = ({ children }) => {
     }
   }
 
-  const addGuestsBatch = async (guestsToInsert) => {
+  const importGuestsFromCSV = async (guests) => {
     try {
-      const { data, error } = await supabase
-        .from("guests")
-        .insert(guestsToInsert)
-        .select()
+      setLoading(true)
 
-      if (error) throw error
+      const { data, error } = await supabase.functions.invoke("import-guests", {
+        body: {
+          guests,
+          wedding_id
+        }
+      })
 
-      setGuests(prev => [...prev, ...data])
+      if (error) {
+        throw error
+      }
+      
+      await getGuests() 
+
       return data
     } catch (error) {
-      console.error("Error batch inserting guests:", error)
+      console.error("Error importing guests from CSV:", error)
       throw error
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -130,7 +142,7 @@ export const GuestsProvider = ({ children }) => {
         .eq("groups.guests.is_main", true);
 
       if (error) throw error;
-      
+
       setGuests((prev) => prev.map((g) => (g.id === id ? data[0] : g)));
       return data[0];
     } catch (error) {
@@ -182,7 +194,7 @@ export const GuestsProvider = ({ children }) => {
   const createGroup = async (wedding_id) => {
     try {
       console.log("from provider", wedding_id);
-      
+
       const { data, error } = await supabase
         .from("groups")
         .insert({ wedding_id })
@@ -255,7 +267,7 @@ export const GuestsProvider = ({ children }) => {
         guests,
         getGuests,
         addGuest,
-        addGuestsBatch,
+        importGuestsFromCSV,
         updateGuest,
         updateGuestsBatch,
         deleteGuest,
