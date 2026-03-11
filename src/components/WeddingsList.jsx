@@ -1,5 +1,17 @@
 import React, { useState } from "react";
-import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, Button, CircularProgress, Tooltip } from "@mui/material";
+import {  Paper,
+  Table,
+  TableBody,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableCell,
+  CircularProgress,
+  Tooltip,
+  Chip,
+  IconButton,
+  Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import { StyledTableCell } from "../styles/index.js";
 import { useWeddings } from "../hooks/useWeddings.js";
@@ -9,6 +21,9 @@ import AlertConfirm from "../components/AlertConfirm.jsx";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import PeopleIcon from '@mui/icons-material/People';
+
+import SearchInput from "../components/SearchInput";
+
 
 
 
@@ -28,6 +43,8 @@ export default function Weddings() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [row, setRow] = useState({});
+    const [search, setSearch] = useState("");
+  
 
   const openAlertConfirm = (row) => {
     setRow(row)
@@ -68,7 +85,28 @@ export default function Weddings() {
 
 
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
+    <Paper
+      elevation={0}
+      sx={{
+        width: "100%",
+        borderRadius: 3,
+        border: "1px solid #eee",
+        overflow: "hidden"
+      }}
+    >
+      <Box
+  sx={{
+    p: 2,
+    borderBottom: "1px solid #eee",
+    background: "#fafafa"
+  }}
+>
+  <SearchInput
+    value={search}
+    onChange={setSearch}
+    placeholder="Buscar boda..."
+  />
+</Box>
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -87,25 +125,39 @@ export default function Weddings() {
                 <TableCell>{getStringDate(w.date)}</TableCell>
                 <TableCell>{w.location}</TableCell>
                 <TableCell>
-                  <mark style={{ backgroundColor: getStringState(w.state).bg, padding: '6px 8px', borderRadius: '4px', color: getStringState(w.state).color }}>
-                    {getStringState(w.state).label}
-                  </mark>
+                  <Chip
+                    label={getStringState(w.state).label}
+                    sx={{
+                      width: "100%",
+                      justifyContent: "center",
+                      backgroundColor: getStringState(w.state).bg,
+                      color: getStringState(w.state).color,
+                      fontWeight: 500,
+                      borderRadius: "8px"
+                    }}
+                  />
                 </TableCell>
                 <TableCell>
                   <Link to={`/weddings/${w.id}`}>
                     <Tooltip arrow title="Editar">
-                      <Button variant="text" color="warning"><EditIcon /></Button>
+                      <IconButton color="warning">
+                        <EditIcon />
+                      </IconButton>
                     </Tooltip>
                   </Link>
+
                   <Link to={`/weddings/${w.id}/guests`}>
                     <Tooltip arrow title="Lista de invitados">
-                      <Button variant="text" color="success"><PeopleIcon /></Button>
+                      <IconButton color="success">
+                        <PeopleIcon />
+                      </IconButton>
                     </Tooltip>
                   </Link>
+
                   <Tooltip arrow title="Eliminar">
-                    <Button variant="text" color="error" onClick={() => openAlertConfirm(w)}>
+                    <IconButton color="error" onClick={() => openAlertConfirm(w)}>
                       <DeleteIcon />
-                    </Button>
+                    </IconButton>
                   </Tooltip>
                 </TableCell>
               </TableRow>

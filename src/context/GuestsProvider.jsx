@@ -151,24 +151,6 @@ export const GuestsProvider = ({ children }) => {
     }
   };
 
-  const updateGuestsBatch = async (updates) => {
-    try {
-      for (const u of updates) {
-        const { error } = await supabase
-          .from("guests")
-          .update({ mate_id: u.mate_id })
-          .eq("id", u.id)
-
-        if (error) throw error
-      }
-
-      await getGuests() // refrescar todo al final
-    } catch (error) {
-      console.error("Error batch updating guests:", error)
-      throw error
-    }
-  }
-
   const deleteGuest = async (id) => {
     try {
       const { data, error } = await supabase
@@ -269,7 +251,6 @@ export const GuestsProvider = ({ children }) => {
         addGuest,
         importGuestsFromCSV,
         updateGuest,
-        updateGuestsBatch,
         deleteGuest,
         loading,
         setLoading,
