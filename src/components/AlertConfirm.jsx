@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { useWeddings } from "../hooks/useWeddings.js";
-import { CustomizedSnackbars } from "../components/Snackbar.jsx";
+import { toast } from "sonner";
 
 export default function AlertConfirm(props) {
   const { deleteWedding } = useWeddings();
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   const handleDelete = async () => {
     try {
       await deleteWedding(props.row.id);
-      setSnackbar({ open: true, message: "Boda eliminada con éxito", severity: "success" });
+      toast.success("Boda eliminada con éxito");
       props.onHide();
     } catch (error) {
-      setSnackbar({ open: true, message: "Error al eliminar la boda: " + error.message, severity: "error" });
+      toast.error("Error al eliminar la boda: " + error.message);
     }
   }
 
@@ -42,7 +41,6 @@ export default function AlertConfirm(props) {
           </Button>
         </DialogActions>
       </Dialog>
-      <CustomizedSnackbars snackbar={snackbar} setSnackbar={setSnackbar} />
     </React.Fragment>
   );
 }

@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { TextField, Box, Button, Grid, Typography, MenuItem } from "@mui/material";
+import { TextField, Box, Button, Grid, MenuItem } from "@mui/material";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useGuests } from "../hooks/useGuests.js";
 import Navbar from "../components/Navbar.jsx";
 import { toast, Toaster } from "sonner";
 import { StyleSonnar } from "../styles/index.js";
+
+import PageTitle from "../components/PageTitle.jsx";
 
 
 export default function EditGuest() {
@@ -114,7 +116,7 @@ export default function EditGuest() {
         }}
       />
       <Grid item xs={12} sm={8} md={4} mt={4}>
-        <Typography variant="h4">Editar invtiado</Typography>
+        <PageTitle>Editar Invitado</PageTitle>
         <Box component="form" onSubmit={handleSubmit}>
           <TextField
             id="name"

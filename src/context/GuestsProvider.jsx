@@ -37,8 +37,7 @@ export const GuestsProvider = ({ children }) => {
         )
       `)
       .eq("wedding_id", wedding_id)
-      .eq("is_main", true);   // ← filtras aquí
-
+        
     if (error) throw error;
 
     setGuests(data);
@@ -102,9 +101,7 @@ export const GuestsProvider = ({ children }) => {
         }
       })
 
-      if (error) {
-        throw error
-      }
+      if (error) throw error
       
       await getGuests() 
 
@@ -175,8 +172,6 @@ export const GuestsProvider = ({ children }) => {
 
   const createGroup = async (wedding_id) => {
     try {
-      console.log("from provider", wedding_id);
-
       const { data, error } = await supabase
         .from("groups")
         .insert({ wedding_id })
@@ -211,8 +206,6 @@ export const GuestsProvider = ({ children }) => {
     }
   }
 
-
-
   useEffect(() => {
     getGuests();
     getMainGuests();
@@ -241,7 +234,7 @@ export const GuestsProvider = ({ children }) => {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [wedding_id, getGuests]); // if wedding_id changes, re-run the effect
+  }, [wedding_id, getGuests]);
 
   return (
     <GuestsContext.Provider

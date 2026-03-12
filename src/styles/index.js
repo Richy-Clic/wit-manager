@@ -39,3 +39,10 @@ export const StyleSonnar = {
     borderRadius: "8px"
   }
 };
+
+export const StyleButton = {
+  borderRadius: 30,
+  textTransform: "none",
+  px: 3,
+  fontWeight: 600
+};

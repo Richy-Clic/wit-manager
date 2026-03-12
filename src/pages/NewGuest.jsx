@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { TextField, Box, Button, Grid, Typography, MenuItem } from "@mui/material";
+import { TextField, Box, Button, Grid, MenuItem } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useGuests } from "../hooks/useGuests.js";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+
+import PageTitle from "../components/PageTitle.jsx";
 
 
 export default function NewGuestForm() {
@@ -23,7 +25,8 @@ export default function NewGuestForm() {
     try {
       let newGroupId = groupid;
       let is_main = false;
-
+      console.log(groupid);
+      
       if (groupid === "new") {
         let createdGroupId = await createGroup(wedding_id);
         newGroupId = createdGroupId.id;
@@ -37,6 +40,7 @@ export default function NewGuestForm() {
         wedding_id,
         is_main
       });
+      
       await getGuests();
 
       navigate(`/weddings/${wedding_id}/guests`, {
@@ -62,7 +66,7 @@ export default function NewGuestForm() {
     <Grid container spacing={2} justifyContent="center">
       <Navbar />
       <Grid item xs={12} sm={8} md={5} lg={4} mt={4}>
-        <Typography variant="h4">Nuevo Invitado</Typography>
+        <PageTitle>Nuevo Invitado</PageTitle>
         <Box component="form" onSubmit={handleSubmit}>
           <TextField
             id="name"

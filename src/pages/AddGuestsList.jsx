@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -7,6 +7,8 @@ import { useGuests } from "../hooks/useGuests.js";
 import { VisuallyHiddenInput } from "../styles/index.js";
 import Papa from "papaparse";
 import { toast } from "sonner";
+
+import PageTitle from "../components/PageTitle.jsx";
 
 
 
@@ -71,7 +73,7 @@ const AddGuestsList = () => {
     <Grid container spacing={1} justifyContent="center">
       <Navbar />
       <Grid item xs={12} sm={8} md={4} mt={4}>
-        <Typography variant="h4">Agregar lista de invitados</Typography>
+        <PageTitle>Agregar lista de invitados</PageTitle>
         <Box component="form" sx={{ p: 2 }}>
           <Button
             component="label"

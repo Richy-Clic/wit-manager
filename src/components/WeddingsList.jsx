@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import {  Paper,
+import {
+  Paper,
   Table,
   TableBody,
   TableContainer,
@@ -10,8 +11,8 @@ import {  Paper,
   CircularProgress,
   Tooltip,
   Chip,
-  IconButton,
-  Box } from "@mui/material";
+  IconButton
+} from "@mui/material";
 import { Link } from "react-router-dom";
 import { StyledTableCell } from "../styles/index.js";
 import { useWeddings } from "../hooks/useWeddings.js";
@@ -21,10 +22,6 @@ import AlertConfirm from "../components/AlertConfirm.jsx";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import PeopleIcon from '@mui/icons-material/People';
-
-import SearchInput from "../components/SearchInput";
-
-
 
 
 
@@ -43,8 +40,8 @@ export default function Weddings() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [row, setRow] = useState({});
-    const [search, setSearch] = useState("");
-  
+
+
 
   const openAlertConfirm = (row) => {
     setRow(row)
@@ -85,28 +82,7 @@ export default function Weddings() {
 
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        width: "100%",
-        borderRadius: 3,
-        border: "1px solid #eee",
-        overflow: "hidden"
-      }}
-    >
-      <Box
-  sx={{
-    p: 2,
-    borderBottom: "1px solid #eee",
-    background: "#fafafa"
-  }}
->
-  <SearchInput
-    value={search}
-    onChange={setSearch}
-    placeholder="Buscar boda..."
-  />
-</Box>
+    <Paper variant="card" sx={{ width: "100%" }}>
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -120,7 +96,11 @@ export default function Weddings() {
           </TableHead>
           <TableBody>
             {weddings.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((w) => (
-              <TableRow key={w.id} hover>
+              <TableRow key={w.id} hover sx={{
+                "&:hover .row-actions": {
+                  opacity: 1
+                }
+              }}>
                 <TableCell>{w.boyfriend} & {w.girlfriend}</TableCell>
                 <TableCell>{getStringDate(w.date)}</TableCell>
                 <TableCell>{w.location}</TableCell>

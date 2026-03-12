@@ -22,6 +22,9 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { Toaster } from "sonner";
 import { StyleSonnar } from "./styles/index.js";
 
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "./styles/theme.js";
+
 // 👇 Componente para agrupar las rutas de una boda
 function GuestRoutes() {
   return (
@@ -39,6 +42,7 @@ function GuestRoutes() {
 
 function App() {
   return (
+    <ThemeProvider theme={theme}>
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <AuthProvider>
         <WeddingsProvider>
@@ -112,6 +116,7 @@ function App() {
         </WeddingsProvider>
       </AuthProvider>
     </LocalizationProvider>
+    </ThemeProvider>
   );
 }
 
