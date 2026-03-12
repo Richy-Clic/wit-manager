@@ -5,8 +5,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, CircularProgress, Tooltip, Chip, IconButton } from "@mui/material";
 import { Link } from "react-router-dom";
 import { StyledTableCell } from "../styles/index.js";
-import { format, parseISO } from "date-fns";
-import { es } from 'date-fns/locale';
+import renderDateChip from "../utils/renderDateChip";
 
 import PropTypes from "prop-types";
 import AlertConfirm from "../components/AlertConfirm.jsx";
@@ -17,7 +16,7 @@ import PeopleIcon from '@mui/icons-material/People';
 
 const columns = [
   { id: "novios", label: "Novios", minWidth: 220 },
-  { id: "fecha", label: "Fecha" },
+  { id: "fecha", label: "Fecha y Hora" },
   { id: "ubicacion", label: "Ubicación", minWidth: 170 },
   { id: "estatus", label: "Estatus", minWidth: 100 },
   { id: "acciones", minWidth: 150 },
@@ -66,13 +65,12 @@ const WeddingsList = ({ search }) => {
     return states.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
   }
 
-  const getStringDate = (date) => {
-    const d = parseISO(date);
-    return format(d, "EEEE, d 'de' MMMM yyyy HH:mm", { locale: es });
-  }
+  
+
+
 
   if (loading) return <CircularProgress style={{ margin: 50, display: "block", marginLeft: "auto", marginRight: "auto" }} />;
-  if (!loading && !weddings.length) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
+  if (!loading && (!weddings || weddings.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
   if (!filteredWeddings.length) return <div style={{ textAlign: "center", marginTop: 50 }}> No se encontraron resultados </div>;
 
 
@@ -99,7 +97,8 @@ const WeddingsList = ({ search }) => {
                   }
                 }}>
                   <TableCell>{w.boyfriend} & {w.girlfriend}</TableCell>
-                  <TableCell>{getStringDate(w.date)}</TableCell>
+                  <TableCell>{renderDateChip(w.date)}</TableCell>
+                  {/* <TableCell>{getStringDate(w.date)}</TableCell> */}
                   <TableCell>{w.location}</TableCell>
                   <TableCell>
                     <Chip

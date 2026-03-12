@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { TextField, Box, Button, Grid, Typography, MenuItem } from "@mui/material";
+import { TextField, Box, Button, Grid, MenuItem } from "@mui/material";
 import Navbar from "../components/Navbar.jsx";
 import { Link } from "react-router-dom";
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useWeddings } from "../hooks/useWeddings.js";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import PageTitle from "../components/PageTitle.jsx";
 
 export default function NewWedding() {
   const { createWedding, templates, loadingTemplates } = useWeddings();
@@ -54,7 +55,7 @@ export default function NewWedding() {
     <Grid container spacing={2} justifyContent="center">
       <Navbar />
       <Grid item xs={12} sm={8} md={5} lg={4} mt={4}>
-        <Typography variant="h4">Nueva Boda</Typography>
+        <PageTitle>Nueva Boda</PageTitle>
         <Box component="form" onSubmit={handleSubmit}>
           <TextField
             id="boyfriend"
@@ -129,7 +130,7 @@ export default function NewWedding() {
                 </Button>
               </Link>
               <Button type="submit" variant="contained">
-                Guardar
+                Crear Boda
               </Button>
             </Box>
           </Grid>
