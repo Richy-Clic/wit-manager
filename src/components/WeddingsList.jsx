@@ -30,7 +30,7 @@ const columns = [
   { id: "fecha", label: "Fecha" },
   { id: "ubicacion", label: "Ubicación", minWidth: 170 },
   { id: "estatus", label: "Estatus", minWidth: 100 },
-  { id: "acciones", minWidth: 200 },
+  { id: "acciones", minWidth: 150 },
 ];
 
 

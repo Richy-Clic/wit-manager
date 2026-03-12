@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TextField, Box, Button, Grid, MenuItem } from "@mui/material";
+import { TextField, Box, Button, Grid, MenuItem, Paper, Stack } from "@mui/material";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useGuests } from "../hooks/useGuests.js";
 import Navbar from "../components/Navbar.jsx";
@@ -89,7 +89,7 @@ export default function EditGuest() {
         is_main: newIsMain,
         group_id: newGroupId
       };
-      
+
       await updateGuest(guest_id, payload);
 
       //2. delete group_id if it is necessary
@@ -117,57 +117,52 @@ export default function EditGuest() {
       />
       <Grid item xs={12} sm={8} md={4} mt={4}>
         <PageTitle>Editar Invitado</PageTitle>
+        <Paper sx={{ p: 2 }}>
         <Box component="form" onSubmit={handleSubmit}>
-          <TextField
-            id="name"
-            label="Nombre"
-            type="text"
-            fullWidth
-            margin="normal"
-            value={guest.name || ""}
-            onChange={(e) => handleChange("name", e.target.value)}
-          />
-          <TextField
-            id="phone"
-            label="Teléfono"
-            type="text"
-            fullWidth
-            margin="normal"
-            value={guest.phone || ""}
-            onChange={(e) => handleChange("phone", e.target.value)}
-          />
-          <TextField
-            id="group_id"
-            select
-            label="Invitado por"
-            fullWidth
-            margin="normal"
-            value={guest.group_id || ""}
-            onChange={(e) => handleChange("group_id", e.target.value)}
-          >
-            <MenuItem value={2}>Invitado Principal</MenuItem>
-            {mainGuests
-              .map((g) => (
-                <MenuItem key={g.id} value={g.group_id}>
-                  {g.name}
-                </MenuItem>
-              ))
-            }
-          </TextField>
-          <TextField
-            id="attendance"
-            select
-            label="Estauts"
-            fullWidth
-            margin="normal"
-            value={guest.attendance || ""}
-            onChange={(e) => handleChange("attendance", e.target.value)}
-          >
-            <MenuItem value={1}>Confirmado</MenuItem>
-            <MenuItem value={2}>Pendiente</MenuItem>
-            <MenuItem value={3}>Declinado</MenuItem>
-            <MenuItem value={null}>Sin especificar</MenuItem>
-          </TextField>
+          <Stack spacing={2}>
+            <TextField
+              id="name"
+              label="Nombre"
+              type="text"
+              value={guest.name || ""}
+              onChange={(e) => handleChange("name", e.target.value)}
+            />
+            <TextField
+              id="phone"
+              label="Teléfono"
+              type="text"
+              value={guest.phone || ""}
+              onChange={(e) => handleChange("phone", e.target.value)}
+            />
+            <TextField
+              id="group_id"
+              select
+              label="Invitado por"
+              value={guest.group_id || ""}
+              onChange={(e) => handleChange("group_id", e.target.value)}
+            >
+              <MenuItem value={2}>Invitado Principal</MenuItem>
+              {mainGuests
+                .map((g) => (
+                  <MenuItem key={g.id} value={g.group_id}>
+                    {g.name}
+                  </MenuItem>
+                ))
+              }
+            </TextField>
+            <TextField
+              id="attendance"
+              select
+              label="Estauts"
+              value={guest.attendance || ""}
+              onChange={(e) => handleChange("attendance", e.target.value)}
+            >
+              <MenuItem value={1}>Confirmado</MenuItem>
+              <MenuItem value={2}>Pendiente</MenuItem>
+              <MenuItem value={3}>Declinado</MenuItem>
+              <MenuItem value={null}>Sin especificar</MenuItem>
+            </TextField>
+          </Stack>
           <Grid item xs={12}>
             <Box mt={2} display="flex" justifyContent="flex-end">
               <Link to={`/weddings/${wedding_id}/guests`}>
@@ -181,6 +176,7 @@ export default function EditGuest() {
             </Box>
           </Grid>
         </Box>
+        </Paper>
       </Grid>
     </Grid>
   );

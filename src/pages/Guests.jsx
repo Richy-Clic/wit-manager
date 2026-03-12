@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import GuestsList from "../components/GuestsList.jsx";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { Grid, Box, Button, Container } from "@mui/material";
 import { toast } from "sonner";
 
+import SearchInput from "../components/SearchInput";
 import PageTitle from "../components/PageTitle.jsx";
 import Navbar from "../components/Navbar.jsx";
 
@@ -11,10 +12,7 @@ const Weddings = () => {
   const { wedding_id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-
-  const goToNewGuest = () => {
-    navigate(`/weddings/${wedding_id}/newguest`);
-  }
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (location.state?.status) {
@@ -29,39 +27,56 @@ const Weddings = () => {
 
   return (
     <Grid container spacing={2}>
-
       <Navbar />
+
       <Container maxWidth="lg">
-
-        <Grid container item mt={4} mb={1} justifyContent="space-between">
+        <Box
+          mt={4}
+          mb={3}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <PageTitle>Lista de Invitados</PageTitle>
-          <Box>
-            <Link to="/weddings">
-              <Button style={{ marginRight: '10px' }}>
-                Cancelar
-              </Button>
-            </Link>
 
-            <Button variant="contained" onClick={goToNewGuest} color="info" style={{ marginRight: '10px' }}>
+          <Box display="flex" gap={1}>
+            <Button component={Link} to="/weddings">
+              Cancelar
+            </Button>
+
+            <Button
+              component={Link}
+              to={`/weddings/${wedding_id}/addguestslist`}
+              variant="contained"
+              color="success"
+            >
+              + Subir lista
+            </Button>
+
+            <Button
+              component={Link}
+              to={`/weddings/${wedding_id}/newguest`}
+              variant="contained"
+              color="info"
+            >
               + Nuevo Invitado
             </Button>
 
-            <Link to={`/weddings/${wedding_id}/addguestslist`}>
-              <Button variant="contained" color="success">
-                Subir lista
-              </Button>
-            </Link>
-
           </Box>
-        </Grid>
-        <Grid item xs={12}>
-          <Box>
-            <GuestsList />
-          </Box>
-        </Grid>
-        <Grid container item xs={11} justifyContent="flex-end">
+        </Box>
 
-        </Grid>
+        {/* Search */}
+        <Box mb={3} maxWidth={350}>
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Buscar Invitado..."
+          />
+        </Box>
+
+        {/* Table */}
+        <GuestsList />
+
       </Container>
     </Grid>
   );
