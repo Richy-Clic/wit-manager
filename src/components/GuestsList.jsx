@@ -1,11 +1,15 @@
 import { useState } from "react";
+import { useGuests } from "../hooks/useGuests.js";
+import { useDebounce } from "../hooks/useDebounce";
 import { Link, useParams } from "react-router-dom";
+
 import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, Button, Tooltip, CircularProgress } from "@mui/material";
 import { StyledTableCell } from "../styles/index.js";
-import { useGuests } from "../hooks/useGuests.js";
+
 import DeleteGuestConfirm from "../components/DeleteGuestConfirm.jsx";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import PropTypes from "prop-types";
 
 const columns = [
   { id: "index", label: "ID" },
@@ -16,13 +20,20 @@ const columns = [
   { id: "acciones", minWidth: 100 }
 ];
 
-export default function GuestsList() {
+const GuestsList = ({ search }) => {
   const { guests, loading } = useGuests();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [row, setRow] = useState({});
   const { wedding_id } = useParams();
+  const debouncedSearch = useDebounce(search, 300);
+
+  const filteredGuests = (guests || []).filter((guest) =>
+    `${guest.name} ${guest.phone} ${guest.mate}`
+      .toLowerCase()
+      .includes(debouncedSearch.toLowerCase())
+  );
 
   const openAlertConfirm = (guest) => {
     setRow(guest);
@@ -53,8 +64,11 @@ export default function GuestsList() {
   }
 
   if (loading) return <CircularProgress style={{ margin: 50, display: "block", marginLeft: "auto", marginRight: "auto" }} />;
-  if (!guests?.length) return <div style={{ textAlign: "center", marginTop: 50 }}>No tienes invitados registrados</div>;
-
+  if (!loading && !guests.length) return <div style={{ textAlign: "center", marginTop: 50 }}>No tienes invitados registrados</div>;
+  if (!filteredGuests.length)
+    return <div style={{ textAlign: "center", marginTop: 50 }}>
+      No se encontraron resultados
+    </div>;
 
   return (
     <Paper variant="card" sx={{ width: "100%" }}>
@@ -70,7 +84,7 @@ export default function GuestsList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {guests
+            {filteredGuests
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((g, index) => {
                 const mainGuest = g.groups?.guests?.[0];
@@ -110,7 +124,7 @@ export default function GuestsList() {
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, 100]}
         component="div"
-        count={guests.length}
+        count={filteredGuests.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
@@ -120,3 +134,9 @@ export default function GuestsList() {
     </Paper>
   );
 }
+
+GuestsList.propTypes = {
+  search: PropTypes.string.isRequired,
+};
+
+export default GuestsList;

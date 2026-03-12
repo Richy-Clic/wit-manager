@@ -1,28 +1,18 @@
 import React, { useState } from "react";
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TableCell,
-  CircularProgress,
-  Tooltip,
-  Chip,
-  IconButton
-} from "@mui/material";
+import { useWeddings } from "../hooks/useWeddings.js";
+import { useDebounce } from "../hooks/useDebounce";
+
+import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, CircularProgress, Tooltip, Chip, IconButton } from "@mui/material";
 import { Link } from "react-router-dom";
 import { StyledTableCell } from "../styles/index.js";
-import { useWeddings } from "../hooks/useWeddings.js";
 import { format, parseISO } from "date-fns";
 import { es } from 'date-fns/locale';
+
+import PropTypes from "prop-types";
 import AlertConfirm from "../components/AlertConfirm.jsx";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import PeopleIcon from '@mui/icons-material/People';
-
 
 
 const columns = [
@@ -33,15 +23,20 @@ const columns = [
   { id: "acciones", minWidth: 150 },
 ];
 
-
-export default function Weddings() {
+const WeddingsList = ({ search }) => {
   const { weddings, loading } = useWeddings();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [row, setRow] = useState({});
+  const debouncedSearch = useDebounce(search, 300);
 
 
+  const filteredWeddings = (weddings || []).filter((wedding) =>
+    `${wedding.boyfriend} ${wedding.girlfriend} ${wedding.location} ${wedding.state}`
+      .toLowerCase()
+      .includes(debouncedSearch.toLowerCase())
+  );
 
   const openAlertConfirm = (row) => {
     setRow(row)
@@ -63,9 +58,9 @@ export default function Weddings() {
 
   const getStringState = (state) => {
     const states = new Map([
-      [1, { label: "In progress", color: "black", bg: "orange" }],
-      [2, { label: "Completed", color: "white", bg: "green" }],
-      [3, { label: "Cancelled", color: "white", bg: "red" }],
+      [1, { label: "En progreso", color: "black", bg: "orange" }],
+      [2, { label: "Finalizada", color: "white", bg: "green" }],
+      [3, { label: "Cancelada", color: "white", bg: "red" }],
     ]);
 
     return states.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
@@ -77,8 +72,8 @@ export default function Weddings() {
   }
 
   if (loading) return <CircularProgress style={{ margin: 50, display: "block", marginLeft: "auto", marginRight: "auto" }} />;
-  if (!weddings?.length) return <div style={{ textAlign: "center", marginTop: 50 }}>No tienes bodas registradas</div>;
-
+  if (!loading && !weddings.length) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
+  if (!filteredWeddings.length) return <div style={{ textAlign: "center", marginTop: 50 }}> No se encontraron resultados </div>;
 
 
   return (
@@ -95,60 +90,62 @@ export default function Weddings() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {weddings.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((w) => (
-              <TableRow key={w.id} hover sx={{
-                "&:hover .row-actions": {
-                  opacity: 1
-                }
-              }}>
-                <TableCell>{w.boyfriend} & {w.girlfriend}</TableCell>
-                <TableCell>{getStringDate(w.date)}</TableCell>
-                <TableCell>{w.location}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={getStringState(w.state).label}
-                    sx={{
-                      width: "100%",
-                      justifyContent: "center",
-                      backgroundColor: getStringState(w.state).bg,
-                      color: getStringState(w.state).color,
-                      fontWeight: 500,
-                      borderRadius: "8px"
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Link to={`/weddings/${w.id}`}>
-                    <Tooltip arrow title="Editar">
-                      <IconButton color="warning">
-                        <EditIcon />
+            {filteredWeddings
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((w) => (
+                <TableRow key={w.id} hover sx={{
+                  "&:hover .row-actions": {
+                    opacity: 1
+                  }
+                }}>
+                  <TableCell>{w.boyfriend} & {w.girlfriend}</TableCell>
+                  <TableCell>{getStringDate(w.date)}</TableCell>
+                  <TableCell>{w.location}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={getStringState(w.state).label}
+                      sx={{
+                        width: "100%",
+                        justifyContent: "center",
+                        backgroundColor: getStringState(w.state).bg,
+                        color: getStringState(w.state).color,
+                        fontWeight: 500,
+                        borderRadius: "8px"
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Link to={`/weddings/${w.id}`}>
+                      <Tooltip arrow title="Editar">
+                        <IconButton color="warning">
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Link>
+
+                    <Link to={`/weddings/${w.id}/guests`}>
+                      <Tooltip arrow title="Lista de invitados">
+                        <IconButton color="success">
+                          <PeopleIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Link>
+
+                    <Tooltip arrow title="Eliminar">
+                      <IconButton color="error" onClick={() => openAlertConfirm(w)}>
+                        <DeleteIcon />
                       </IconButton>
                     </Tooltip>
-                  </Link>
-
-                  <Link to={`/weddings/${w.id}/guests`}>
-                    <Tooltip arrow title="Lista de invitados">
-                      <IconButton color="success">
-                        <PeopleIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Link>
-
-                  <Tooltip arrow title="Eliminar">
-                    <IconButton color="error" onClick={() => openAlertConfirm(w)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, 100]}
         component="div"
-        count={weddings ? weddings.length : 0}
+        count={filteredWeddings.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
@@ -158,3 +155,9 @@ export default function Weddings() {
     </Paper>
   );
 }
+
+WeddingsList.propTypes = {
+  search: PropTypes.string.isRequired,
+};
+
+export default WeddingsList;

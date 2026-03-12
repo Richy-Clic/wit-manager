@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
-import GuestsList from "../components/GuestsList.jsx";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
+
 import { Grid, Box, Button, Container } from "@mui/material";
 import { toast } from "sonner";
 
+import GuestsList from "../components/GuestsList.jsx";
 import SearchInput from "../components/SearchInput";
 import PageTitle from "../components/PageTitle.jsx";
 import Navbar from "../components/Navbar.jsx";
 
-const Weddings = () => {
+const Guests = () => {
+  const [search, setSearch] = useState("");
   const { wedding_id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
+  
 
   useEffect(() => {
     if (location.state?.status) {
@@ -75,11 +77,11 @@ const Weddings = () => {
         </Box>
 
         {/* Table */}
-        <GuestsList />
+        <GuestsList search={search} />
 
       </Container>
     </Grid>
   );
 };
 
-export default Weddings;
+export default Guests;

@@ -1,20 +1,21 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import WeddingsList from "../components/WeddingsList.jsx";
-import { Grid, Box, Button, Container } from "@mui/material";
-import Navbar from "../components/Navbar.jsx";
-import SearchInput from "../components/SearchInput";
 import { useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+
+import { Grid, Box, Button, Container } from "@mui/material";
 import { toast } from "sonner";
 
+import WeddingsList from "../components/WeddingsList.jsx";
+import Navbar from "../components/Navbar.jsx";
+import SearchInput from "../components/SearchInput";
 import PageTitle from "../components/PageTitle.jsx";
 
 
 const Weddings = () => {
   const [search, setSearch] = useState("");
-
   const location = useLocation();
   const navigate = useNavigate();
+
 
   useEffect(() => {
     if (location.state?.status) {
