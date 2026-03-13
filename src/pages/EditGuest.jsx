@@ -157,9 +157,9 @@ export default function EditGuest() {
               value={guest.attendance || ""}
               onChange={(e) => handleChange("attendance", e.target.value)}
             >
-              <MenuItem value={1}>Confirmado</MenuItem>
-              <MenuItem value={2}>Pendiente</MenuItem>
-              <MenuItem value={3}>Declinado</MenuItem>
+              <MenuItem value="confirmado">Confirmado</MenuItem>
+              <MenuItem value="pendiente">Pendiente</MenuItem>
+              <MenuItem value="declinado">Declinado</MenuItem>
               <MenuItem value={null}>Sin especificar</MenuItem>
             </TextField>
           </Stack>

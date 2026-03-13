@@ -148,6 +148,28 @@ export const GuestsProvider = ({ children }) => {
     }
   };
 
+  const updateGuestAttendance = async (id, updates) => {
+  try {
+    const { data, error } = await supabase
+      .from("guests")
+      .update(updates)
+      .eq("id", id)
+      .eq("wedding_id", wedding_id)
+      .select();
+
+    if (error) throw error;
+
+    setGuests((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, ...data[0] } : g))
+    );
+
+    return data[0];
+  } catch (error) {
+    console.error("Error updating guest:", error);
+    throw error;
+  }
+};
+
   const deleteGuest = async (id) => {
     try {
       const { data, error } = await supabase
@@ -250,7 +272,8 @@ export const GuestsProvider = ({ children }) => {
         getMainGuests,
         mainGuests,
         createGroup,
-        deleteGroup
+        deleteGroup,
+        updateGuestAttendance
       }}
     >
       {children}

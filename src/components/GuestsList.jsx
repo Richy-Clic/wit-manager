@@ -30,7 +30,7 @@ const GuestsList = ({ search }) => {
   const debouncedSearch = useDebounce(search, 300);
 
   const filteredGuests = (guests || []).filter((guest) =>
-    `${guest.name} ${guest.phone} ${guest.mate}`
+    `${guest.name} ${guest.phone} ${guest.attendance}`
       .toLowerCase()
       .includes(debouncedSearch.toLowerCase())
   );
@@ -55,9 +55,9 @@ const GuestsList = ({ search }) => {
 
   const getStringAttendance = (state) => {
     const states = new Map([
-      [1, { label: "Confirmado", color: "white", bg: "green" }],
-      [2, { label: "Pendiente", color: "black", bg: "orange" }],
-      [3, { label: "Declinado", color: "white", bg: "red" }],
+      ["confirmado", { label: "Confirmado", color: "white", bg: "green" }],
+      ["pendiente", { label: "Pendiente", color: "black", bg: "orange" }],
+      ["declinado", { label: "Declinado", color: "white", bg: "red" }],
     ]);
 
     return states.get(state) || { label: "Desconocido", color: "black", bg: "gray" };

@@ -132,9 +132,9 @@ export default function EditWedding() {
                 value={weddingData.state || ""}
                 onChange={(e) => handleChange("state", e.target.value)}
               >
-                <MenuItem key={1} value={1}>In progress</MenuItem>
-                <MenuItem key={2} value={2}>Completed</MenuItem>
-                <MenuItem key={3} value={3}>Cancelled</MenuItem>
+                <MenuItem key={1} value="en progreso">In progress</MenuItem>
+                <MenuItem key={2} value="finalizada">Completed</MenuItem>
+                <MenuItem key={3} value="cancelada">Cancelled</MenuItem>
               </TextField>
             </Stack>
             <Grid item xs={12}>

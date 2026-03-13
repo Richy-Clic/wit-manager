@@ -57,9 +57,9 @@ const WeddingsList = ({ search }) => {
 
   const getStringState = (state) => {
     const states = new Map([
-      [1, { label: "En progreso", color: "black", bg: "orange" }],
-      [2, { label: "Finalizada", color: "white", bg: "green" }],
-      [3, { label: "Cancelada", color: "white", bg: "red" }],
+      ["en progreso", { label: "En progreso", color: "black", bg: "orange" }],
+      ["finalizada", { label: "Finalizada", color: "white", bg: "green" }],
+      ["cancelada", { label: "Cancelada", color: "white", bg: "red" }],
     ]);
 
     return states.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
