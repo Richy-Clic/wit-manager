@@ -42,7 +42,7 @@ export default function DeleteGuestConfirm(props) {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            De verdad deseas eliminar a {props.row.guest_names} {props.row.guest_lastNames}?
+            De verdad deseas eliminar a {props.row.name} ?
           </DialogContentText>
         </DialogContent>
         <DialogActions>

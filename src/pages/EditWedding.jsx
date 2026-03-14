@@ -66,7 +66,7 @@ export default function EditWedding() {
 
 
   return (
-    <Grid container spacing={1} justifyContent="center">
+    <Grid container spacing={2} justifyContent="center">
       <Navbar />
       <Grid item xs={12} sm={8} md={4} mt={4}>
         <PageTitle>Editar Boda</PageTitle>

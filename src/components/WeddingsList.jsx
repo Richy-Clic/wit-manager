@@ -27,7 +27,7 @@ const WeddingsList = ({ search }) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [openModal, setOpenModal] = useState(false);
-  const [row, setRow] = useState({});
+  const [row, setRow] = useState(null);
   const debouncedSearch = useDebounce(search, 300);
 
 
@@ -37,13 +37,14 @@ const WeddingsList = ({ search }) => {
       .includes(debouncedSearch.toLowerCase())
   );
 
-  const openAlertConfirm = (row) => {
-    setRow(row)
+  const openAlertConfirm = (wedding) => {
+    setRow(wedding);
     setOpenModal(true);
   };
 
   const closeAlertConfirm = () => {
     setOpenModal(false);
+    setRow(null);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -150,7 +151,7 @@ const WeddingsList = ({ search }) => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      <AlertConfirm show={openModal} onHide={closeAlertConfirm} row={row} />
+      {row && <AlertConfirm show={openModal} onHide={closeAlertConfirm} row={row} />}
     </Paper>
   );
 }

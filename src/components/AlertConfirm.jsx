@@ -16,7 +16,8 @@ export default function AlertConfirm(props) {
       toast.error("Error al eliminar la boda: " + error.message);
     }
   }
-
+  console.log(props);
+  
   return (
     <React.Fragment>
 
@@ -31,7 +32,7 @@ export default function AlertConfirm(props) {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            De verdad deseas eliminar la boda de {props.row.boyfriend_name} & {props.row.girlfriend_name} ?
+            De verdad deseas eliminar la boda de {props.row.boyfriend} & {props.row.girlfriend} ?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -49,5 +50,5 @@ export default function AlertConfirm(props) {
 AlertConfirm.propTypes = {
   show: PropTypes.bool.isRequired, // Asegúrate de que 'show' sea un booleano y sea requerido
   onHide: PropTypes.func.isRequired, // Asegúrate de que 'onHide' sea una función y sea requerida
-  row: PropTypes.object.isRequired,
+  row: PropTypes.object.isRequired
 };

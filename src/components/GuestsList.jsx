@@ -25,7 +25,7 @@ const GuestsList = ({ search }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
-  const [row, setRow] = useState({});
+  const [row, setRow] = useState(null);
   const { wedding_id } = useParams();
   const debouncedSearch = useDebounce(search, 300);
 
@@ -35,13 +35,14 @@ const GuestsList = ({ search }) => {
       .includes(debouncedSearch.toLowerCase())
   );
 
-  const openAlertConfirm = (guest) => {
+  const openAlertConfirm = (guest) => {    
     setRow(guest);
     setOpenModal(true);
   };
 
   const closeAlertConfirm = () => {
     setOpenModal(false);
+    setRow(null);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -127,7 +128,7 @@ const GuestsList = ({ search }) => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      <DeleteGuestConfirm show={openModal} onHide={closeAlertConfirm} row={row} guests={guests} />
+      {row && <DeleteGuestConfirm show={openModal} onHide={closeAlertConfirm} row={row} guests={guests} /> }
     </Paper>
   );
 }

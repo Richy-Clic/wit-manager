@@ -108,7 +108,7 @@ export default function EditGuest() {
   };
 
   return (
-    <Grid container spacing={1} justifyContent="center">
+    <Grid container spacing={2} justifyContent="center">
       <Navbar />
       <Toaster
         toastOptions={{
