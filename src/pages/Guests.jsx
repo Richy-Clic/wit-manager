@@ -48,6 +48,14 @@ const Guests = () => {
 
             <Button
               component={Link}
+              variant="contained"
+              color="success"
+            >
+              Mandar mensaje a todos
+            </Button>
+
+            <Button
+              component={Link}
               to={`/weddings/${wedding_id}/addguestslist`}
               variant="contained"
               color="success"
