@@ -1,0 +1,2 @@
+//to make a deploy after new changes. 
+supabase functions deploy send-whatsapp
