@@ -77,8 +77,6 @@ const Guests = () => {
         return;
       }
 
-      console.log(guests);
-      
       // 🚀 llamada a Edge Function
       const response = await fetch(FUNCTION_URL, {
         method: "POST",

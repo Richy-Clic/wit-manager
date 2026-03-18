@@ -10,11 +10,8 @@ import { toast } from "sonner";
 import { parseMxPhone } from "../utils/parserMxPhone";
 
 const USE_TEMPLATE = import.meta.env.VITE_USE_TEMPLATE === "true";
-const WHATSAPP_SANDBOX = import.meta.env.DEV;
+const WHATSAPP_SANDBOX = import.meta.env.VITE_WHATSAPP_SANDBOX === "true";
 const FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-whatsapp`;
-
-console.log(WHATSAPP_SANDBOX);
-
 
 const GuestRow = ({
   g,
@@ -48,7 +45,9 @@ const GuestRow = ({
         return;
       }
 
-      const phoneFormatted = parseMxPhone(guest.phone, WHATSAPP_SANDBOX); 
+      const phoneFormatted = parseMxPhone(guest.phone, WHATSAPP_SANDBOX);
+      console.log(phoneFormatted);
+      
 
       const payload = USE_TEMPLATE
         ? {
