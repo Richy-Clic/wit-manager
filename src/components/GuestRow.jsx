@@ -48,9 +48,7 @@ const GuestRow = ({
         return;
       }
 
-      const phoneFormatted = parseMxPhone(guest.phone, WHATSAPP_SANDBOX);
-      console.log(phoneFormatted);
-      
+      const phoneFormatted = parseMxPhone(guest.phone, WHATSAPP_SANDBOX); 
 
       const payload = USE_TEMPLATE
         ? {
