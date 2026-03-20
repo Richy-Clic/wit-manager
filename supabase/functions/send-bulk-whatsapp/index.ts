@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import  parserMxPhone from "../../utils/parserMxPhone.js";
 
 const WHATSAPP_TOKEN = Deno.env.get("WHATSAPP_TOKEN");
 const PHONE_NUMBER_ID = Deno.env.get("WHATSAPP_PHONE_ID");
