@@ -1,5 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { TextField, Box, Button, Grid, MenuItem, Stepper, Step, StepLabel } from "@mui/material";
+import {
+  TextField,
+  Box,
+  Button,
+  Grid,
+  MenuItem,
+  Stepper,
+  Step,
+  StepLabel
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { useWeddings } from "../hooks/useWeddings.js";
@@ -19,65 +28,62 @@ export default function NewWedding() {
   const locationRef = useRef(null);
   const churchRef = useRef(null);
 
+  // 👉 evita múltiples instancias
+  const autocompleteRefs = useRef({});
+
   const [formData, setFormData] = useState({
     boyfriend: "",
     girlfriend: "",
     date: null,
-
     location: "",
-    location_place_id: null,
-    location_lat: null,
-    location_lng: null,
-    location_url: "",
-
+    location_id: null,
     church: "",
-    church_place_id: null,
-    church_lat: null,
-    church_lng: null,
-    church_url: "",
-
+    church_id: null,
     details: "",
     template_id: ""
   });
 
-  const initAutocomplete = (ref, type) => {
-    if (!window.google || !ref.current) return;
+  // ✅ Inicializar autocomplete SOLO UNA VEZ
+  const initAutocomplete = (ref, type, options = {}) => {
+    if (!window.google || !ref.current || autocompleteRefs.current[type]) return;
 
     const autocomplete = new window.google.maps.places.Autocomplete(
       ref.current,
       {
-        types: ["establishment", "geocode"],
         componentRestrictions: { country: "mx" },
+        ...options
       }
     );
 
     autocomplete.addListener("place_changed", () => {
       const place = autocomplete.getPlace();
-      if (!place.geometry) return;
 
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
+      if (!place.place_id) return;
 
       setFormData((prev) => ({
         ...prev,
         [type]: place.formatted_address || place.name,
-        [`${type}_place_id`]: place.place_id,
-        [`${type}_lat`]: lat,
-        [`${type}_lng`]: lng,
-        [`${type}_url`]: `https://www.google.com/maps?q=${lat},${lng}`
+        [`${type}_id`]: place.place_id
       }));
     });
+
+    autocompleteRefs.current[type] = autocomplete;
   };
 
+  // ✅ Inicialización controlada por step
   useEffect(() => {
     if (!window.google) return;
 
-    if (activeStep === 1 && churchRef.current) {
-      initAutocomplete(churchRef, "church");
+    if (activeStep === 1) {
+      initAutocomplete(churchRef, "church", {
+        types: ["establishment"]
+      });
     }
 
-    if (activeStep === 2 && locationRef.current) {
-      initAutocomplete(locationRef, "location");
+    if (activeStep === 2) {
+      initAutocomplete(locationRef, "location", {
+        types: ["establishment"]
+      });
     }
   }, [activeStep]);
 
@@ -88,20 +94,45 @@ export default function NewWedding() {
     }));
   };
 
+  // ✅ YA NO borra el place_id
   const handleLocationChange = (e, type) => {
     const value = e.target.value;
 
     setFormData((prev) => ({
       ...prev,
-      [type]: value,
-      [`${type}_place_id`]: null,
-      [`${type}_lat`]: null,
-      [`${type}_lng`]: null,
-      [`${type}_url`]: ""
+      [type]: value
     }));
   };
 
+  const validateStep = () => {
+    if (activeStep === 0) {
+      if (!formData.boyfriend || !formData.girlfriend || !formData.date) {
+        toast.error("Completa los datos básicos");
+        return false;
+      }
+    }
+
+    if (activeStep === 1 && !formData.church_id) {
+      toast.error("Selecciona una iglesia válida de la lista");
+      return false;
+    }
+
+    if (activeStep === 2 && !formData.location_id) {
+      toast.error("Selecciona una ubicación válida del evento");
+      return false;
+    }
+
+    if (activeStep === 4 && !formData.template_id) {
+      toast.error("Selecciona una plantilla");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleNext = () => {
+    if (!validateStep()) return;
+
     if (activeStep === steps.length - 1) {
       handleSubmit();
     } else {
@@ -112,30 +143,17 @@ export default function NewWedding() {
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
   const handleSubmit = async () => {
-    if (!formData.boyfriend || !formData.girlfriend || !formData.date || !formData.template_id) {
-      alert("Por favor llena los campos obligatorios");
-      return;
-    }
-
     try {
-      const location_url =
-        formData.location_url ||
-        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formData.location)}`;
-
-      const church_url =
-        formData.church_url ||
-        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formData.church)}`;
-
       const payload = {
         ...formData,
-        location_url,
-        church_url,
-        date: formData.date.format("YYYY-MM-DD HH:mm:ss")
+        date: formData.date.toISOString()
       };
+
+      console.log("PAYLOAD:", payload);
 
       await createWedding(payload);
 
-      navigate(`/weddings`, {
+      navigate("/weddings", {
         state: {
           status: true,
           message: "Nueva boda creada con éxito"
@@ -172,7 +190,9 @@ export default function NewWedding() {
               value={formData.date}
               onChange={(date) => handleChange("date", date)}
               sx={{ width: "100%", mt: 2 }}
-              textField={(params) => <TextField {...params} fullWidth required />}
+              slotProps={{
+                textField: { fullWidth: true, required: true }
+              }}
             />
           </>
         );
@@ -225,7 +245,7 @@ export default function NewWedding() {
             margin="normal"
             value={formData.template_id}
             onChange={(e) => handleChange("template_id", e.target.value)}
-            helperText="Selecciona una plantilla para el diseño de las invitaciones virtuales"
+            helperText="Selecciona una plantilla"
           >
             {loadingTemplates ? (
               <MenuItem disabled>Cargando...</MenuItem>
@@ -249,8 +269,10 @@ export default function NewWedding() {
   return (
     <Grid container justifyContent="center">
       <Navbar />
+
       <Grid item xs={12} sm={8} md={5} lg={4} mt={4}>
         <PageTitle>Nueva Boda</PageTitle>
+
         <Stepper activeStep={activeStep} sx={{ mt: 2, mb: 3 }}>
           {steps.map((label) => (
             <Step key={label}>
@@ -261,16 +283,10 @@ export default function NewWedding() {
 
         <Box>{renderStep()}</Box>
 
-
         <Box mt={3} display="flex" justifyContent="space-between">
-          <Box>
-            <Button
-              color="error"
-              onClick={() => navigate("/weddings")}
-            >
-              Cancelar
-            </Button>
-          </Box>
+          <Button color="error" onClick={() => navigate("/weddings")}>
+            Cancelar
+          </Button>
 
           <Box>
             <Button disabled={activeStep === 0} onClick={handleBack}>
@@ -278,7 +294,9 @@ export default function NewWedding() {
             </Button>
 
             <Button variant="contained" onClick={handleNext}>
-              {activeStep === steps.length - 1 ? "Crear Boda" : "Siguiente"}
+              {activeStep === steps.length - 1
+                ? "Crear Boda"
+                : "Siguiente"}
             </Button>
           </Box>
         </Box>
