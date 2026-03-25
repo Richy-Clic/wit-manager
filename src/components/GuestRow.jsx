@@ -1,10 +1,13 @@
-import { TableRow, TableCell, Button, Tooltip } from "@mui/material";
-import { Link } from "react-router-dom";
+import { TableRow, TableCell } from "@mui/material";
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
-import React, { useState } from "react";
-import PropTypes from "prop-types";
+
+import RowActions from "./RowActions";
+
 import supabase from "../lib/supabaseClient";
 import { toast } from "sonner";
 import { parseMxPhone } from "../utils/parserMxPhone";
@@ -23,13 +26,14 @@ const GuestRow = ({
   getStringAttendance,
 }) => {
   const [sending, setSending] = useState(false);
+
   const mainGuest = g.groups?.guests?.[0];
   const attendance = getStringAttendance(g.attendance);
   const mate = g.is_main ? "—" : mainGuest?.name ?? "—";
 
   const sendWhatsApp = async (guest) => {
     if (!guest.phone) {
-      alert("Este invitado no tiene teléfono");
+      toast.error("Este invitado no tiene teléfono");
       return;
     }
 
@@ -41,27 +45,25 @@ const GuestRow = ({
       } = await supabase.auth.getSession();
 
       if (!session) {
-        alert("Sesión expirada");
+        toast.error("Sesión expirada");
         return;
       }
 
       const phoneFormatted = parseMxPhone(guest.phone, WHATSAPP_SANDBOX);
-      console.log(phoneFormatted);
-      
 
       const payload = USE_TEMPLATE
         ? {
-          phone: phoneFormatted,
-          templateName: "wedding_invite",
-          params: [
-            guest.name,
-            `https://wit.app/invite/${guest.id}`,
-          ],
-        }
+            phone: phoneFormatted,
+            templateName: "wedding_invite",
+            params: [
+              guest.name,
+              `https://wit.app/invite/${guest.id}`,
+            ],
+          }
         : {
-          phone: phoneFormatted,
-          message: `Hola ${guest.name} 👋\n\nTe invitamos a nuestra boda 💍\n\nConfirma aquí:\nhttps://wit.app/invite/${guest.id}`,
-        };
+            phone: phoneFormatted,
+            message: `Hola ${guest.name} 👋\n\nTe invitamos a nuestra boda 💍\n\nConfirma aquí:\nhttps://wit.app/invite/${guest.id}`,
+          };
 
       const response = await fetch(FUNCTION_URL, {
         method: "POST",
@@ -95,6 +97,7 @@ const GuestRow = ({
       <TableCell>{g.name}</TableCell>
       <TableCell>{g.phone}</TableCell>
       <TableCell>{mate}</TableCell>
+
       <TableCell>
         <mark
           style={{
@@ -107,35 +110,31 @@ const GuestRow = ({
           {attendance.label}
         </mark>
       </TableCell>
-      <TableCell>
-        <Link to={`/weddings/${wedding_id}/guest/${g.id}`}>
-          <Tooltip arrow title="Editar">
-            <Button variant="text" color="warning">
-              <EditIcon />
-            </Button>
-          </Tooltip>
-        </Link>
 
-        <Tooltip arrow title="Eliminar">
-          <Button
-            variant="text"
-            color="error"
-            onClick={() => openAlertConfirm(g)}
-          >
-            <DeleteIcon />
-          </Button>
-        </Tooltip>
-
-        <Tooltip arrow title="Enviar mensaje">
-          <Button
-            variant="text"
-            color="success"
-            disabled={sending}
-            onClick={() => sendWhatsApp(g)}
-          >
-            <WhatsAppIcon />
-          </Button>
-        </Tooltip>
+      {/* 🔥 ACTIONS */}
+      <TableCell align="right">
+        <RowActions
+          row={g}
+          actions={[
+            {
+              label: "Editar",
+              icon: <EditIcon fontSize="small" />,
+              to: () => `/weddings/${wedding_id}/guest/${g.id}`,
+            },
+            {
+              label: sending ? "Enviando..." : "Enviar WhatsApp",
+              icon: <WhatsAppIcon fontSize="small" />,
+              onClick: () => sendWhatsApp(g),
+            },
+            { divider: true },
+            {
+              label: "Eliminar",
+              icon: <DeleteIcon fontSize="small" />,
+              danger: true,
+              onClick: () => openAlertConfirm(g),
+            },
+          ]}
+        />
       </TableCell>
     </TableRow>
   );

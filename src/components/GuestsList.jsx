@@ -16,7 +16,7 @@ const columns = [
   { id: "phone", label: "Teléfono" },
   { id: "mate", label: "Invitado por" },
   { id: "attendance", label: "Asistencia" },
-  { id: "acciones", minWidth: 100 }
+  { id: "acciones", minWidth: 20, maxWidth: 20 }
 ];
 
 const attendanceStates = new Map([
@@ -82,7 +82,7 @@ const GuestsList = ({ search }) => {
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                <StyledTableCell key={column.id} style={{ minWidth: column.minWidth }}>
+                <StyledTableCell key={column.id} style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}>
                   {column.label}
                 </StyledTableCell>
               ))}

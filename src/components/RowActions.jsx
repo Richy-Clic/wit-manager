@@ -26,7 +26,6 @@ export default function RowActions({ row, actions = [] }) {
 
   return (
     <>
-      {/* 🔥 SOLO BOTÓN DE MENÚ */}
       <IconButton
         size="small"
         onClick={handleOpen}
@@ -41,7 +40,6 @@ export default function RowActions({ row, actions = [] }) {
         <MoreVertIcon fontSize="small" />
       </IconButton>
 
-      {/* 🔥 MENU */}
       <Menu
         anchorEl={anchorEl}
         open={open}
@@ -60,7 +58,7 @@ export default function RowActions({ row, actions = [] }) {
         {actions.map((action, index) => {
           if (action.divider) return <Divider key={index} />;
 
-          // 👉 LINK ACTION
+          // 👉 Link
           if (action.to) {
             return (
               <MenuItem
@@ -70,15 +68,13 @@ export default function RowActions({ row, actions = [] }) {
                 onClick={handleClose}
                 sx={getDangerStyles(action)}
               >
-                {action.icon && (
-                  <ListItemIcon>{action.icon}</ListItemIcon>
-                )}
+                {action.icon && <ListItemIcon>{action.icon}</ListItemIcon>}
                 <ListItemText>{action.label}</ListItemText>
               </MenuItem>
             );
           }
 
-          // 👉 NORMAL ACTION
+          // 👉 Acción normal
           return (
             <MenuItem
               key={index}
@@ -89,9 +85,7 @@ export default function RowActions({ row, actions = [] }) {
               }}
               sx={getDangerStyles(action)}
             >
-              {action.icon && (
-                <ListItemIcon>{action.icon}</ListItemIcon>
-              )}
+              {action.icon && <ListItemIcon>{action.icon}</ListItemIcon>}
               <ListItemText>{action.label}</ListItemText>
             </MenuItem>
           );
@@ -101,16 +95,13 @@ export default function RowActions({ row, actions = [] }) {
   );
 }
 
-// 🔥 helper rutas dinámicas
 function resolvePath(path, row) {
   if (typeof path === "function") return path(row);
   return path.replace(":id", row.id);
 }
 
-// 🔥 estilos danger reutilizables
 function getDangerStyles(action) {
   if (!action.danger) return {};
-
   return {
     color: "error.main",
     "& .MuiListItemIcon-root": {
@@ -123,7 +114,6 @@ RowActions.propTypes = {
   row: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
   }).isRequired,
-
   actions: PropTypes.arrayOf(
     PropTypes.shape({
       label: PropTypes.string,

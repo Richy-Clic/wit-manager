@@ -1,55 +1,103 @@
-// import { supabase } from "../lib/supabaseClient";
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Box, Typography, Button } from "@mui/material";
+import { toast } from "sonner";
 
-// export const UploadPictures = async ({
-//   file,
-//   weddingId,
-//   type,
-//   order = null,
-// }) => {
-//   let path = "";
+import { uploadWeddingImage } from "../services/weddings/uploadWeddingImage";
+import { getNextGalleryOrder } from "../services/weddings/getNextGalleryOrder";
 
-//   if (type === "header") {
-//     path = `${weddingId}/header.jpg`;
-//   }
+import ImageUploader from "../components/ImageUploader";
 
-//   if (type === "gallery") {
-//     const fileName = String(order).padStart(3, "0"); // 001, 002...
-//     path = `${weddingId}/gallery/${fileName}.jpg`;
-//   }
+export default function UploadPictures() {
+  const { wedding_id } = useParams();
+  const navigate = useNavigate();
 
-//   const { error: uploadError } = await supabase.storage
-//     .from("weddings")
-//     .upload(path, file, {
-//       upsert: true, // reemplaza si existe
-//     });
+  const [headerImage, setHeaderImage] = useState(null);
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-//   if (uploadError) throw uploadError;
 
-//   const { data } = supabase.storage
-//     .from("weddings")
-//     .getPublicUrl(path);
+  const handleUpload = async () => {
+    try {
+      if (!headerImage && galleryImages.length === 0) {
+        toast.error("Sube al menos una imagen");
+        return;
+      }
 
-//   // Guardar en DB
-//   const { error: dbError } = await supabase
-//     .from("wedding_photos")
-//     .insert({
-//       wedding_id: weddingId,
-//       type,
-//       url: data.publicUrl,
-//       order,
-//     });
+      setLoading(true);
 
-//   if (dbError) throw dbError;
+      // HEADER
+      if (headerImage) {
+        await uploadWeddingImage({
+          file: headerImage,
+          wedding_id,
+          type: "header"
+        });
+      }
 
-//   return data.publicUrl;
-// };
+      // GALERÍA
+      const startOrder = await getNextGalleryOrder(wedding_id);
 
-// import React from 'react'
-// 
-const UploadPictures = () => {
+      for (let i = 0; i < galleryImages.length; i++) {
+        await uploadWeddingImage({
+          file: galleryImages[i],
+          wedding_id,
+          type: "gallery",
+          order: startOrder + i
+        });
+      }
+
+      toast.success("Imágenes subidas correctamente");
+
+      navigate("/weddings");
+    } catch (error) {
+      toast.error("Error al subir imágenes: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div>UploadPictures</div>
-  )
-}
+    <Box maxWidth={500} mx="auto" mt={4}>
+      <Typography variant="h5" fontWeight={600}>
+        Subir Fotos
+      </Typography>
 
-export default UploadPictures;
+      <Typography variant="body2" color="text.secondary" mb={2}>
+        Agrega la imagen principal y la galería de la boda
+      </Typography>
+
+      {/* HEADER */}
+      <Box mt={3}>
+        <ImageUploader
+          label="Imagen Encabezado"
+          files={headerImage}
+          setFiles={setHeaderImage}
+        />
+      </Box>
+
+      <Box mt={3}>
+        <ImageUploader
+          multiple
+          label="Galería de Fotos"
+          files={galleryImages}
+          setFiles={setGalleryImages}
+        />
+      </Box>
+
+      <Box mt={4} display="flex" justifyContent="space-between">
+        <Button color="error" onClick={() => navigate("/weddings")}>
+          Cancelar
+        </Button>
+
+        <Button
+          variant="contained"
+          onClick={handleUpload}
+          disabled={loading}
+        >
+          {loading ? "Subiendo..." : "Guardar Imágenes"}
+        </Button>
+      </Box>
+    </Box>
+  );
+}

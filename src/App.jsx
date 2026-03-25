@@ -36,6 +36,7 @@ function GuestRoutes() {
         <Route path="newguest" element={<NewGuest />} />
         <Route path="guest/:guest_id" element={<EditGuest />} />
         <Route path="addguestslist" element={<AddGuestsList />} />
+        <Route path="pictures" element={<UploadPictures />} />
       </Routes>
     </GuestsProvider>
   );
@@ -97,15 +98,6 @@ function App() {
                 element={
                   <PrivateRoute>
                     <Dashboard />
-                  </PrivateRoute>
-                }
-              />
-
-              <Route
-                path="/pictures"
-                element={
-                  <PrivateRoute>
-                    <UploadPictures />
                   </PrivateRoute>
                 }
               />
