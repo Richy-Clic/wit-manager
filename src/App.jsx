@@ -9,6 +9,7 @@ import NewGuest from "./pages/NewGuest.jsx";
 import Login from "./pages/Login.jsx";
 import Profile from "./pages/Profile.jsx";
 import AddGuestsList from "./pages/AddGuestsList.jsx";
+import UploadPictures from "./pages/UploadPictures.jsx";
 import PrivateRoute from "./components/Privaterouter.jsx";
 
 import { WeddingsProvider } from "./context/WeddingsProvider.jsx";
@@ -96,6 +97,15 @@ function App() {
                 element={
                   <PrivateRoute>
                     <Dashboard />
+                  </PrivateRoute>
+                }
+              />
+
+              <Route
+                path="/pictures"
+                element={
+                  <PrivateRoute>
+                    <UploadPictures />
                   </PrivateRoute>
                 }
               />

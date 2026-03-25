@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import {
   TextField,
   Box,
@@ -12,12 +12,14 @@ import {
 import { useNavigate } from "react-router-dom";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { useWeddings } from "../hooks/useWeddings.js";
+import { useGoogleAutocomplete } from "../hooks/useGoogleAutocomplete.js";
 import { toast } from "sonner";
+
 
 import Navbar from "../components/Navbar.jsx";
 import PageTitle from "../components/PageTitle.jsx";
 
-const steps = ["Datos", "Ceremonia", "Evento", "Detalles", "Diseño"];
+const steps = ["Datos", "Ubicaciones", "Detalles y Diseño"];
 
 export default function NewWedding() {
   const { createWedding, templates, loadingTemplates } = useWeddings();
@@ -27,9 +29,6 @@ export default function NewWedding() {
 
   const locationRef = useRef(null);
   const churchRef = useRef(null);
-
-  // 👉 evita múltiples instancias
-  const autocompleteRefs = useRef({});
 
   const [formData, setFormData] = useState({
     boyfriend: "",
@@ -43,49 +42,31 @@ export default function NewWedding() {
     template_id: ""
   });
 
-  // ✅ Inicializar autocomplete SOLO UNA VEZ
-  const initAutocomplete = (ref, type, options = {}) => {
-    if (!window.google || !ref.current || autocompleteRefs.current[type]) return;
-
-    const autocomplete = new window.google.maps.places.Autocomplete(
-      ref.current,
-      {
-        componentRestrictions: { country: "mx" },
-        ...options
-      }
-    );
-
-    autocomplete.addListener("place_changed", () => {
-      const place = autocomplete.getPlace();
-
-      if (!place.place_id) return;
-
+  useGoogleAutocomplete({
+    inputRef: locationRef,
+    enabled: activeStep === 2,
+    options: { types: ["establishment"] },
+    onPlaceSelected: (place) => {
       setFormData((prev) => ({
         ...prev,
-        [type]: place.formatted_address || place.name,
-        [`${type}_id`]: place.place_id
+        location: place.formatted_address || place.name,
+        location_id: place.place_id
       }));
-    });
-
-    autocompleteRefs.current[type] = autocomplete;
-  };
-
-  // ✅ Inicialización controlada por step
-  useEffect(() => {
-    if (!window.google) return;
-
-    if (activeStep === 1) {
-      initAutocomplete(churchRef, "church", {
-        types: ["establishment"]
-      });
     }
+  });
 
-    if (activeStep === 2) {
-      initAutocomplete(locationRef, "location", {
-        types: ["establishment"]
-      });
+  useGoogleAutocomplete({
+    inputRef: churchRef,
+    enabled: activeStep === 1,
+    options: { types: ["establishment"] },
+    onPlaceSelected: (place) => {
+      setFormData((prev) => ({
+        ...prev,
+        church: place.formatted_address || place.name,
+        church_id: place.place_id
+      }));
     }
-  }, [activeStep]);
+  });
 
   const handleChange = (id, value) => {
     setFormData((prev) => ({
@@ -113,16 +94,11 @@ export default function NewWedding() {
     }
 
     if (activeStep === 1 && !formData.church_id) {
-      toast.error("Selecciona una iglesia válida de la lista");
+      toast.error("Selecciona una ubicació de la iglesia y evento válida de la lista");
       return false;
     }
 
-    if (activeStep === 2 && !formData.location_id) {
-      toast.error("Selecciona una ubicación válida del evento");
-      return false;
-    }
-
-    if (activeStep === 4 && !formData.template_id) {
+    if (activeStep === 2 && !formData.template_id) {
       toast.error("Selecciona una plantilla");
       return false;
     }
@@ -199,68 +175,63 @@ export default function NewWedding() {
 
       case 1:
         return (
-          <TextField
-            label="Iglesia"
-            fullWidth
-            margin="normal"
-            inputRef={churchRef}
-            value={formData.church}
-            onChange={(e) => handleLocationChange(e, "church")}
-            placeholder="Ej: Parroquia San Pedro, Zapopan"
-          />
+          <>
+            <TextField
+              label="Iglesia"
+              fullWidth
+              margin="normal"
+              inputRef={churchRef}
+              value={formData.church}
+              onChange={(e) => handleLocationChange(e, "church")}
+              placeholder="Ej: Parroquia San Pedro, Zapopan"
+            />
+            <TextField
+              label="Ubicación del Evento"
+              fullWidth
+              margin="normal"
+              inputRef={locationRef}
+              value={formData.location}
+              onChange={(e) => handleLocationChange(e, "location")}
+              placeholder="Ej: Hacienda San José, Guadalajara"
+            />
+          </>
         );
 
       case 2:
         return (
-          <TextField
-            label="Ubicación del Evento"
-            fullWidth
-            margin="normal"
-            inputRef={locationRef}
-            value={formData.location}
-            onChange={(e) => handleLocationChange(e, "location")}
-            placeholder="Ej: Hacienda San José, Guadalajara"
-          />
+          <>
+            <TextField
+              label="Detalles adicionales"
+              fullWidth
+              multiline
+              rows={4}
+              margin="normal"
+              value={formData.details}
+              onChange={(e) => handleChange("details", e.target.value)}
+            />
+            <TextField
+              select
+              label="Plantilla"
+              fullWidth
+              margin="normal"
+              value={formData.template_id}
+              onChange={(e) => handleChange("template_id", e.target.value)}
+              helperText="Selecciona una plantilla"
+            >
+              {loadingTemplates ? (
+                <MenuItem disabled>Cargando...</MenuItem>
+              ) : templates.length > 0 ? (
+                templates.map((tpl) => (
+                  <MenuItem key={tpl.id} value={tpl.id}>
+                    {tpl.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>No hay plantillas</MenuItem>
+              )}
+            </TextField>
+          </>
         );
-
-      case 3:
-        return (
-          <TextField
-            label="Detalles adicionales"
-            fullWidth
-            multiline
-            rows={4}
-            margin="normal"
-            value={formData.details}
-            onChange={(e) => handleChange("details", e.target.value)}
-          />
-        );
-
-      case 4:
-        return (
-          <TextField
-            select
-            label="Plantilla"
-            fullWidth
-            margin="normal"
-            value={formData.template_id}
-            onChange={(e) => handleChange("template_id", e.target.value)}
-            helperText="Selecciona una plantilla"
-          >
-            {loadingTemplates ? (
-              <MenuItem disabled>Cargando...</MenuItem>
-            ) : templates.length > 0 ? (
-              templates.map((tpl) => (
-                <MenuItem key={tpl.id} value={tpl.id}>
-                  {tpl.name}
-                </MenuItem>
-              ))
-            ) : (
-              <MenuItem disabled>No hay plantillas</MenuItem>
-            )}
-          </TextField>
-        );
-
       default:
         return null;
     }

@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { TextField, Box, Button, Grid, MenuItem, Paper, Stack } from "@mui/material";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useWeddings } from "../hooks/useWeddings.js";
+import { useGoogleAutocomplete } from "../hooks/useGoogleAutocomplete.js";
+
 import { toast } from "sonner";
 
 import Navbar from "../components/Navbar.jsx";
@@ -10,15 +12,43 @@ import PageTitle from "../components/PageTitle.jsx";
 import moment from 'moment';
 
 export default function EditWedding() {
+  const locationRef = useRef(null);
+  const churchRef = useRef(null);
   const { wedding_id } = useParams();
   const navigate = useNavigate();
   const { weddings, updateWedding, loadingTemplates, templates } = useWeddings();
   const [weddingData, setWeddingData] = useState({
     boyfriend: "",
     girlfriend: "",
-    date: moment(),
+    date: null,
     location: "",
+    location_id: null,
+    church: "",
+    church_id: null,
+    details: "",
     template_id: ""
+  });
+
+  useGoogleAutocomplete({
+    inputRef: churchRef,
+    onPlaceSelected: (place) => {
+      setWeddingData((prev) => ({
+        ...prev,
+        church: place.formatted_address || place.name,
+        church_id: place.place_id
+      }));
+    }
+  });
+
+  useGoogleAutocomplete({
+    inputRef: locationRef,
+    onPlaceSelected: (place) => {
+      setWeddingData((prev) => ({
+        ...prev,
+        location: place.formatted_address || place.name,
+        location_id: place.place_id
+      }));
+    }
   });
 
   useEffect(() => {
@@ -100,11 +130,16 @@ export default function EditWedding() {
                 ampm={true} // opcional: usa 24h si quieres
               />
               <TextField
-                id="ubicacion"
                 label="Ubicación"
-                type="text"
+                inputRef={locationRef}
                 value={weddingData.location || ""}
                 onChange={(e) => handleChange("location", e.target.value)}
+              />
+              <TextField
+                label="Iglesia"
+                inputRef={churchRef}
+                value={weddingData.church || ""}
+                onChange={(e) => handleChange("church", e.target.value)}
               />
               <TextField
                 id="template_id"

@@ -2,16 +2,18 @@ import React, { useState } from "react";
 import { useWeddings } from "../hooks/useWeddings.js";
 import { useDebounce } from "../hooks/useDebounce";
 
-import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, CircularProgress, Tooltip, Chip, IconButton } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, CircularProgress, Chip } from "@mui/material";
 import { StyledTableCell } from "../styles/index.js";
-import renderDateChip from "../utils/renderDateChip";
 
 import PropTypes from "prop-types";
 import AlertConfirm from "../components/AlertConfirm.jsx";
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import PeopleIcon from '@mui/icons-material/People';
+import renderDateChip from "../utils/renderDateChip";
+import RowActions from "../components/RowActions";
+
+import EditIcon from "@mui/icons-material/Edit";
+import PeopleIcon from "@mui/icons-material/People";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 
 const columns = [
@@ -19,7 +21,7 @@ const columns = [
   { id: "fecha", label: "Fecha y Hora" },
   { id: "ubicacion", label: "Ubicación", minWidth: 170 },
   { id: "estatus", label: "Estatus", minWidth: 100 },
-  { id: "acciones", minWidth: 150 },
+  { id: "acciones", minWidth: 40 },
 ];
 
 const WeddingsList = ({ search }) => {
@@ -29,7 +31,6 @@ const WeddingsList = ({ search }) => {
   const [openModal, setOpenModal] = useState(false);
   const [row, setRow] = useState(null);
   const debouncedSearch = useDebounce(search, 300);
-
 
   const filteredWeddings = (weddings || []).filter((wedding) =>
     `${wedding.boyfriend} ${wedding.girlfriend} ${wedding.location} ${wedding.state}`
@@ -66,7 +67,7 @@ const WeddingsList = ({ search }) => {
     return states.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
   }
 
-  
+
 
 
 
@@ -92,14 +93,15 @@ const WeddingsList = ({ search }) => {
             {filteredWeddings
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((w) => (
-                <TableRow key={w.id} hover sx={{
-                  "&:hover .row-actions": {
-                    opacity: 1
-                  }
-                }}>
+                <TableRow
+                  // onClick={() => navigate(`/weddings/${w.id}`)}
+                  key={w.id} hover sx={{
+                    "&:hover .row-actions": {
+                      opacity: 1
+                    }
+                  }}>
                   <TableCell>{w.boyfriend} & {w.girlfriend}</TableCell>
                   <TableCell>{renderDateChip(w.date)}</TableCell>
-                  {/* <TableCell>{getStringDate(w.date)}</TableCell> */}
                   <TableCell>{w.location}</TableCell>
                   <TableCell>
                     <Chip
@@ -114,34 +116,42 @@ const WeddingsList = ({ search }) => {
                       }}
                     />
                   </TableCell>
-                  <TableCell>
-                    <Link to={`/weddings/${w.id}`}>
-                      <Tooltip arrow title="Editar">
-                        <IconButton color="warning">
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Link>
 
-                    <Link to={`/weddings/${w.id}/guests`}>
-                      <Tooltip arrow title="Lista de invitados">
-                        <IconButton color="success">
-                          <PeopleIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Link>
-
-                    <Tooltip arrow title="Eliminar">
-                      <IconButton color="error" onClick={() => openAlertConfirm(w)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
+                  <TableCell align="right">
+                    <RowActions
+                      row={w}
+                      actions={[
+                        {
+                          label: "Editar",
+                          icon: <EditIcon fontSize="small" />,
+                          to: (row) => `/weddings/${row.id}`
+                        },
+                        {
+                          label: "Invitados",
+                          icon: <PeopleIcon fontSize="small" />,
+                          to: (row) => `/weddings/${row.id}/guests`
+                        },
+                        {
+                          label: "Imágenes",
+                          icon: <FileUploadIcon fontSize="small" />,
+                          to: (row) => `/weddings/${row.id}/pictures`
+                        },
+                        { divider: true },
+                        {
+                          label: "Eliminar",
+                          icon: <DeleteIcon fontSize="small" />,
+                          danger: true,
+                          onClick: (row) => openAlertConfirm(row)
+                        }
+                      ]}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
           </TableBody>
         </Table>
       </TableContainer>
+
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, 100]}
         component="div"
