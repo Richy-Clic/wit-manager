@@ -3,11 +3,12 @@ import { useGuests } from "../hooks/useGuests.js";
 import { useDebounce } from "../hooks/useDebounce";
 import { useParams } from "react-router-dom";
 
-import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, CircularProgress } from "@mui/material";
+import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow } from "@mui/material";
 import { StyledTableCell } from "../styles/index.js";
 
-import DeleteGuestConfirm from "../components/DeleteGuestConfirm.jsx";
-import GuestRow from "../components/GuestRow";
+import DeleteGuestConfirm from "./DeleteGuestConfirm.jsx";
+import SkeletonTable from "./skeletons/STable.jsx";
+import GuestRow from "./GuestRow";
 import PropTypes from "prop-types";
 
 const columns = [
@@ -71,10 +72,16 @@ const GuestsList = ({ search }) => {
     );
   }, []);
 
-  if (loading) return <CircularProgress style={{ margin: 50, display: "block", marginLeft: "auto", marginRight: "auto" }} />;
-  if (!loading && (!guests || guests.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}>No tienes invitados registrados</div>;
-  if (!filteredGuests.length) return <div style={{ textAlign: "center", marginTop: 50 }}> No se encontraron resultados </div>;
-
+  // if (loading) return <CircularProgress style={{ margin: 50, display: "block", marginLeft: "auto", marginRight: "auto" }} />;
+  // if (!loading && (!guests || guests.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}>No tienes invitados registrados</div>;
+  // if (!filteredGuests.length) return <div style={{ textAlign: "center", marginTop: 50 }}> No se encontraron resultados </div>;
+  if (!loading && (!guests || guests.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
+  if (!loading && (!guests || guests.length === 0)) {
+    return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
+  }
+  if (!loading && !filteredGuests.length) {
+    return <div style={{ textAlign: "center", marginTop: 50 }}> No se encontraron resultados </div>;
+  }
   return (
     <Paper variant="card" sx={{ width: "100%" }}>
       <TableContainer sx={{ maxHeight: 520 }}>
@@ -89,20 +96,24 @@ const GuestsList = ({ search }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredGuests
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((g, index) => (
-                <GuestRow
-                  key={g.id}
-                  g={g}
-                  index={index}
-                  page={page}
-                  rowsPerPage={rowsPerPage}
-                  wedding_id={wedding_id}
-                  openAlertConfirm={openAlertConfirm}
-                  getStringAttendance={getStringAttendance}
-                />
-              ))}
+            {loading ? (
+              <SkeletonTable rows={rowsPerPage} />
+            ) : (
+              filteredGuests
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((g, index) => (
+                  <GuestRow
+                    key={g.id}
+                    g={g}
+                    index={index}
+                    page={page}
+                    rowsPerPage={rowsPerPage}
+                    wedding_id={wedding_id}
+                    openAlertConfirm={openAlertConfirm}
+                    getStringAttendance={getStringAttendance}
+                  />
+                ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>

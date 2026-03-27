@@ -28,9 +28,11 @@ export default function UploadPictures() {
 
       // HEADER
       if (headerImage) {
+        // console.log("headerimage", headerImage);
+        
         await uploadWeddingImage({
           file: headerImage,
-          wedding_id,
+          weddingId: wedding_id,
           type: "header"
         });
       }
@@ -41,7 +43,7 @@ export default function UploadPictures() {
       for (let i = 0; i < galleryImages.length; i++) {
         await uploadWeddingImage({
           file: galleryImages[i],
-          wedding_id,
+          weddingId: wedding_id,
           type: "gallery",
           order: startOrder + i
         });
