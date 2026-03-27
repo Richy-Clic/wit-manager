@@ -72,9 +72,6 @@ const GuestsList = ({ search }) => {
     );
   }, []);
 
-  // if (loading) return <CircularProgress style={{ margin: 50, display: "block", marginLeft: "auto", marginRight: "auto" }} />;
-  // if (!loading && (!guests || guests.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}>No tienes invitados registrados</div>;
-  // if (!filteredGuests.length) return <div style={{ textAlign: "center", marginTop: 50 }}> No se encontraron resultados </div>;
   if (!loading && (!guests || guests.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
   if (!loading && (!guests || guests.length === 0)) {
     return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
