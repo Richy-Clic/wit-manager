@@ -4,7 +4,6 @@ import { Box, Typography, Button } from "@mui/material";
 import { toast } from "sonner";
 
 import { uploadWeddingImage } from "../services/weddings/uploadWeddingImage";
-import { getNextGalleryOrder } from "../services/weddings/getNextGalleryOrder";
 
 import ImageUploader from "../components/ImageUploader";
 
@@ -17,47 +16,51 @@ export default function UploadPictures() {
   const [loading, setLoading] = useState(false);
 
 
-  const handleUpload = async () => {
-    try {
-      if (!headerImage && galleryImages.length === 0) {
-        toast.error("Sube al menos una imagen");
-        return;
-      }
+ const handleUpload = async () => {
+  try {
+    if (!headerImage && galleryImages.length === 0) {
+      toast.error("No hay imagenes para guardar");
+      return;
+    }
 
-      setLoading(true);
+    setLoading(true);
 
-      // HEADER
-      if (headerImage) {
-        // console.log("headerimage", headerImage);
-        
-        await uploadWeddingImage({
+    const uploads = [];
+
+    // HEADER
+    if (headerImage) {
+      uploads.push(
+        uploadWeddingImage({
           file: headerImage,
           weddingId: wedding_id,
           type: "header"
-        });
-      }
-
-      // GALERÍA
-      const startOrder = await getNextGalleryOrder(wedding_id);
-
-      for (let i = 0; i < galleryImages.length; i++) {
-        await uploadWeddingImage({
-          file: galleryImages[i],
-          weddingId: wedding_id,
-          type: "gallery",
-          order: startOrder + i
-        });
-      }
-
-      toast.success("Imágenes subidas correctamente");
-
-      navigate("/weddings");
-    } catch (error) {
-      toast.error("Error al subir imágenes: " + error.message);
-    } finally {
-      setLoading(false);
+        })
+      );
     }
-  };
+
+    // GALERÍA
+    if (galleryImages.length > 0) {
+      for (const img of galleryImages) {
+        uploads.push(
+          uploadWeddingImage({
+            file: img,
+            weddingId: wedding_id,
+            type: "gallery"
+          })
+        );
+      }
+    }
+    
+    await Promise.all(uploads);
+
+    toast.success("Imágenes subidas correctamente");
+
+  } catch (error) {
+    toast.error("Error al subir imágenes: " + error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Box maxWidth={500} mx="auto" mt={4}>

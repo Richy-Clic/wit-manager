@@ -23,9 +23,6 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { Toaster } from "sonner";
 import { StyleSonnar } from "./styles/index.js";
 
-import { ThemeProvider } from "@mui/material/styles";
-import theme from "./styles/theme.js";
-
 // 👇 Componente para agrupar las rutas de una boda
 function GuestRoutes() {
   return (
@@ -44,7 +41,6 @@ function GuestRoutes() {
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <AuthProvider>
         <WeddingsProvider>
@@ -61,10 +57,8 @@ function App() {
               }}
             />
             <Routes>
-              {/* Rutas públicas */}
               <Route path="/" element={<Login />} />
 
-              {/* Rutas privadas */}
               <Route
                 path="/weddings"
                 element={
@@ -83,7 +77,6 @@ function App() {
                 }
               />
 
-              {/* 👇 Todas las rutas que dependen de wedding_id */}
               <Route
                 path="/weddings/:wedding_id/*"
                 element={
@@ -111,14 +104,12 @@ function App() {
                 }
               />
 
-              {/* Not found */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </WeddingsProvider>
       </AuthProvider>
     </LocalizationProvider>
-    </ThemeProvider>
   );
 }
 

@@ -16,6 +16,12 @@ import {
   Box,
   AppBar,
 } from "@mui/material";
+import { useContext } from "react";
+import { ThemeContext } from "../context/ThemeContext";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
+
+
 
 import { Link } from "react-router-dom";
 const pages = ["Dashboard", "Weddings"];
@@ -24,6 +30,7 @@ const settings = ["Profile", "Logout"];
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const { mode, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
@@ -157,6 +164,14 @@ function Navbar() {
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
+          <Tooltip title= {`Cambiar a ${mode === 'light' ? 'modo oscuro' : 'modo claro'}`}>
+            <IconButton color="inherit" onClick={toggleTheme} sx={{ mr: 2 }}>
+              {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+            </IconButton>
+            </Tooltip>
+          </Box>
+
+          <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
@@ -184,7 +199,7 @@ function Navbar() {
                   onClick={() => {
                     handleCloseUserMenu();
                     if (setting === "Logout") handleLogout();
-                    if(setting === "Profile") navigate("/profile");
+                    if (setting === "Profile") navigate("/profile");
                   }}
                 >
                   <Typography textAlign="center">{setting}</Typography>

@@ -126,42 +126,42 @@ export default function ImageUploader({
         </Box>
       ) : (
         files && (
-  <Box mt={2}>
-    <Box
-      sx={{
-        position: "relative",
-        width: "150px" // 🔥 tamaño fijo limpio
-      }}
-    >
-      <img
-        src={URL.createObjectURL(files)}
-        alt=""
-        style={{
-          width: "100%",
-          borderRadius: "12px",
-          display: "block"
-        }}
-      />
+          <Box mt={2}>
+            <Box
+              sx={{
+                position: "relative",
+                width: "150px" // 🔥 tamaño fijo limpio
+              }}
+            >
+              <img
+                src={URL.createObjectURL(files)}
+                alt=""
+                style={{
+                  width: "100%",
+                  borderRadius: "12px",
+                  display: "block"
+                }}
+              />
 
-      <IconButton
-        onClick={() => setFiles(null)}
-        sx={{
-          position: "absolute",
-          top: 6,
-          right: 6,
-          background: "rgba(0,0,0,0.6)",
-          color: "#fff",
-          "&:hover": {
-            background: "rgba(0,0,0,0.8)"
-          }
-        }}
-        size="small"
-      >
-        <DeleteIcon fontSize="small" />
-      </IconButton>
-    </Box>
-  </Box>
-)
+              <IconButton
+                onClick={() => setFiles(null)}
+                sx={{
+                  position: "absolute",
+                  top: 6,
+                  right: 6,
+                  background: "rgba(0,0,0,0.6)",
+                  color: "#fff",
+                  "&:hover": {
+                    background: "rgba(0,0,0,0.8)"
+                  }
+                }}
+                size="small"
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          </Box>
+        )
       )}
     </Box>
   );
