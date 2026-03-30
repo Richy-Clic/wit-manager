@@ -1,12 +1,17 @@
 import * as React from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import WidgetsIcon from "@mui/icons-material/Widgets";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
+
 import supabase from "../lib/supabaseClient";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useContext } from "react";
+import { ThemeContext } from "../context/ThemeContext";
+
 import {
   Tooltip,
   MenuItem,
-  Container,
   Avatar,
   Button,
   Menu,
@@ -16,65 +21,50 @@ import {
   Box,
   AppBar,
 } from "@mui/material";
-import { useContext } from "react";
-import { ThemeContext } from "../context/ThemeContext";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LightModeIcon from "@mui/icons-material/LightMode";
 
-
-
-import { Link } from "react-router-dom";
 const pages = ["Dashboard", "Weddings"];
 const settings = ["Profile", "Logout"];
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+
   const { mode, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
+  const handleOpenNavMenu = (e) => setAnchorElNav(e.currentTarget);
+  const handleOpenUserMenu = (e) => setAnchorElUser(e.currentTarget);
+  const handleCloseNavMenu = () => setAnchorElNav(null);
+  const handleCloseUserMenu = () => setAnchorElUser(null);
 
   const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      localStorage.removeItem("sb-kwawewgowfcxilsewbts-auth-token"); // tu token
-      navigate("/"); // redirige a login
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error.message);
-    }
+    await supabase.auth.signOut();
+    localStorage.removeItem("sb-kwawewgowfcxilsewbts-auth-token");
+    navigate("/");
   };
 
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <WidgetsIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+    <AppBar position="static" elevation={0}>
+      <Toolbar
+        sx={{
+          px: 3,
+          minHeight: { xs: 56, md: 64 },
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        {/* 🔹 LEFT SECTION */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <WidgetsIcon sx={{ display: { xs: "none", md: "flex" } }} />
+
           <Typography
             variant="h6"
-            noWrap
-            component="a"
+            component={Link}
             to="/dashboard"
-            // href="#app-bar-with-responsive-menu"
             sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
               fontWeight: 700,
-              letterSpacing: ".3rem",
+              letterSpacing: ".2rem",
               color: "inherit",
               textDecoration: "none",
             }}
@@ -82,134 +72,94 @@ function Navbar() {
             WIT
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
-            >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography
-                    textAlign="center"
-                    component={Link}
-                    to={`/${page.toLowerCase()}`}
-                    sx={{ color: "inherit", textDecoration: "none" }}
-                  >
-                    {page}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-          <WidgetsIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            WIT
-          </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+          {/* Desktop menu */}
+          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1 }}>
             {pages.map((page) => (
               <Button
                 key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
+                component={Link}
+                to={`/${page.toLowerCase()}`}
+                sx={{ color: "inherit", textTransform: "none" }}
               >
-                <Typography
-                  textAlign="center"
-                  component={Link}
-                  to={`/${page.toLowerCase()}`}
-                  sx={{ color: "inherit", textDecoration: "none" }}
-                >
-                  {page}
-                </Typography>
+                {page}
               </Button>
             ))}
           </Box>
+        </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
-          <Tooltip title= {`Cambiar a ${mode === 'light' ? 'modo oscuro' : 'modo claro'}`}>
-            <IconButton color="inherit" onClick={toggleTheme} sx={{ mr: 2 }}>
+        {/* 🔹 MOBILE MENU */}
+        <Box sx={{ display: { xs: "flex", md: "none" } }}>
+          <IconButton color="inherit" onClick={handleOpenNavMenu}>
+            <MenuIcon />
+          </IconButton>
+
+          <Menu
+            anchorEl={anchorElNav}
+            open={Boolean(anchorElNav)}
+            onClose={handleCloseNavMenu}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            transformOrigin={{ vertical: "top", horizontal: "left" }}
+          >
+            {pages.map((page) => (
+              <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <Typography
+                  component={Link}
+                  to={`/${page.toLowerCase()}`}
+                  sx={{ textDecoration: "none", color: "inherit" }}
+                >
+                  {page}
+                </Typography>
+              </MenuItem>
+            ))}
+          </Menu>
+        </Box>
+
+        {/* 🔹 RIGHT SECTION */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {/* Dark mode */}
+          <Tooltip
+            title={`Cambiar a ${mode === "light" ? "modo oscuro" : "modo claro"
+              }`}
+          >
+            <IconButton color="inherit" onClick={toggleTheme}>
               {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
             </IconButton>
-            </Tooltip>
-          </Box>
+          </Tooltip>
 
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
+          {/* Avatar */}
+          <Tooltip title="Configuración">
+            <IconButton
+              onClick={handleOpenUserMenu}
+              sx={{ p: 0.5 }}
             >
-              {settings.map((setting) => (
-                <MenuItem
-                  key={setting}
-                  onClick={() => {
-                    handleCloseUserMenu();
-                    if (setting === "Logout") handleLogout();
-                    if (setting === "Profile") navigate("/profile");
-                  }}
-                >
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-        </Toolbar>
-      </Container>
+              <Avatar sx={{ width: 40, height: 40 }} />
+            </IconButton>
+          </Tooltip>
+
+          <Menu
+            anchorEl={anchorElUser}
+            open={Boolean(anchorElUser)}
+            onClose={handleCloseUserMenu}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            {settings.map((setting) => (
+              <MenuItem
+                key={setting}
+                onClick={() => {
+                  handleCloseUserMenu();
+                  if (setting === "Logout") handleLogout();
+                  if (setting === "Profile") navigate("/profile");
+                }}
+              >
+                {setting}
+              </MenuItem>
+            ))}
+          </Menu>
+        </Box>
+      </Toolbar>
     </AppBar>
   );
 }
+
 export default Navbar;

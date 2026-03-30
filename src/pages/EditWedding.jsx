@@ -7,7 +7,6 @@ import { useGoogleAutocomplete } from "../hooks/useGoogleAutocomplete.js";
 
 import { toast } from "sonner";
 
-import Navbar from "../components/Navbar.jsx";
 import PageTitle from "../components/PageTitle.jsx";
 import moment from 'moment';
 
@@ -97,7 +96,6 @@ export default function EditWedding() {
 
   return (
     <Grid container spacing={2} justifyContent="center">
-      <Navbar />
       <Grid item xs={12} sm={8} md={4} mt={4}>
         <PageTitle>Editar Boda</PageTitle>
         <Paper sx={{ p: 2 }}>

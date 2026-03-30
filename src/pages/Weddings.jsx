@@ -6,7 +6,6 @@ import { Grid, Box, Button, Container } from "@mui/material";
 import { toast } from "sonner";
 
 import WeddingsList from "../components/WeddingsList.jsx";
-import Navbar from "../components/Navbar.jsx";
 import SearchInput from "../components/SearchInput";
 import PageTitle from "../components/PageTitle.jsx";
 
@@ -30,7 +29,6 @@ const Weddings = () => {
 
   return (
     <Grid container spacing={2}>
-      <Navbar />
 
       <Container maxWidth="lg">
         <Box

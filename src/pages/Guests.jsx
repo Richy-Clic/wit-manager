@@ -15,7 +15,6 @@ import { toast } from "sonner";
 import GuestsList from "../components/GuestsList.jsx";
 import SearchInput from "../components/SearchInput";
 import PageTitle from "../components/PageTitle.jsx";
-import Navbar from "../components/Navbar.jsx";
 import supabase from "../lib/supabaseClient.js";
 
 const FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-bulk-whatsapp`;
@@ -123,8 +122,6 @@ const Guests = () => {
 
   return (
     <Grid container spacing={2}>
-      <Navbar />
-
       <Container maxWidth="lg">
         <Box
           mt={4}

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { TextField, Box, Button, Grid, MenuItem, Paper, Stack } from "@mui/material";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useGuests } from "../hooks/useGuests.js";
-import Navbar from "../components/Navbar.jsx";
 import { toast, Toaster } from "sonner";
 import { StyleSonnar } from "../styles/index.js";
 
@@ -109,7 +108,6 @@ export default function EditGuest() {
 
   return (
     <Grid container spacing={2} justifyContent="center">
-      <Navbar />
       <Toaster
         toastOptions={{
           style: { ...StyleSonnar.warning }

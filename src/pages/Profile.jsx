@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Avatar, Box, Typography, CircularProgress, Paper, Container, Grid } from "@mui/material";
 import supabase from "../lib/supabaseClient";
-import Navbar from "../components/Navbar.jsx";
 
 export default function Profile() {
     const [user, setUser] = useState(null);
@@ -32,8 +31,6 @@ export default function Profile() {
 
     return (
         <Grid container spacing={2}>
-
-            <Navbar />
             <Container maxWidth="lg">
                 <Box sx={{ maxWidth: 400, margin: "50px auto" }}>
                     <Paper sx={{ p: 3, textAlign: "center" }}>

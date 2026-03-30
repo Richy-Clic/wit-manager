@@ -15,8 +15,6 @@ import { useWeddings } from "../hooks/useWeddings.js";
 import { useGoogleAutocomplete } from "../hooks/useGoogleAutocomplete.js";
 import { toast } from "sonner";
 
-
-import Navbar from "../components/Navbar.jsx";
 import PageTitle from "../components/PageTitle.jsx";
 
 const steps = ["Datos", "Ubicaciones", "Detalles y Diseño"];
@@ -239,8 +237,6 @@ export default function NewWedding() {
 
   return (
     <Grid container justifyContent="center">
-      <Navbar />
-
       <Grid item xs={12} sm={8} md={5} lg={4} mt={4}>
         <PageTitle>Nueva Boda</PageTitle>
 

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { TextField, Box, Button, Grid, MenuItem } from "@mui/material";
-import Navbar from "../components/Navbar.jsx";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useGuests } from "../hooks/useGuests.js";
@@ -64,7 +63,6 @@ export default function NewGuestForm() {
 
   return (
     <Grid container spacing={2} justifyContent="center">
-      <Navbar />
       <Grid item xs={12} sm={8} md={5} lg={4} mt={4}>
         <PageTitle>Nuevo Invitado</PageTitle>
         <Box component="form" onSubmit={handleSubmit}>

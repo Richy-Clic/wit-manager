@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Box, Button, Grid } from "@mui/material";
-import Navbar from "../components/Navbar.jsx";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useGuests } from "../hooks/useGuests.js";
@@ -71,7 +70,6 @@ const AddGuestsList = () => {
   return (
 
     <Grid container spacing={2} justifyContent="center">
-      <Navbar />
       <Grid item xs={12} sm={8} md={4} mt={4}>
         <PageTitle>Agregar lista de invitados</PageTitle>
         <Box component="form" sx={{ p: 2 }}>
