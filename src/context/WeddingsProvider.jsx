@@ -1,6 +1,8 @@
-import { useState, createContext, useEffect } from "react";
+import { useState, createContext, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import supabase from "../lib/supabaseClient";
+import { uploadWeddingImage } from "../services/weddings/uploadWeddingImage";
+import convert2WebP from "../services/weddings/convert2Webp";
 
 export const WeddingsContext = createContext();
 
@@ -8,6 +10,7 @@ export const WeddingsProvider = ({ children }) => {
   const [weddings, setWeddings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState([]);
+  const [images, setImages] = useState([]);
   const [loadingTemplates, setLoadingTemplates] = useState(true);
 
   // ========================
@@ -125,6 +128,77 @@ export const WeddingsProvider = ({ children }) => {
   };
 
   // ========================
+  //  IMAGES
+  // ========================
+  const getImages = useCallback(async (wedding_id) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("wedding_photos")
+        .select("*")
+        .eq("wedding_id", wedding_id);
+
+      if (error) throw error;
+
+      setImages(data);
+    } catch (err) {
+      console.error("Error fetching images:", err.message);
+      setImages([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const uploadImages = async ({ weddingId, headerImage, galleryImages }) => {
+    setLoading(true);
+
+    try {
+      if (!(headerImage instanceof File) && !galleryImages.some(img => img instanceof File)) {
+        return { warning: true };
+      }
+      
+      if (headerImage instanceof File) {
+        console.log("Uploading header");
+        const headerOptimized = await convert2WebP(headerImage);
+
+        await uploadWeddingImage({
+          file: headerOptimized,
+          weddingId,
+          type: "header"
+        });
+
+        console.log("header uploaded");
+        
+      }
+
+      const galleryImgFiles = galleryImages.filter(img => img instanceof File);
+      let count = 1;
+      for (const img of galleryImgFiles) {
+        console.log("Uplopading file num : ", count);
+        const imgOptimized = await convert2WebP(img);
+
+        await uploadWeddingImage({
+          file: imgOptimized,
+          weddingId,
+          type: "gallery"
+        });
+        console.log("file uploaded");
+        count++;
+      }
+
+      await getImages(weddingId);
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+  // ========================
   //  INIT
   // ========================
   useEffect(() => {
@@ -136,7 +210,7 @@ export const WeddingsProvider = ({ children }) => {
       .channel("weddings")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "weddings" },      
+        { event: "*", schema: "public", table: "weddings" },
         (payload) => {
           console.log("Cambio en weddings:", payload);
           getWeddings();
@@ -152,8 +226,8 @@ export const WeddingsProvider = ({ children }) => {
   return (
     <WeddingsContext.Provider
       value={{
-        weddings,
         loading,
+        weddings,
         getWeddings,
         createWedding,
         updateWedding,
@@ -161,6 +235,9 @@ export const WeddingsProvider = ({ children }) => {
         templates,
         loadingTemplates,
         getTemplates,
+        images,
+        getImages,
+        uploadImages
       }}
     >
       {children}

@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Paper } from "@mui/material";
 import { toast } from "sonner";
-
-import { uploadWeddingImage } from "../services/weddings/uploadWeddingImage";
+import { useWeddings } from "../hooks/useWeddings.js";
+import LinearProgress from "../components/LinearProgress.jsx";
 
 import ImageUploader from "../components/ImageUploader";
 
@@ -13,96 +13,95 @@ export default function UploadPictures() {
 
   const [headerImage, setHeaderImage] = useState(null);
   const [galleryImages, setGalleryImages] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { images, getImages, uploadImages, loading } = useWeddings();
 
 
- const handleUpload = async () => {
-  try {
-    if (!headerImage && galleryImages.length === 0) {
-      toast.error("No hay imagenes para guardar");
-      return;
+  const handleUpload = async () => {
+    const result = await uploadImages({
+      weddingId: wedding_id,
+      headerImage,
+      galleryImages
+    });
+
+    if (result.success) {
+      await getImages(wedding_id);
+      toast.success("Imágenes subidas correctamente");
+    } else if (result.warning) {
+      toast("No hay nuevas imágenes para subir");
+    } else {
+      toast.error("Error: " + result.error.message);
     }
+  };
 
-    setLoading(true);
+  useEffect(() => {
+    if (!wedding_id) return;
+    if (wedding_id) getImages(wedding_id);
 
-    const uploads = [];
+  }, [wedding_id, getImages]);
 
-    // HEADER
-    if (headerImage) {
-      uploads.push(
-        uploadWeddingImage({
-          file: headerImage,
-          weddingId: wedding_id,
-          type: "header"
-        })
-      );
-    }
+  useEffect(() => {
+    if (!images) return;
 
-    // GALERÍA
-    if (galleryImages.length > 0) {
-      for (const img of galleryImages) {
-        uploads.push(
-          uploadWeddingImage({
-            file: img,
-            weddingId: wedding_id,
-            type: "gallery"
-          })
-        );
-      }
-    }
-    
-    await Promise.all(uploads);
+    const timestamp = Date.now();
+    const header = images.find((img) => img.type === "header")?.url || null;
+    const gallery = images.filter((img) => img.type === "gallery").map((img) => img.url);
 
-    toast.success("Imágenes subidas correctamente");
+    setHeaderImage(header ? `${header}?t=${timestamp}` : null);
+    setGalleryImages(gallery ? gallery.map(url => `${url}?t=${timestamp}`) : []);
+  }, [images]);
 
-  } catch (error) {
-    toast.error("Error al subir imágenes: " + error.message);
-  } finally {
-    setLoading(false);
-  }
-};
 
   return (
-    <Box maxWidth={500} mx="auto" mt={4}>
-      <Typography variant="h5" fontWeight={600}>
-        Subir Fotos
-      </Typography>
+    <Box sx={{
+      maxWidth: 900,
+      mx: "auto",
+      mt: 1,
+      px: 3
+    }}>
+      <Paper elevation={3} sx={{ borderRadius: 4, p: 4}} >
+        <Typography variant="h5" fontWeight={600}>
+          Imágenes del Evento
+        </Typography>
 
-      <Typography variant="body2" color="text.secondary" mb={2}>
-        Agrega la imagen principal y la galería de la boda
-      </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Agrega una portada y hasta 5 imágenes para la galería
+        </Typography>
 
-      {/* HEADER */}
-      <Box mt={3}>
-        <ImageUploader
-          label="Imagen Encabezado"
-          files={headerImage}
-          setFiles={setHeaderImage}
-        />
-      </Box>
+        <Box sx={{ height: 10 }}>
+          {loading && <LinearProgress />}
+        </Box>
 
-      <Box mt={3}>
-        <ImageUploader
-          multiple
-          label="Galería de Fotos"
-          files={galleryImages}
-          setFiles={setGalleryImages}
-        />
-      </Box>
+        <Box mt={3}>
+          <ImageUploader
+            label="Imagen Encabezado"
+            files={headerImage}
+            setFiles={setHeaderImage}
+          />
+        </Box>
 
-      <Box mt={4} display="flex" justifyContent="space-between">
-        <Button color="error" onClick={() => navigate("/weddings")}>
-          Cancelar
-        </Button>
+        <Box mt={3}>
+          <ImageUploader
+            multiple
+            label="Galería de Fotos"
+            files={galleryImages}
+            setFiles={setGalleryImages}
+          />
+        </Box>
 
-        <Button
-          variant="contained"
-          onClick={handleUpload}
-          disabled={loading}
-        >
-          {loading ? "Subiendo..." : "Guardar Imágenes"}
-        </Button>
-      </Box>
+        <Box mt={4} display="flex" justifyContent="space-between">
+          <Button color="error" onClick={() => navigate("/weddings")}>
+            Cancelar
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={handleUpload}
+            disabled={loading}
+          >
+            {loading ? "Subiendo..." : "Guardar Imágenes"}
+          </Button>
+        </Box>
+      </Paper>
     </Box>
   );
 }

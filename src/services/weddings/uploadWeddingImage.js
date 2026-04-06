@@ -7,17 +7,12 @@ export const uploadWeddingImage = async ({
 }) => {
   if (!file) throw new Error("File is required");
 
-  if (!["header", "gallery"].includes(type)) {
-    throw new Error("Invalid image type");
-  }
-
   const fileExt = file.name.split(".").pop()?.toLowerCase();
 
   if (!["png", "jpg", "jpeg", "webp"].includes(fileExt)) {
-    throw new Error("Invalid file type");
+    throw new Error("Tipo de archivo no permitido. Solo se permiten PNG, JPG, JPEG y WEBP.");
   }
 
-  // 🔥 nombre seguro
   const fileName =
     type === "header"
       ? `header.${fileExt}`
@@ -29,58 +24,75 @@ export const uploadWeddingImage = async ({
       : `${weddingId}/gallery/${fileName}`;
 
   try {
-    // 1. Upload
+    // 🔥 1. Upload (overwrite safe)
     const { error: uploadError } = await supabase.storage
       .from("weddings")
-      .upload(path, file, {
-        upsert: type === "header"
-      });
+      .upload(path, file, { upsert: true });
 
     if (uploadError) throw uploadError;
 
-    // 2. URL
+    // 🔥 2. URL (cache busting)
     const { data } = supabase.storage
       .from("weddings")
       .getPublicUrl(path);
 
     const publicUrl = data.publicUrl;
 
-    // 3. DB
-    let dbError;
-
+    // 🔥 3. DB
     if (type === "header") {
-      ({ error: dbError } = await supabase
+      const {
+        data: existing,
+        error: selectError
+      } = await supabase
         .from("wedding_photos")
-        .upsert(
-          {
+        .select("id")
+        .eq("wedding_id", weddingId)
+        .eq("type", "header")
+        .maybeSingle();
+
+      if (selectError) throw selectError;
+
+      if (existing) {
+        const { error: updateError } = await supabase
+          .from("wedding_photos")
+          .update({ url: publicUrl })
+          .eq("id", existing.id)
+          .select();
+          
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from("wedding_photos")
+          .insert({
             wedding_id: weddingId,
             type,
-            url: publicUrl
-          },
-          {
-            onConflict: "wedding_id,type"
-          }
-        ));
+            url: publicUrl,
+            path: path
+          });
+
+        if (insertError) throw insertError;
+      }
     } else {
-      ({ error: dbError } = await supabase
+      const { error: insertError } = await supabase
         .from("wedding_photos")
         .insert({
           wedding_id: weddingId,
           type,
-          url: publicUrl
-        }));
-    }
+          url: publicUrl,
+          path: path
+        });
 
-    // 🔥 rollback si falla DB
-    if (dbError) {
-      await supabase.storage.from("weddings").remove([path]);
-      throw dbError;
+      if (insertError) throw insertError;
     }
 
     return publicUrl;
 
   } catch (error) {
-    console.error("Error en uploadWeddingImage:", error);
+    console.error("🔴 uploadWeddingImage:", error);
+
+    // 🔥 rollback storage si falla DB
+    await supabase.storage.from("weddings").remove([path]);
+
     throw error;
   }
 };
