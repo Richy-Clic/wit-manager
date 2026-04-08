@@ -1,8 +1,8 @@
 import { useState, createContext, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import supabase from "../lib/supabaseClient";
-import { uploadWeddingImage } from "../services/weddings/uploadWeddingImage";
-import convert2WebP from "../services/weddings/convert2Webp";
+import { uploadWeddingImage } from "../services/uploadWeddingImage";
+import convert2WebP from "../services/convert2Webp";
 
 export const WeddingsContext = createContext();
 
@@ -156,9 +156,8 @@ export const WeddingsProvider = ({ children }) => {
       if (!(headerImage instanceof File) && !galleryImages.some(img => img instanceof File)) {
         return { warning: true };
       }
-      
+
       if (headerImage instanceof File) {
-        console.log("Uploading header");
         const headerOptimized = await convert2WebP(headerImage);
 
         await uploadWeddingImage({
@@ -166,15 +165,10 @@ export const WeddingsProvider = ({ children }) => {
           weddingId,
           type: "header"
         });
-
-        console.log("header uploaded");
-        
       }
 
       const galleryImgFiles = galleryImages.filter(img => img instanceof File);
-      let count = 1;
       for (const img of galleryImgFiles) {
-        console.log("Uplopading file num : ", count);
         const imgOptimized = await convert2WebP(img);
 
         await uploadWeddingImage({
@@ -183,7 +177,6 @@ export const WeddingsProvider = ({ children }) => {
           type: "gallery"
         });
         console.log("file uploaded");
-        count++;
       }
 
       await getImages(weddingId);
@@ -193,6 +186,29 @@ export const WeddingsProvider = ({ children }) => {
       return { success: false, error };
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteImagesFromStorage = async (paths) => {
+    const { error } = await supabase
+      .storage
+      .from("weddings")
+      .remove(paths);
+
+    if (error) {
+      console.error("Storage delete error:", error);
+    }
+  };
+
+  const deleteImagesFromDB = async (paths, weddingId) => {
+    const { error } = await supabase
+      .from("wedding_photos")
+      .delete()
+      .in("path", paths)
+      .eq("wedding_id", weddingId);
+
+    if (error) {
+      console.error("DB delete error:", error);
     }
   };
 
@@ -237,7 +253,9 @@ export const WeddingsProvider = ({ children }) => {
         getTemplates,
         images,
         getImages,
-        uploadImages
+        uploadImages,
+        deleteImagesFromStorage,
+        deleteImagesFromDB
       }}
     >
       {children}

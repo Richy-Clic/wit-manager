@@ -13,6 +13,8 @@ export default function ImageUploader({
   multiple = false,
   files,
   setFiles,
+  type,
+  onRemove,
   label = "Sube imágenes",
   max = 5
 }) {
@@ -53,10 +55,19 @@ export default function ImageUploader({
   };
 
   // REMOVE
-  const handleRemove = (index) => {
-    if (!multiple) return setFiles(null);
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+ const handleRemove = (index) => {
+  if (!multiple) return setFiles(null);
+
+  setFiles((prev) => {
+    const removed = prev[index];
+
+    if (onRemove) {
+      onRemove(removed);
+    }
+
+    return prev.filter((_, i) => i !== index);
+  });
+};
 
   // SLOTS
   const visibleSlots = multiple
@@ -121,24 +132,26 @@ export default function ImageUploader({
                 />
 
                 {/* DELETE */}
-                <IconButton
-                  size="small"
-                  onClick={() => handleRemove(index)}
-                  sx={{
-                    position: "absolute",
-                    top: 6,
-                    right: 6,
-                    background: "rgba(0,0,0,0.5)",
-                    color: "#fff",
-                    "&:hover": {
-                      background: "#d32f2f",
+                {type === "gallery" ? (
+                  <IconButton
+                    size="small"
+                    onClick={() => handleRemove(index)}
+                    sx={{
+                      position: "absolute",
+                      top: 6,
+                      right: 6,
+                      background: "rgba(0,0,0,0.5)",
                       color: "#fff",
-                      transform: "scale(1.02)"
-                    }
-                  }}
-                >
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
+                      "&:hover": {
+                        background: "#d32f2f",
+                        color: "#fff",
+                        transform: "scale(1.02)"
+                      }
+                    }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                ) : null}
 
                 {/* REPLACE BUTTON */}
 
@@ -155,7 +168,7 @@ export default function ImageUploader({
                     fontSize: 12,
                     cursor: "pointer",
                     transition: "all 0.2s ease",
-                     "&:hover": {
+                    "&:hover": {
                       background: "#d32f2f",
                       color: "#fff"
                     }
@@ -241,5 +254,7 @@ ImageUploader.propTypes = {
   label: PropTypes.string,
   max: PropTypes.number,
   files: PropTypes.any,
-  setFiles: PropTypes.func.isRequired
+  type: PropTypes.string,
+  setFiles: PropTypes.func.isRequired,
+  onRemove: PropTypes.func
 };

@@ -56,7 +56,12 @@ function App() {
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <AuthProvider>
         <WeddingsProvider>
-          <BrowserRouter>
+          <BrowserRouter
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true
+            }}
+          >
 
             {/* 🔔 Toasts */}
             <Toaster

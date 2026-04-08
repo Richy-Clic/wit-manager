@@ -6,6 +6,7 @@ import { useWeddings } from "../hooks/useWeddings.js";
 import LinearProgress from "../components/LinearProgress.jsx";
 
 import ImageUploader from "../components/ImageUploader";
+import getStoragePathFromUrl from "../services/getStoragePathFromUrl.js";
 
 export default function UploadPictures() {
   const { wedding_id } = useParams();
@@ -13,26 +14,64 @@ export default function UploadPictures() {
 
   const [headerImage, setHeaderImage] = useState(null);
   const [galleryImages, setGalleryImages] = useState([]);
-  const { images, getImages, uploadImages, loading } = useWeddings();
+  const { images, getImages, uploadImages, deleteImagesFromStorage, deleteImagesFromDB, loading } = useWeddings();
+  const [deletedImages, setDeletedImages] = useState([]);
 
 
   const handleUpload = async () => {
-    const result = await uploadImages({
-      weddingId: wedding_id,
-      headerImage,
-      galleryImages
-    });
+    try {
+      let didDelete = false;
+      let didUpload = false;
 
-    if (result.success) {
-      await getImages(wedding_id);
-      toast.success("Imágenes subidas correctamente");
-    } else if (result.warning) {
-      toast("No hay nuevas imágenes para subir");
-    } else {
-      toast.error("Error: " + result.error.message);
+      // 🧹 DELETE
+      if (deletedImages.length > 0) {
+        await deleteImagesFromStorage(deletedImages);
+        await deleteImagesFromDB(deletedImages, wedding_id);
+        didDelete = true;
+      }
+
+      // 📤 UPLOAD
+      const result = await uploadImages({
+        weddingId: wedding_id,
+        headerImage,
+        galleryImages
+      });
+
+      if (result.success) {
+        didUpload = true;
+      } else if (!result.warning) {
+        throw result.error;
+      }
+
+      // 🔄 REFRESH
+      if (didDelete || didUpload) {
+        await getImages(wedding_id);
+      }
+
+      // 🎯 SINGLE TOAST LOGIC
+      if (didDelete && didUpload) {
+        toast.success("Imágenes actualizadas correctamente");
+      } else if (didDelete) {
+        toast.success(
+          deletedImages.length > 1
+            ? "Imágenes eliminadas correctamente"
+            : "Imagen eliminada correctamente"
+        );
+      } else if (didUpload) {
+        toast.success("Imágenes subidas correctamente");
+      } else {
+        toast("No hay cambios");
+      }
+
+      // 🧼 CLEAN STATE
+      setDeletedImages([]);
+
+    } catch (error) {
+      console.error(error);
+      toast.error("Error: " + error.message);
     }
   };
-
+  
   useEffect(() => {
     if (!wedding_id) return;
     if (wedding_id) getImages(wedding_id);
@@ -50,7 +89,6 @@ export default function UploadPictures() {
     setGalleryImages(gallery ? gallery.map(url => `${url}?t=${timestamp}`) : []);
   }, [images]);
 
-
   return (
     <Box sx={{
       maxWidth: 900,
@@ -58,7 +96,7 @@ export default function UploadPictures() {
       mt: 1,
       px: 3
     }}>
-      <Paper elevation={3} sx={{ borderRadius: 4, p: 4}} >
+      <Paper elevation={3} sx={{ borderRadius: 4, p: 4 }} >
         <Typography variant="h5" fontWeight={600}>
           Imágenes del Evento
         </Typography>
@@ -76,6 +114,7 @@ export default function UploadPictures() {
             label="Imagen Encabezado"
             files={headerImage}
             setFiles={setHeaderImage}
+            type="header"
           />
         </Box>
 
@@ -85,6 +124,13 @@ export default function UploadPictures() {
             label="Galería de Fotos"
             files={galleryImages}
             setFiles={setGalleryImages}
+            type="gallery"
+            onRemove={(file) => {
+              if (typeof file === "string") {
+                const path = getStoragePathFromUrl(file);
+                setDeletedImages((prev) => [...prev, path]);
+              }
+            }}
           />
         </Box>
 
