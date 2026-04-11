@@ -1,32 +1,19 @@
-import { useState, useRef } from "react";
-import {
-  TextField,
-  Box,
-  Button,
-  Grid,
-  MenuItem,
-  Stepper,
-  Step,
-  StepLabel
-} from "@mui/material";
+import { useState } from "react";
+import {TextField, Box, Button, Grid, MenuItem, Stepper, Step, StepLabel} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { useWeddings } from "../hooks/useWeddings.js";
-import { useGoogleAutocomplete } from "../hooks/useGoogleAutocomplete.js";
 import { toast } from "sonner";
 
 import PageTitle from "../components/PageTitle.jsx";
+import PlacesAutocompleteInput from "../components/PlacesAutocompleteInput.jsx";
 
 const steps = ["Datos", "Ubicaciones", "Detalles y Diseño"];
 
 export default function NewWedding() {
   const { createWedding, templates, loadingTemplates } = useWeddings();
   const navigate = useNavigate();
-
   const [activeStep, setActiveStep] = useState(0);
-
-  const locationRef = useRef(null);
-  const churchRef = useRef(null);
 
   const [formData, setFormData] = useState({
     boyfriend: "",
@@ -40,46 +27,10 @@ export default function NewWedding() {
     template_id: ""
   });
 
-  useGoogleAutocomplete({
-    inputRef: locationRef,
-    enabled: activeStep === 2,
-    options: { types: ["establishment"] },
-    onPlaceSelected: (place) => {
-      setFormData((prev) => ({
-        ...prev,
-        location: place.formatted_address || place.name,
-        location_id: place.place_id
-      }));
-    }
-  });
-
-  useGoogleAutocomplete({
-    inputRef: churchRef,
-    enabled: activeStep === 1,
-    options: { types: ["establishment"] },
-    onPlaceSelected: (place) => {
-      setFormData((prev) => ({
-        ...prev,
-        church: place.formatted_address || place.name,
-        church_id: place.place_id
-      }));
-    }
-  });
-
   const handleChange = (id, value) => {
     setFormData((prev) => ({
       ...prev,
       [id]: value
-    }));
-  };
-
-  // ✅ YA NO borra el place_id
-  const handleLocationChange = (e, type) => {
-    const value = e.target.value;
-
-    setFormData((prev) => ({
-      ...prev,
-      [type]: value
     }));
   };
 
@@ -92,7 +43,7 @@ export default function NewWedding() {
     }
 
     if (activeStep === 1 && !formData.church_id) {
-      toast.error("Selecciona una ubicació de la iglesia y evento válida de la lista");
+      toast.error("Selecciona una iglesia válida");
       return false;
     }
 
@@ -123,8 +74,6 @@ export default function NewWedding() {
         date: formData.date.toISOString()
       };
 
-      console.log("PAYLOAD:", payload);
-
       await createWedding(payload);
 
       navigate("/weddings", {
@@ -147,7 +96,6 @@ export default function NewWedding() {
               label="Nombre del Novio"
               fullWidth
               margin="normal"
-              required
               value={formData.boyfriend}
               onChange={(e) => handleChange("boyfriend", e.target.value)}
             />
@@ -155,7 +103,6 @@ export default function NewWedding() {
               label="Nombre de la Novia"
               fullWidth
               margin="normal"
-              required
               value={formData.girlfriend}
               onChange={(e) => handleChange("girlfriend", e.target.value)}
             />
@@ -164,9 +111,6 @@ export default function NewWedding() {
               value={formData.date}
               onChange={(date) => handleChange("date", date)}
               sx={{ width: "100%", mt: 2 }}
-              slotProps={{
-                textField: { fullWidth: true, required: true }
-              }}
             />
           </>
         );
@@ -174,23 +118,35 @@ export default function NewWedding() {
       case 1:
         return (
           <>
-            <TextField
+            <PlacesAutocompleteInput
+              mb={2}
               label="Iglesia"
-              fullWidth
-              margin="normal"
-              inputRef={churchRef}
               value={formData.church}
-              onChange={(e) => handleLocationChange(e, "church")}
-              placeholder="Ej: Parroquia San Pedro, Zapopan"
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, church: value }))
+              }
+              onSelect={(place) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  church: place.text,
+                  church_id: place.place_id
+                }))
+              }
             />
-            <TextField
+
+            <PlacesAutocompleteInput
               label="Ubicación del Evento"
-              fullWidth
-              margin="normal"
-              inputRef={locationRef}
               value={formData.location}
-              onChange={(e) => handleLocationChange(e, "location")}
-              placeholder="Ej: Hacienda San José, Guadalajara"
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, location: value }))
+              }
+              onSelect={(place) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  location: place.text,
+                  location_id: place.place_id
+                }))
+              }
             />
           </>
         );
@@ -207,6 +163,7 @@ export default function NewWedding() {
               value={formData.details}
               onChange={(e) => handleChange("details", e.target.value)}
             />
+
             <TextField
               select
               label="Plantilla"
@@ -214,22 +171,22 @@ export default function NewWedding() {
               margin="normal"
               value={formData.template_id}
               onChange={(e) => handleChange("template_id", e.target.value)}
-              helperText="Selecciona una plantilla"
             >
               {loadingTemplates ? (
                 <MenuItem disabled>Cargando...</MenuItem>
-              ) : templates.length > 0 ? (
+              ) : (
                 templates.map((tpl) => (
-                  <MenuItem key={tpl.id} value={tpl.id}>
+                  <MenuItem key={tpl.id} value={tpl.id}  sx={{
+    color: "black"
+  }}>
                     {tpl.name}
                   </MenuItem>
                 ))
-              ) : (
-                <MenuItem disabled>No hay plantillas</MenuItem>
               )}
             </TextField>
           </>
         );
+
       default:
         return null;
     }

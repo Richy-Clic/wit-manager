@@ -1,18 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { TextField, Box, Button, Grid, MenuItem, Paper, Stack } from "@mui/material";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useWeddings } from "../hooks/useWeddings.js";
-import { useGoogleAutocomplete } from "../hooks/useGoogleAutocomplete.js";
-
 import { toast } from "sonner";
 
+import PlacesAutocompleteInput from "../components/PlacesAutocompleteInput.jsx";
 import PageTitle from "../components/PageTitle.jsx";
 import moment from 'moment';
 
 export default function EditWedding() {
-  const locationRef = useRef(null);
-  const churchRef = useRef(null);
   const { wedding_id } = useParams();
   const navigate = useNavigate();
   const { weddings, updateWedding, loadingTemplates, templates } = useWeddings();
@@ -26,28 +23,6 @@ export default function EditWedding() {
     church_id: null,
     details: "",
     template_id: ""
-  });
-
-  useGoogleAutocomplete({
-    inputRef: churchRef,
-    onPlaceSelected: (place) => {
-      setWeddingData((prev) => ({
-        ...prev,
-        church: place.formatted_address || place.name,
-        church_id: place.place_id
-      }));
-    }
-  });
-
-  useGoogleAutocomplete({
-    inputRef: locationRef,
-    onPlaceSelected: (place) => {
-      setWeddingData((prev) => ({
-        ...prev,
-        location: place.formatted_address || place.name,
-        location_id: place.place_id
-      }));
-    }
   });
 
   useEffect(() => {
@@ -119,25 +94,47 @@ export default function EditWedding() {
                 label="Fecha y Hora"
                 value={weddingData.date}
                 onChange={(date) => handleChange("date", date)}
-                textField={(params) => (
-                  <TextField
-                    {...params}
-                    required
-                  />
-                )}
+                slotProps={{
+                  textField: {
+                    required: true,
+                    fullWidth: true
+                  }
+                }}
                 ampm={true} // opcional: usa 24h si quieres
               />
-              <TextField
+              <PlacesAutocompleteInput
                 label="Ubicación"
-                inputRef={locationRef}
                 value={weddingData.location || ""}
-                onChange={(e) => handleChange("location", e.target.value)}
+                onChange={(value) =>
+                  setWeddingData((prev) => ({
+                    ...prev,
+                    location: value
+                  }))
+                }
+                onSelect={(place) =>
+                  setWeddingData((prev) => ({
+                    ...prev,
+                    location: place.text,
+                    location_id: place.place_id
+                  }))
+                }
               />
-              <TextField
+              <PlacesAutocompleteInput
                 label="Iglesia"
-                inputRef={churchRef}
                 value={weddingData.church || ""}
-                onChange={(e) => handleChange("church", e.target.value)}
+                onChange={(value) =>
+                  setWeddingData((prev) => ({
+                    ...prev,
+                    church: value
+                  }))
+                }
+                onSelect={(place) =>
+                  setWeddingData((prev) => ({
+                    ...prev,
+                    church: place.text,
+                    church_id: place.place_id
+                  }))
+                }
               />
               <TextField
                 id="template_id"
