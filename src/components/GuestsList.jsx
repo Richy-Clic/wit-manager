@@ -3,16 +3,17 @@ import { useGuests } from "../hooks/useGuests.js";
 import { useDebounce } from "../hooks/useDebounce";
 import { useParams } from "react-router-dom";
 
-import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow } from "@mui/material";
+import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell } from "@mui/material";
 import { StyledTableCell } from "../styles/index.js";
 
 import DeleteGuestConfirm from "./DeleteGuestConfirm.jsx";
 import SkeletonTable from "./skeletons/STable.jsx";
+import Checkbox from "@mui/material/Checkbox";
+import Button from "@mui/material/Button";
 import GuestRow from "./GuestRow";
 import PropTypes from "prop-types";
 
 const columns = [
-  { id: "index", label: "ID" },
   { id: "name", label: "Nombre Invitado", minWidth: 150 },
   { id: "phone", label: "Teléfono" },
   { id: "mate", label: "Invitado por" },
@@ -34,6 +35,7 @@ const GuestsList = ({ search }) => {
   const [row, setRow] = useState(null);
   const { wedding_id } = useParams();
   const debouncedSearch = useDebounce(search, 300);
+  const [selected, setSelected] = useState([]);
 
   const filteredGuests = useMemo(() => {
     return (guests || []).filter((guest) =>
@@ -51,6 +53,7 @@ const GuestsList = ({ search }) => {
   const closeAlertConfirm = () => {
     setOpenModal(false);
     setRow(null);
+    setSelected([]);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -61,6 +64,26 @@ const GuestsList = ({ search }) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+
+  const isSelected = (id) => selected.includes(id);
+
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      const newSelected = filteredGuests.map((g) => g.id);
+      setSelected(newSelected);
+    } else {
+      setSelected([]);
+    }
+  };
+
+  const handleSelectRow = (id) => {
+    setSelected((prev) =>
+      prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id]
+    );
+  };
+
 
   const getStringAttendance = useCallback((state) => {
     return (
@@ -81,10 +104,32 @@ const GuestsList = ({ search }) => {
   }
   return (
     <Paper variant="card" sx={{ width: "100%" }}>
+      {selected.length > 0 && (
+        <Button
+          color="error"
+          variant="contained"
+          sx={{ m: 2 }}
+          onClick={() => setOpenModal(true)}
+        >
+          Eliminar ({selected.length})
+        </Button>
+      )}
       <TableContainer sx={{ maxHeight: 520 }}>
         <Table stickyHeader size="small" aria-label="sticky table">
           <TableHead>
             <TableRow>
+              <TableCell padding="checkbox">
+                <Checkbox
+                  indeterminate={
+                    selected.length > 0 && selected.length < filteredGuests.length
+                  }
+                  checked={
+                    filteredGuests.length > 0 &&
+                    selected.length === filteredGuests.length
+                  }
+                  onChange={handleSelectAll}
+                />
+              </TableCell>
               {columns.map((column) => (
                 <StyledTableCell key={column.id} style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}>
                   {column.label}
@@ -108,6 +153,8 @@ const GuestsList = ({ search }) => {
                     wedding_id={wedding_id}
                     openAlertConfirm={openAlertConfirm}
                     getStringAttendance={getStringAttendance}
+                    isSelected={isSelected}
+                    handleSelectRow={handleSelectRow}
                   />
                 ))
             )}
@@ -123,7 +170,11 @@ const GuestsList = ({ search }) => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      {row && <DeleteGuestConfirm show={openModal} onHide={closeAlertConfirm} row={row} guests={guests} />}
+      <DeleteGuestConfirm show={openModal}
+        onHide={closeAlertConfirm}
+        row={row}
+        guests={guests}
+        selected={selected} />
     </Paper>
   );
 }

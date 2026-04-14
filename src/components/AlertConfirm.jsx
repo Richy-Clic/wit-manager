@@ -5,19 +5,26 @@ import { useWeddings } from "../hooks/useWeddings.js";
 import { toast } from "sonner";
 
 export default function AlertConfirm(props) {
-  const { deleteWedding } = useWeddings();
+  const { deleteWedding, deleteWeddingsBulk } = useWeddings();
+
+  const isBulk = props.selected.length > 0;
 
   const handleDelete = async () => {
     try {
-      await deleteWedding(props.row.id);
-      toast.success("Boda eliminada con éxito");
+      if (isBulk) {
+        await deleteWeddingsBulk(props.selected);
+        toast.success(`${props.selected.length} bodas eliminadas con éxito`);
+      } else {
+        await deleteWedding(props.row.id);
+        toast.success("Boda eliminada con éxito");
+      }
+
       props.onHide();
     } catch (error) {
-      toast.error("Error al eliminar la boda: " + error.message);
+      toast.error("Error al eliminar: " + error.message);
     }
-  }
-  console.log(props);
-  
+  };
+
   return (
     <React.Fragment>
 
@@ -32,7 +39,9 @@ export default function AlertConfirm(props) {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            De verdad deseas eliminar la boda de {props.row.boyfriend} & {props.row.girlfriend} ?
+            {isBulk
+              ? `¿Deseas eliminar ${props.selected.length} bodas? Esta acción no se puede deshacer.`
+              : `¿De verdad deseas eliminar la boda de ${props.row.boyfriend} & ${props.row.girlfriend}?`}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -50,5 +59,6 @@ export default function AlertConfirm(props) {
 AlertConfirm.propTypes = {
   show: PropTypes.bool.isRequired, // Asegúrate de que 'show' sea un booleano y sea requerido
   onHide: PropTypes.func.isRequired, // Asegúrate de que 'onHide' sea una función y sea requerida
-  row: PropTypes.object.isRequired
+  row: PropTypes.object.isRequired,
+  selected: PropTypes.array.isRequired
 };

@@ -92,7 +92,7 @@ const AddGuestsList = () => {
 
           <Grid item xs={12}>
             <Box mt={10} display="flex" justifyContent="flex-end">
-              <Link to="/weddings">
+              <Link to={`/weddings/${wedding_id}/guests`}>
                 <Button style={{ marginRight: "10px" }}>
                   Cancelar
                 </Button>

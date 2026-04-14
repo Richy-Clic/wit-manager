@@ -19,6 +19,8 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import ChurchIcon from "@mui/icons-material/Church";
+import Checkbox from "@mui/material/Checkbox";
+import Button from "@mui/material/Button";
 
 
 const columns = [
@@ -36,6 +38,7 @@ const WeddingsList = ({ search }) => {
   const [openModal, setOpenModal] = useState(false);
   const [row, setRow] = useState(null);
   const debouncedSearch = useDebounce(search, 300);
+  const [selected, setSelected] = useState([]);
 
   const filteredWeddings = (weddings || []).filter((wedding) =>
     `${wedding.boyfriend} ${wedding.girlfriend} ${wedding.location} ${wedding.state}`
@@ -62,6 +65,25 @@ const WeddingsList = ({ search }) => {
     setPage(0);
   };
 
+  const isSelected = (id) => selected.includes(id);
+
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      const newSelected = filteredWeddings.map((w) => w.id);
+      setSelected(newSelected);
+    } else {
+      setSelected([]);
+    }
+  };
+
+  const handleSelectRow = (id) => {
+    setSelected((prev) =>
+      prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id]
+    );
+  };
+
   const getStringState = (state) => {
     const states = new Map([
       ["en progreso", { label: "En progreso", color: "black", bg: "orange" }],
@@ -82,10 +104,32 @@ const WeddingsList = ({ search }) => {
 
   return (
     <Paper variant="card" sx={{ width: "100%" }}>
+      {selected.length > 0 && (
+        <Button
+          color="error"
+          variant="contained"
+          sx={{ m: 2 }}
+          onClick={() => setOpenModal(true)}
+        >
+          Eliminar ({selected.length})
+        </Button>
+      )}
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader size="small" aria-label="sticky table">
           <TableHead>
             <TableRow>
+              <TableCell padding="checkbox">
+                <Checkbox
+                  indeterminate={
+                    selected.length > 0 && selected.length < filteredWeddings.length
+                  }
+                  checked={
+                    filteredWeddings.length > 0 &&
+                    selected.length === filteredWeddings.length
+                  }
+                  onChange={handleSelectAll}
+                />
+              </TableCell>
               {columns.map((column) => (
                 <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
                   {column.label}
@@ -104,27 +148,34 @@ const WeddingsList = ({ search }) => {
                   const churchURL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(w.church)}&query_place_id=${w.church_id}`;
                   return (
                     <TableRow
-                      key={w.id} hover sx={{
-                        "&:hover .row-actions": {
-                          opacity: 1
-                        }
-                      }}>
+                      key={w.id}
+                      hover
+                      selected={isSelected(w.id)}
+                      onClick={() => handleSelectRow(w.id)}
+                      sx={{ cursor: "pointer" }}>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={isSelected(w.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={() => handleSelectRow(w.id)}
+                        />
+                      </TableCell>
                       <TableCell>{w.boyfriend} & {w.girlfriend}</TableCell>
                       <TableCell>{renderDateChip(w.date)}</TableCell>
                       <TableCell>
-                        <Tooltip title="Recepción">
+                        <Tooltip title={`Evento: ${w.location}`}>
                           <IconButton
                             size="small"
-                            onClick={ () => window.open(locationURL, "_blank") }
+                            onClick={() => window.open(locationURL, "_blank")}
                           >
                             <LocationOnIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
-                          /
-                        <Tooltip title="Ceremonia">
+                        /
+                        <Tooltip title={`Ceremonia: ${w.church}`}>
                           <IconButton
                             size="small"
-                            onClick={ () => window.open(churchURL, "_blank") }
+                            onClick={() => window.open(churchURL, "_blank")}
                           >
                             <ChurchIcon fontSize="small" />
                           </IconButton>
@@ -195,8 +246,17 @@ const WeddingsList = ({ search }) => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      {row && <AlertConfirm show={openModal} onHide={closeAlertConfirm} row={row} />}
-    </Paper>
+      {
+        (row || selected.length > 0) && (
+          <AlertConfirm
+            show={openModal}
+            onHide={closeAlertConfirm}
+            row={row}
+            selected={selected}
+          />
+        )
+      }
+    </Paper >
   );
 }
 

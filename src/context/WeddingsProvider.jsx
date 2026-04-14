@@ -86,23 +86,34 @@ export const WeddingsProvider = ({ children }) => {
 
   const deleteWedding = async (id) => {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("weddings")
         .delete()
-        .eq("id", id)
-        .select();
+        .eq("id", id);
 
       if (error) throw error;
-
-      if (data.length === 0) {
-        console.warn("No se borró ninguna boda. Revisa tus policies o el id.");
-        return false;
-      }
 
       setWeddings((prev) => prev.filter((w) => w.id !== id));
       return true;
     } catch (err) {
       console.error("Error deleting wedding:", err.message);
+      return false;
+    }
+  };
+
+  const deleteWeddingsBulk = async (ids) => {
+    try {
+      const { error } = await supabase
+        .from("weddings")
+        .delete()
+        .in("id", ids);
+
+      if (error) throw error;
+
+      setWeddings((prev) => prev.filter((w) => !ids.includes(w.id)));
+      return true;
+    } catch (err) {
+      console.error("Error deleting weddings:", err.message);
       return false;
     }
   };
@@ -248,6 +259,7 @@ export const WeddingsProvider = ({ children }) => {
         createWedding,
         updateWedding,
         deleteWedding,
+        deleteWeddingsBulk,
         templates,
         loadingTemplates,
         getTemplates,

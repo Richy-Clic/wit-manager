@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import Checkbox from "@mui/material/Checkbox";
 
 import RowActions from "./RowActions";
 
@@ -18,12 +19,11 @@ const FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-wha
 
 const GuestRow = ({
   g,
-  index,
-  page,
-  rowsPerPage,
   wedding_id,
   openAlertConfirm,
   getStringAttendance,
+  isSelected,
+  handleSelectRow,
 }) => {
   const [sending, setSending] = useState(false);
 
@@ -53,17 +53,17 @@ const GuestRow = ({
 
       const payload = USE_TEMPLATE
         ? {
-            phone: phoneFormatted,
-            templateName: "wedding_invite",
-            params: [
-              guest.name,
-              `https://wit.app/invite/${guest.id}`,
-            ],
-          }
+          phone: phoneFormatted,
+          templateName: "wedding_invite",
+          params: [
+            guest.name,
+            `https://wit.app/invite/${guest.id}`,
+          ],
+        }
         : {
-            phone: phoneFormatted,
-            message: `Hola ${guest.name} 👋\n\nTe invitamos a nuestra boda 💍\n\nConfirma aquí:\nhttps://wit.app/invite/${guest.id}`,
-          };
+          phone: phoneFormatted,
+          message: `Hola ${guest.name} 👋\n\nTe invitamos a nuestra boda 💍\n\nConfirma aquí:\nhttps://wit.app/invite/${guest.id}`,
+        };
 
       const response = await fetch(FUNCTION_URL, {
         method: "POST",
@@ -92,8 +92,19 @@ const GuestRow = ({
   };
 
   return (
-    <TableRow hover>
-      <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+    <TableRow
+      hover
+      selected={isSelected(g.id)}
+      onClick={() => handleSelectRow(g.id)}
+      sx={{ cursor: "pointer" }}
+    >
+      <TableCell padding="checkbox">
+        <Checkbox
+          checked={isSelected(g.id)}
+          onClick={(e) => e.stopPropagation()}
+          onChange={() => handleSelectRow(g.id)}
+        />
+      </TableCell>
       <TableCell>{g.name}</TableCell>
       <TableCell>{g.phone}</TableCell>
       <TableCell>{mate}</TableCell>
@@ -148,6 +159,8 @@ GuestRow.propTypes = {
   wedding_id: PropTypes.string.isRequired,
   openAlertConfirm: PropTypes.func.isRequired,
   getStringAttendance: PropTypes.func.isRequired,
+  isSelected: PropTypes.func.isRequired,
+  handleSelectRow: PropTypes.func.isRequired,
 };
 
 const MemoizedGuestRow = React.memo(GuestRow);

@@ -192,6 +192,17 @@ export const GuestsProvider = ({ children }) => {
     }
   };
 
+  const deleteGuestsBulk = async (ids) => {
+  const { error } = await supabase
+    .from("guests")
+    .delete()
+    .in("id", ids);
+
+  if (error) throw error;
+
+  setGuests((prev) => prev.filter((g) => !ids.includes(g.id)));
+};
+
   const createGroup = async (wedding_id) => {
     try {
       const { data, error } = await supabase
@@ -267,6 +278,7 @@ export const GuestsProvider = ({ children }) => {
         importGuestsFromCSV,
         updateGuest,
         deleteGuest,
+        deleteGuestsBulk,
         loading,
         setLoading,
         getMainGuests,
