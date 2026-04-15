@@ -2,7 +2,7 @@ import { useState, createContext, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import supabase from "../lib/supabaseClient";
 import { uploadWeddingImage } from "../services/uploadWeddingImage";
-import convert2WebP from "../services/convert2Webp";
+import convert2WebP from "../utils/convert2WebP";
 
 export const WeddingsContext = createContext();
 

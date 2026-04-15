@@ -12,14 +12,7 @@ import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 import GuestRow from "./GuestRow";
 import PropTypes from "prop-types";
-
-const columns = [
-  { id: "name", label: "Nombre Invitado", minWidth: 150 },
-  { id: "phone", label: "Teléfono" },
-  { id: "mate", label: "Invitado por" },
-  { id: "attendance", label: "Asistencia" },
-  { id: "acciones", minWidth: 20, maxWidth: 20 }
-];
+import { guestColumns } from "../utils/columns.js";
 
 const GuestsList = ({ search }) => {
   const { guests, loading } = useGuests();
@@ -77,8 +70,6 @@ const GuestsList = ({ search }) => {
         : [...prev, id]
     );
   };
-
-
   
 
   if (!loading && (!guests || guests.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
@@ -116,7 +107,7 @@ const GuestsList = ({ search }) => {
                   onChange={handleSelectAll}
                 />
               </TableCell>
-              {columns.map((column) => (
+              {guestColumns.map((column) => (
                 <StyledTableCell key={column.id} style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}>
                   {column.label}
                 </StyledTableCell>

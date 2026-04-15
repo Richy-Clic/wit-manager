@@ -5,6 +5,9 @@ import { useWeddings } from "../hooks/useWeddings.js";
 import { Paper, Table, Tooltip, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, Chip } from "@mui/material";
 import { StyledTableCell } from "../styles/index.js";
 
+import { weddingStates } from "../utils/states.js";
+import { weddingColumns } from "../utils/columns.js";
+
 import PropTypes from "prop-types";
 import RowActions from "./RowActions";
 import AlertConfirm from "./AlertConfirm.jsx";
@@ -22,14 +25,6 @@ import ChurchIcon from "@mui/icons-material/Church";
 import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 
-
-const columns = [
-  { id: "novios", label: "Novios", minWidth: 220 },
-  { id: "fecha", label: "Fecha y Hora" },
-  { id: "ubicacion", label: "Ubicación", minWidth: 70 },
-  { id: "estatus", label: "Estatus", minWidth: 100 },
-  { id: "acciones", minWidth: 40 },
-];
 
 const WeddingsList = ({ search }) => {
   const { weddings, loading } = useWeddings();
@@ -85,13 +80,7 @@ const WeddingsList = ({ search }) => {
   };
 
   const getStringState = (state) => {
-    const states = new Map([
-      ["en progreso", { label: "En progreso", color: "black", bg: "orange" }],
-      ["finalizada", { label: "Finalizada", color: "white", bg: "green" }],
-      ["cancelada", { label: "Cancelada", color: "white", bg: "red" }],
-    ]);
-
-    return states.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
+    return weddingStates.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
   }
 
   if (!loading && (!weddings || weddings.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
@@ -130,7 +119,7 @@ const WeddingsList = ({ search }) => {
                   onChange={handleSelectAll}
                 />
               </TableCell>
-              {columns.map((column) => (
+              {weddingColumns.map((column) => (
                 <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
                   {column.label}
                 </StyledTableCell>
@@ -256,7 +245,7 @@ const WeddingsList = ({ search }) => {
           />
         )
       }
-    </Paper >
+    </Paper>
   );
 }
 

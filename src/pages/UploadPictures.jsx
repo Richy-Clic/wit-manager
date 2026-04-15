@@ -6,7 +6,7 @@ import { useWeddings } from "../hooks/useWeddings.js";
 import LinearProgress from "../components/LinearProgress.jsx";
 
 import ImageUploader from "../components/ImageUploader";
-import getStoragePathFromUrl from "../services/getStoragePathFromUrl.js";
+import getStoragePathFromUrl from "../utils/getStoragePathFromUrl.js";
 
 export default function UploadPictures() {
   const { wedding_id } = useParams();

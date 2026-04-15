@@ -1,4 +1,4 @@
-export const parseMxPhone = (phone, isSandbox) => {
+const parseMxPhone = (phone, isSandbox) => {
   if (!phone) return null;
 
   // 1. limpiar todo lo que no sea número
@@ -31,3 +31,5 @@ export const parseMxPhone = (phone, isSandbox) => {
   // producción
   return cleaned;
 };
+
+export default parseMxPhone;
