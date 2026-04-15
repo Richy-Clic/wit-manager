@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { TableRow, TableCell } from "@mui/material";
 import { toast } from "sonner";
-import { guestStates } from "../utils/states.js";
+import { getMainGuestName, getStringAttendance } from "../utils/guestUtils.js";
 
 import PropTypes from "prop-types";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -11,6 +11,7 @@ import Checkbox from "@mui/material/Checkbox";
 import parseMxPhone from "../utils/parserMxPhone";
 import RowActions from "./RowActions";
 import supabase from "../lib/supabaseClient";
+
 
 const USE_TEMPLATE = import.meta.env.VITE_USE_TEMPLATE === "true";
 const WHATSAPP_SANDBOX = import.meta.env.VITE_WHATSAPP_SANDBOX === "true";
@@ -25,21 +26,8 @@ const GuestRow = ({
 }) => {
   const [sending, setSending] = useState(false);
 
-  const getStringAttendance = (state) => {
-  return (
-    guestStates.get(state) || {
-      label: "Desconocido",
-      color: "black",
-      bg: "gray"
-    }
-  );
-};
-
-  const mainGuest = g.groups?.guests?.[0];
-  const attendance = getStringAttendance(g.attendance);
-  const mate = g.is_main ? "—" : mainGuest?.name ?? "—";
-
-  
+  const attendance = getStringAttendance(g);
+  const mate = getMainGuestName(g);
 
   const sendWhatsApp = async (guest) => {
     if (!guest.phone) {
