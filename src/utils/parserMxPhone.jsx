@@ -1,6 +1,4 @@
 export const parseMxPhone = (phone, isSandbox) => {
-    console.log(phone, isSandbox);
-    
   if (!phone) return null;
 
   // 1. limpiar todo lo que no sea número
@@ -11,7 +9,6 @@ export const parseMxPhone = (phone, isSandbox) => {
 
   // 3. normalizar longitud
   if (cleaned.length === 10) {
-    // número local
     cleaned = "52" + cleaned;
   }
 
@@ -22,21 +19,7 @@ export const parseMxPhone = (phone, isSandbox) => {
     /^[0-9]+$/.test(cleaned);
 
   if (!isValidMx) {
-    console.warn("❌ Número inválido (estructura):", phone);
-    return null;
-  }
-
-//   // 5. validar que sea celular (opcional pero recomendado)
-//   // en México celulares empiezan con 55, 56, 33, etc.
-//   const lada = cleaned.slice(2, 4);
-
-  const validLadas = [
-    "33", "55", "56", "81", "222", "999" // puedes expandir esto
-  ];
-
-  if (!validLadas.some((l) => cleaned.slice(2).startsWith(l))) {
-    console.warn("⚠️ LADA sospechosa:", phone);
-    // no lo bloqueamos, solo warning
+    return "❌ Número inválido (estructura): " + phone;
   }
 
   // 6. sandbox vs producción

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { useGuests } from "../hooks/useGuests.js";
 import { useDebounce } from "../hooks/useDebounce";
 import { useParams } from "react-router-dom";
@@ -20,12 +20,6 @@ const columns = [
   { id: "attendance", label: "Asistencia" },
   { id: "acciones", minWidth: 20, maxWidth: 20 }
 ];
-
-const attendanceStates = new Map([
-  ["confirmado", { label: "Confirmado", color: "white", bg: "green" }],
-  ["pendiente", { label: "Pendiente", color: "black", bg: "orange" }],
-  ["declinado", { label: "Declinado", color: "white", bg: "red" }],
-]);
 
 const GuestsList = ({ search }) => {
   const { guests, loading } = useGuests();
@@ -85,15 +79,7 @@ const GuestsList = ({ search }) => {
   };
 
 
-  const getStringAttendance = useCallback((state) => {
-    return (
-      attendanceStates.get(state) || {
-        label: "Desconocido",
-        color: "black",
-        bg: "gray"
-      }
-    );
-  }, []);
+  
 
   if (!loading && (!guests || guests.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
   if (!loading && (!guests || guests.length === 0)) {
@@ -152,7 +138,6 @@ const GuestsList = ({ search }) => {
                     rowsPerPage={rowsPerPage}
                     wedding_id={wedding_id}
                     openAlertConfirm={openAlertConfirm}
-                    getStringAttendance={getStringAttendance}
                     isSelected={isSelected}
                     handleSelectRow={handleSelectRow}
                   />

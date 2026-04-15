@@ -1,35 +1,51 @@
-import { TableRow, TableCell } from "@mui/material";
 import React, { useState } from "react";
-import PropTypes from "prop-types";
+import { TableRow, TableCell } from "@mui/material";
+import { toast } from "sonner";
+import { parseMxPhone } from "../utils/parserMxPhone";
 
+import PropTypes from "prop-types";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import Checkbox from "@mui/material/Checkbox";
-
 import RowActions from "./RowActions";
-
 import supabase from "../lib/supabaseClient";
-import { toast } from "sonner";
-import { parseMxPhone } from "../utils/parserMxPhone";
+
 
 const USE_TEMPLATE = import.meta.env.VITE_USE_TEMPLATE === "true";
 const WHATSAPP_SANDBOX = import.meta.env.VITE_WHATSAPP_SANDBOX === "true";
 const FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-whatsapp`;
 
+const attendanceStates = new Map([
+  ["confirmado", { label: "Confirmado", color: "white", bg: "green" }],
+  ["pendiente", { label: "Pendiente", color: "black", bg: "orange" }],
+  ["declinado", { label: "Declinado", color: "white", bg: "red" }],
+]);
+
 const GuestRow = ({
   g,
   wedding_id,
   openAlertConfirm,
-  getStringAttendance,
   isSelected,
   handleSelectRow,
 }) => {
   const [sending, setSending] = useState(false);
 
+  const getStringAttendance = (state) => {
+  return (
+    attendanceStates.get(state) || {
+      label: "Desconocido",
+      color: "black",
+      bg: "gray"
+    }
+  );
+};
+
   const mainGuest = g.groups?.guests?.[0];
   const attendance = getStringAttendance(g.attendance);
   const mate = g.is_main ? "—" : mainGuest?.name ?? "—";
+
+  
 
   const sendWhatsApp = async (guest) => {
     if (!guest.phone) {
@@ -106,7 +122,7 @@ const GuestRow = ({
         />
       </TableCell>
       <TableCell>{g.name}</TableCell>
-      <TableCell>{g.phone}</TableCell>
+      <TableCell><span style={{ fontSize: "1.2rem", paddingRight: "4px" }}>🇲🇽</span> {g.phone}</TableCell>
       <TableCell>{mate}</TableCell>
 
       <TableCell>
@@ -158,7 +174,6 @@ GuestRow.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
   wedding_id: PropTypes.string.isRequired,
   openAlertConfirm: PropTypes.func.isRequired,
-  getStringAttendance: PropTypes.func.isRequired,
   isSelected: PropTypes.func.isRequired,
   handleSelectRow: PropTypes.func.isRequired,
 };
