@@ -104,10 +104,8 @@ export default function UploadPictures() {
         <Typography variant="body2" color="text.secondary">
           Agrega una portada y hasta 5 imágenes para la galería
         </Typography>
-
-        <Box sx={{ height: 10 }}>
-          {loading && <LinearProgress />}
-        </Box>
+        
+        {loading && <LinearProgress />}
 
         <Box mt={3}>
           <ImageUploader

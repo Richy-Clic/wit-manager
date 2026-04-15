@@ -59,6 +59,6 @@ export default function AlertConfirm(props) {
 AlertConfirm.propTypes = {
   show: PropTypes.bool.isRequired, // Asegúrate de que 'show' sea un booleano y sea requerido
   onHide: PropTypes.func.isRequired, // Asegúrate de que 'onHide' sea una función y sea requerida
-  row: PropTypes.object.isRequired,
+  row: PropTypes.object,
   selected: PropTypes.array.isRequired
 };

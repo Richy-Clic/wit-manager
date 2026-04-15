@@ -70,103 +70,124 @@ export default function EditWedding() {
 
 
   return (
-    <Grid container spacing={2} justifyContent="center">
-      <Grid item xs={12} sm={8} md={4} mt={4}>
+    <Grid container justifyContent="center">
+      <Grid item xs={12} sm={8}>
         <PageTitle>Editar Boda</PageTitle>
         <Paper sx={{ p: 2 }}>
           <Box component="form" onSubmit={handleSubmit}>
-            <Stack spacing={2}>
-              <TextField
-                id="boyfriend"
-                label="Nombre del Novio"
-                type="text"
-                value={weddingData.boyfriend || ""}
-                onChange={(e) => handleChange("boyfriend", e.target.value)}
-              />
-              <TextField
-                id="girlfriend"
-                label="Nombre del Novia"
-                type="text"
-                value={weddingData.girlfriend || ""}
-                onChange={(e) => handleChange("girlfriend", e.target.value)}
-              />
-              <DateTimePicker
-                label="Fecha y Hora"
-                value={weddingData.date}
-                onChange={(date) => handleChange("date", date)}
-                slotProps={{
-                  textField: {
-                    required: true,
-                    fullWidth: true
-                  }
-                }}
-                ampm={true} // opcional: usa 24h si quieres
-              />
-              <PlacesAutocompleteInput
-                label="Ubicación"
-                value={weddingData.location || ""}
-                onChange={(value) =>
-                  setWeddingData((prev) => ({
-                    ...prev,
-                    location: value
-                  }))
-                }
-                onSelect={(place) =>
-                  setWeddingData((prev) => ({
-                    ...prev,
-                    location: place.text,
-                    location_id: place.place_id
-                  }))
-                }
-              />
-              <PlacesAutocompleteInput
-                label="Iglesia"
-                value={weddingData.church || ""}
-                onChange={(value) =>
-                  setWeddingData((prev) => ({
-                    ...prev,
-                    church: value
-                  }))
-                }
-                onSelect={(place) =>
-                  setWeddingData((prev) => ({
-                    ...prev,
-                    church: place.text,
-                    church_id: place.place_id
-                  }))
-                }
-              />
-              <TextField
-                id="template_id"
-                select
-                label="Plantilla"
-                value={weddingData.template_id || ""}
-                onChange={(e) => handleChange("template_id", e.target.value)}
-              >
-                {loadingTemplates ? (
-                  <MenuItem disabled>Cargando...</MenuItem>
-                ) : templates.length > 0 ? (
-                  templates.map((tpl) => (
-                    <MenuItem key={tpl.id} value={tpl.id}>
-                      {tpl.name}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem disabled>No hay plantillas</MenuItem>
-                )}
-              </TextField>
-              <TextField
-                id="state"
-                select
-                label="status"
-                value={weddingData.state || ""}
-                onChange={(e) => handleChange("state", e.target.value)}
-              >
-                <MenuItem key={1} value="en progreso">In progress</MenuItem>
-                <MenuItem key={2} value="finalizada">Completed</MenuItem>
-                <MenuItem key={3} value="cancelada">Cancelled</MenuItem>
-              </TextField>
-            </Stack>
+            <Grid container spacing={2}>
+              {/* IZQUIERDA */}
+              <Grid item xs={12} md={6}>
+                <Stack spacing={2}>
+                  <TextField
+                    id="boyfriend"
+                    label="Nombre del Novio"
+                    type="text"
+                    value={weddingData.boyfriend || ""}
+                    onChange={(e) => handleChange("boyfriend", e.target.value)}
+                  />
+                  <TextField
+                    id="girlfriend"
+                    label="Nombre del Novia"
+                    type="text"
+                    value={weddingData.girlfriend || ""}
+                    onChange={(e) => handleChange("girlfriend", e.target.value)}
+                  />
+                  <DateTimePicker
+                    label="Fecha y Hora"
+                    value={weddingData.date}
+                    onChange={(date) => handleChange("date", date)}
+                    slotProps={{
+                      textField: {
+                        required: true,
+                        fullWidth: true
+                      }
+                    }}
+                    ampm={true} // opcional: usa 24h si quieres
+                  />
+                  <TextField
+                    id="template_id"
+                    select
+                    label="Plantilla"
+                    value={weddingData.template_id || ""}
+                    onChange={(e) => handleChange("template_id", e.target.value)}
+                  >
+                    {loadingTemplates ? (
+                      <MenuItem disabled>Cargando...</MenuItem>
+                    ) : templates.length > 0 ? (
+                      templates.map((tpl) => (
+                        <MenuItem key={tpl.id} value={tpl.id}>
+                          {tpl.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>No hay plantillas</MenuItem>
+                    )}
+                  </TextField>
+                  <TextField
+                    id="state"
+                    select
+                    label="status"
+                    value={weddingData.state || ""}
+                    onChange={(e) => handleChange("state", e.target.value)}
+                  >
+                    <MenuItem key={1} value="en progreso">In progress</MenuItem>
+                    <MenuItem key={2} value="finalizada">Completed</MenuItem>
+                    <MenuItem key={3} value="cancelada">Cancelled</MenuItem>
+                  </TextField>
+                </Stack>
+              </Grid>
+
+              {/* DERECHA */}
+              <Grid item xs={12} md={6}>
+                <Stack>
+                  <PlacesAutocompleteInput
+                    label="Ubicación"
+                    value={weddingData.location || ""}
+                    onChange={(value) =>
+                      setWeddingData((prev) => ({
+                        ...prev,
+                        location: value
+                      }))
+                    }
+                    onSelect={(place) =>
+                      setWeddingData((prev) => ({
+                        ...prev,
+                        location: place.text,
+                        location_id: place.place_id
+                      }))
+                    }
+                  />
+                  <PlacesAutocompleteInput
+                    label="Iglesia"
+                    value={weddingData.church || ""}
+                    onChange={(value) =>
+                      setWeddingData((prev) => ({
+                        ...prev,
+                        church: value
+                      }))
+                    }
+                    onSelect={(place) =>
+                      setWeddingData((prev) => ({
+                        ...prev,
+                        church: place.text,
+                        church_id: place.place_id
+                      }))
+                    }
+                  />
+
+                  <TextField
+                    label="Detalles de la boda"
+                    multiline
+                    rows={7}
+                    value={weddingData.details || ""}
+                    onChange={(e) => handleChange("details", e.target.value)}
+                    fullWidth
+                  />
+                </Stack>
+              </Grid>
+            </Grid>
+
             <Grid item xs={12}>
               <Box mt={2} display="flex" justifyContent="flex-end">
                 <Link to="/weddings">

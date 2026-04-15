@@ -91,7 +91,7 @@ export default function DeleteGuestConfirm(props) {
 DeleteGuestConfirm.propTypes = {
   show: PropTypes.bool.isRequired, // Asegúrate de que 'show' sea un booleano y sea requerido
   onHide: PropTypes.func.isRequired, // Asegúrate de que 'onHide' sea una función y sea requerida
-  guests: PropTypes.array.isRequired,
+  guests: PropTypes.array,
   row: PropTypes.object,
   selected: PropTypes.array
 };
