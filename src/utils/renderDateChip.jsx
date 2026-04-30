@@ -11,13 +11,13 @@ const renderDateChip = (date) => {
   let formatted;
 
   if (isToday(d)) {
-    formatted = `Hoy • ${format(d, "HH:mm 'h'")}`;
+    formatted = "Hoy";
   } else if (isTomorrow(d)) {
-    formatted = `Mañana • ${format(d, "HH:mm 'h'")}`;
+    formatted = "Mañana";
   } else if (isThisYear(d)) {
-    formatted = format(d, "d MMM • HH:mm 'h'", { locale: es });
+    formatted = format(d, "d MMM", { locale: es });
   } else {
-    formatted = format(d, "d MMM yyyy • HH:mm 'h'", { locale: es });
+    formatted = format(d, "d MMM yyyy", { locale: es });
   }
 
   return (

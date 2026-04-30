@@ -1,13 +1,6 @@
-import {
-  BrowserRouter,
-  Route,
-  Routes
-} from "react-router-dom";
-
-import {
-  LocalizationProvider
-} from "@mui/x-date-pickers";
-import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { Toaster } from "sonner";
 import { StyleSonnar } from "./styles/index.js";
@@ -53,7 +46,7 @@ function GuestRoutes() {
 
 function App() {
   return (
-    <LocalizationProvider dateAdapter={AdapterMoment}>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <AuthProvider>
         <WeddingsProvider>
           <BrowserRouter

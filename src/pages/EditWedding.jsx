@@ -1,28 +1,31 @@
 import { useState, useEffect } from "react";
 import { TextField, Box, Button, Grid, MenuItem, Paper, Stack } from "@mui/material";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { DateTimePicker } from '@mui/x-date-pickers';
+import { DatePicker, TimePicker } from '@mui/x-date-pickers';
 import { useWeddings } from "../hooks/useWeddings.js";
 import { toast } from "sonner";
 
+import dayjs from "dayjs";
 import PlacesAutocompleteInput from "../components/PlacesAutocompleteInput.jsx";
 import PageTitle from "../components/PageTitle.jsx";
-import moment from 'moment';
 
 export default function EditWedding() {
   const { wedding_id } = useParams();
   const navigate = useNavigate();
   const { weddings, updateWedding, loadingTemplates, templates } = useWeddings();
   const [weddingData, setWeddingData] = useState({
+    title_event: "",
     boyfriend: "",
     girlfriend: "",
-    date: null,
+    event_date: null,
     location: "",
     location_id: null,
     church: "",
     church_id: null,
     details: "",
-    template_id: ""
+    template_id: "",
+    ceremony_time: null,
+    reception_time: null,
   });
 
   useEffect(() => {
@@ -31,7 +34,7 @@ export default function EditWedding() {
       if (w) {
         setWeddingData({
           ...w,
-          date: moment(w.date),
+          event_date: w.event_date || w.date || null
         });
       }
     }
@@ -45,14 +48,13 @@ export default function EditWedding() {
     e.preventDefault();
 
     try {
-      if (!weddingData.boyfriend || !weddingData.girlfriend || !weddingData.date) {
+      if (!weddingData.boyfriend || !weddingData.girlfriend || !weddingData.event_date || !weddingData.title_event) {
         alert("Por favor llena los campos obligatorios");
         return;
       }
 
       const updatedData = {
-        ...weddingData,
-        date: weddingData.date.format("YYYY-MM-DD HH:mm:ss")
+        ...weddingData
       };
 
       await updateWedding(wedding_id, updatedData);
@@ -72,13 +74,23 @@ export default function EditWedding() {
   return (
     <Grid container justifyContent="center">
       <Grid item xs={12} sm={8}>
-        <PageTitle>Editar Boda</PageTitle>
+        <PageTitle>Editar Evento</PageTitle>
         <Paper sx={{ p: 2 }}>
           <Box component="form" onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               {/* IZQUIERDA */}
               <Grid item xs={12} md={6}>
                 <Stack spacing={2}>
+                  <TextField
+                    id="title_event"
+                    label="Titulo del evento"
+                    type="text"
+                    value={weddingData.title_event || ""}
+                    onChange={(e) => handleChange("title_event", e.target.value)}
+                  />
+
+                  <Box height={8} />
+
                   <TextField
                     id="boyfriend"
                     label="Nombre del Novio"
@@ -93,18 +105,22 @@ export default function EditWedding() {
                     value={weddingData.girlfriend || ""}
                     onChange={(e) => handleChange("girlfriend", e.target.value)}
                   />
-                  <DateTimePicker
-                    label="Fecha y Hora"
-                    value={weddingData.date}
-                    onChange={(date) => handleChange("date", date)}
+                  <DatePicker
+                    label="Fecha del evento"
+                    value={weddingData.event_date ? dayjs(weddingData.event_date) : null}
+                    onChange={(date) => handleChange("event_date", date ? date.format("YYYY-MM-DD") : null)}
+                    format="DD/MM/YYYY"
+                    disablePast
                     slotProps={{
                       textField: {
                         required: true,
                         fullWidth: true
                       }
                     }}
-                    ampm={true} // opcional: usa 24h si quieres
                   />
+
+                  <Box height={8} />
+
                   <TextField
                     id="template_id"
                     select
@@ -140,24 +156,9 @@ export default function EditWedding() {
 
               {/* DERECHA */}
               <Grid item xs={12} md={6}>
-                <Stack>
-                  <PlacesAutocompleteInput
-                    label="Ubicación"
-                    value={weddingData.location || ""}
-                    onChange={(value) =>
-                      setWeddingData((prev) => ({
-                        ...prev,
-                        location: value
-                      }))
-                    }
-                    onSelect={(place) =>
-                      setWeddingData((prev) => ({
-                        ...prev,
-                        location: place.text,
-                        location_id: place.place_id
-                      }))
-                    }
-                  />
+                <Stack spacing={2}>
+                  {/* <Typography variant="h6">Ceremonia</Typography> */}
+
                   <PlacesAutocompleteInput
                     label="Iglesia"
                     value={weddingData.church || ""}
@@ -176,10 +177,64 @@ export default function EditWedding() {
                     }
                   />
 
+                  <TimePicker
+                    label="Hora de la ceremonia"
+                    value={
+                      weddingData.ceremony_time
+                        ? dayjs(`2000-01-01T${weddingData.ceremony_time}`)
+                        : null
+                    }
+                    onChange={(time) =>
+                      handleChange(
+                        "ceremony_time",
+                        time ? time.format("HH:mm") : null
+                      )
+                    }
+                    ampm
+                    sx={{ width: "100%" }}
+                  />
+
+                  <Box height={8} />
+
+                  <PlacesAutocompleteInput
+                    label="Ubicación"
+                    value={weddingData.location || ""}
+                    onChange={(value) =>
+                      setWeddingData((prev) => ({
+                        ...prev,
+                        location: value
+                      }))
+                    }
+                    onSelect={(place) =>
+                      setWeddingData((prev) => ({
+                        ...prev,
+                        location: place.text,
+                        location_id: place.place_id
+                      }))
+                    }
+                  />
+
+                  <TimePicker
+                    label="Hora de la recepción"
+                    value={
+                      weddingData.reception_time
+                        ? dayjs(`2000-01-01T${weddingData.reception_time}`)
+                        : null
+                    }
+                    onChange={(time) =>
+                      handleChange(
+                        "reception_time",
+                        time ? time.format("HH:mm") : null
+                      )
+                    }
+                    ampm
+                    sx={{ width: "100%" }}
+                  />
+
                   <TextField
                     label="Detalles de la boda"
                     multiline
-                    rows={7}
+                    rows={5}
                     value={weddingData.details || ""}
                     onChange={(e) => handleChange("details", e.target.value)}
                     fullWidth

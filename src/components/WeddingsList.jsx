@@ -149,8 +149,9 @@ const WeddingsList = ({ search }) => {
                           onChange={() => handleSelectRow(w.id)}
                         />
                       </TableCell>
+                      <TableCell>{w.title_event}</TableCell>
                       <TableCell>{w.boyfriend} & {w.girlfriend}</TableCell>
-                      <TableCell>{renderDateChip(w.date)}</TableCell>
+                      <TableCell>{renderDateChip(w.event_date)}</TableCell>
                       <TableCell>
                         <Tooltip title={`Evento: ${w.location}`}>
                           <IconButton

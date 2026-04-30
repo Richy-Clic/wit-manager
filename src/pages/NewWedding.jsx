@@ -1,10 +1,12 @@
 import { useState } from "react";
-import {TextField, Box, Button, Grid, MenuItem, Stepper, Step, StepLabel} from "@mui/material";
+import { TextField, Box, Button, Grid, MenuItem, Stepper, Step, StepLabel, Typography, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { DateTimePicker } from "@mui/x-date-pickers";
+
+import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import { useWeddings } from "../hooks/useWeddings.js";
 import { toast } from "sonner";
 
+import dayjs from "dayjs";
 import PageTitle from "../components/PageTitle.jsx";
 import PlacesAutocompleteInput from "../components/PlacesAutocompleteInput.jsx";
 
@@ -16,15 +18,18 @@ export default function NewWedding() {
   const [activeStep, setActiveStep] = useState(0);
 
   const [formData, setFormData] = useState({
+    title_event: "",
     boyfriend: "",
     girlfriend: "",
-    date: null,
+    event_date: null,
     location: "",
     location_id: null,
     church: "",
     church_id: null,
     details: "",
-    template_id: ""
+    template_id: "",
+    ceremony_time: null,
+    reception_time: null
   });
 
   const handleChange = (id, value) => {
@@ -36,7 +41,7 @@ export default function NewWedding() {
 
   const validateStep = () => {
     if (activeStep === 0) {
-      if (!formData.boyfriend || !formData.girlfriend || !formData.date) {
+      if (!formData.boyfriend || !formData.girlfriend || !formData.event_date || !formData.title_event) {
         toast.error("Completa los datos básicos");
         return false;
       }
@@ -70,8 +75,7 @@ export default function NewWedding() {
   const handleSubmit = async () => {
     try {
       const payload = {
-        ...formData,
-        date: formData.date.toISOString()
+        ...formData
       };
 
       await createWedding(payload);
@@ -93,6 +97,13 @@ export default function NewWedding() {
         return (
           <>
             <TextField
+              label="Titulo del evento"
+              fullWidth
+              margin="normal"
+              value={formData.title_event}
+              onChange={(e) => handleChange("title_event", e.target.value)}
+            />
+            <TextField
               label="Nombre del Novio"
               fullWidth
               margin="normal"
@@ -106,10 +117,17 @@ export default function NewWedding() {
               value={formData.girlfriend}
               onChange={(e) => handleChange("girlfriend", e.target.value)}
             />
-            <DateTimePicker
-              label="Fecha y Hora"
-              value={formData.date}
-              onChange={(date) => handleChange("date", date)}
+            <DatePicker
+              label="Fecha del evento"
+              value={formData.event_date ? dayjs(formData.event_date) : null}
+              onChange={(date) =>
+                handleChange(
+                  "event_date",
+                  date ? date.format("YYYY-MM-DD") : null
+                )
+              }
+              format="DD/MM/YYYY"
+              disablePast
               sx={{ width: "100%", mt: 2 }}
             />
           </>
@@ -118,36 +136,75 @@ export default function NewWedding() {
       case 1:
         return (
           <>
-            <PlacesAutocompleteInput
-              mb={2}
-              label="Iglesia"
-              value={formData.church}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, church: value }))
-              }
-              onSelect={(place) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  church: place.text,
-                  church_id: place.place_id
-                }))
-              }
-            />
 
-            <PlacesAutocompleteInput
-              label="Ubicación del Evento"
-              value={formData.location}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, location: value }))
-              }
-              onSelect={(place) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  location: place.text,
-                  location_id: place.place_id
-                }))
-              }
-            />
+            <Typography variant="h6" mb={1}>Ceremonia Religiosa </Typography>
+            <Stack spacing={2}>
+              <PlacesAutocompleteInput
+                mb={2}
+                label="Ubicación de la Parroquia"
+                value={formData.church}
+                onChange={(value) =>
+                  setFormData((prev) => ({ ...prev, church: value }))
+                }
+                onSelect={(place) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    church: place.text,
+                    church_id: place.place_id
+                  }))
+                }
+              />
+
+              <TimePicker
+                label="Hora de la ceremonia"
+                value={
+                  formData.ceremony_time
+                    ? dayjs(`2000-01-01T${formData.ceremony_time}`)
+                    : null
+                }
+                onChange={(time) =>
+                  handleChange(
+                    "ceremony_time",
+                    time ? time.format("HH:mm") : null
+                  )
+                }
+                sx={{ width: "100%", mb: 2 }}
+              />
+            </Stack>
+
+            <Typography variant="h6" mt={4} mb={1}>Recepción</Typography>
+
+            <Stack spacing={2}>
+              <PlacesAutocompleteInput
+                label="Ubicación del Evento"
+                value={formData.location}
+                onChange={(value) =>
+                  setFormData((prev) => ({ ...prev, location: value }))
+                }
+                onSelect={(place) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    location: place.text,
+                    location_id: place.place_id
+                  }))
+                }
+              />
+              <TimePicker
+                label="Hora de la recepción"
+                value={
+                  formData.reception_time
+                    ? dayjs(`2000-01-01T${formData.reception_time}`)
+                    : null
+                }
+                onChange={(time) =>
+                  handleChange(
+                    "reception_time",
+                    time ? time.format("HH:mm") : null
+                  )
+                }
+                sx={{ width: "100%" }}
+              />
+            </Stack>
           </>
         );
 
@@ -176,9 +233,9 @@ export default function NewWedding() {
                 <MenuItem disabled>Cargando...</MenuItem>
               ) : (
                 templates.map((tpl) => (
-                  <MenuItem key={tpl.id} value={tpl.id}  sx={{
-    color: "black"
-  }}>
+                  <MenuItem key={tpl.id} value={tpl.id} sx={{
+                    color: "black"
+                  }}>
                     {tpl.name}
                   </MenuItem>
                 ))

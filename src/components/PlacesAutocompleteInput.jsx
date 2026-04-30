@@ -36,9 +36,6 @@ export default function PlacesAutocompleteInput({
             onChange(e.target.value);
             setOpen(true);
           }}
-          style={{
-            marginBottom: 16
-          }}
         />
 
         {open && results.length > 0 && (

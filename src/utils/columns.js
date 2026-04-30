@@ -1,6 +1,7 @@
 export const weddingColumns = [
+  { id: "title_event", label: "Titulo del evento", minWidth: 50 },
   { id: "novios", label: "Novios", minWidth: 220 },
-  { id: "fecha", label: "Fecha y Hora" },
+  { id: "fecha", label: "Fecha" },
   { id: "ubicacion", label: "Ubicación", minWidth: 70 },
   { id: "estatus", label: "Estatus", minWidth: 100 },
   { id: "acciones", minWidth: 40 },
