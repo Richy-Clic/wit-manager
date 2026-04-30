@@ -1,35 +1,30 @@
-const parseMxPhone = (phone, isSandbox) => {
+const parseMxPhone = (phone) => {
   if (!phone) return null;
 
   // 1. limpiar todo lo que no sea número
   let cleaned = phone.replace(/\D/g, "");
 
-  // 2. quitar prefijos antiguos de México
-  cleaned = cleaned.replace(/^044|^045/, "");
+  // 2. quitar prefijos antiguos (044, 045)
+  cleaned = cleaned.replace(/^(044|045)/, "");
 
-  // 3. normalizar longitud
-  if (cleaned.length === 10) {
-    cleaned = "52" + cleaned;
-  }
-
-  // 4. validar estructura base (México)
-  const isValidMx =
-    cleaned.length === 12 &&
-    cleaned.startsWith("52") &&
-    /^[0-9]+$/.test(cleaned);
-
-  if (!isValidMx) {
-    return "❌ Número inválido (estructura): " + phone;
-  }
-
-  // 6. sandbox vs producción
-  if (isSandbox) {
+  // 3. quitar +52 duplicado o mal formado
+  if (cleaned.startsWith("52") && cleaned.length === 12) {
     // convertir 52XXXXXXXXXX → 521XXXXXXXXXX
-    return "521" + cleaned.slice(2);
+    cleaned = "521" + cleaned.slice(2);
   }
 
-  // producción
-  return cleaned;
+  // 4. si ya viene bien (521XXXXXXXXXX)
+  if (cleaned.length === 13 && cleaned.startsWith("521")) {
+    return cleaned;
+  }
+
+  // 5. si viene como 10 dígitos (local)
+  if (cleaned.length === 10) {
+    return "521" + cleaned;
+  }
+
+  // 6. inválido
+  return null;
 };
 
 export default parseMxPhone;

@@ -22,7 +22,7 @@ import {
   AppBar,
 } from "@mui/material";
 
-const pages = ["Dashboard", "Weddings"];
+const pages = ["Dashboard", "Weddings", "Users"];
 const settings = ["Profile", "Logout"];
 
 function Navbar() {
