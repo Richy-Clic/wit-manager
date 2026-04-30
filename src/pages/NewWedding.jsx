@@ -10,12 +10,21 @@ import dayjs from "dayjs";
 import PageTitle from "../components/PageTitle.jsx";
 import PlacesAutocompleteInput from "../components/PlacesAutocompleteInput.jsx";
 
-const steps = ["Datos", "Ubicaciones", "Detalles y Diseño"];
+const steps = ["Datos", "Ubicaciones", "DressCode", "Mesa de Regalos", "Detalles y Diseño"];
+const presets = {
+  etiqueta: `Mujeres: vestido largo\nHombres: frac o smoking`,
+  formal: `Mujeres: vestido largo o cóctel\nHombres: traje y corbata`,
+  semi_formal: `Mujeres: vestido corto o conjunto elegante\nHombres: camisa y pantalón de vestir`,
+  casual: `Vestimenta cómoda y fresca`
+};
 
 export default function NewWedding() {
   const { createWedding, templates, loadingTemplates } = useWeddings();
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
+  const [giftLinks, setGiftLinks] = useState([
+    { type: "", url: "" }
+  ]);
 
   const [formData, setFormData] = useState({
     title_event: "",
@@ -29,7 +38,11 @@ export default function NewWedding() {
     details: "",
     template_id: "",
     ceremony_time: null,
-    reception_time: null
+    reception_time: null,
+    dress_code: {
+      type: "",       // etiqueta | formal | semi_formal | casual
+      details: ""
+    }
   });
 
   const handleChange = (id, value) => {
@@ -52,7 +65,7 @@ export default function NewWedding() {
       return false;
     }
 
-    if (activeStep === 2 && !formData.template_id) {
+    if (activeStep === 4 && !formData.template_id) {
       toast.error("Selecciona una plantilla");
       return false;
     }
@@ -75,7 +88,8 @@ export default function NewWedding() {
   const handleSubmit = async () => {
     try {
       const payload = {
-        ...formData
+        ...formData,
+        gift_links: giftLinks.filter(g => g.url)
       };
 
       await createWedding(payload);
@@ -211,6 +225,128 @@ export default function NewWedding() {
       case 2:
         return (
           <>
+            <Typography variant="h6" mt={3}>
+              Dress Code
+            </Typography>
+
+            <Stack spacing={2} mt={1}>
+              <TextField
+                select
+                label="Dress Code"
+                value={formData.dress_code?.type || ""}
+                onChange={(e) => {
+                  const type = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    dress_code: {
+                      ...prev.dress_code,
+                      type,
+                      details: prev.dress_code.details
+                        ? prev.dress_code.details
+                        : presets[type] || ""
+                    }
+                  }))
+                }}
+                fullWidth
+                size="small"
+              >
+                <MenuItem value="etiqueta">Etiqueta</MenuItem>
+                <MenuItem value="formal">Formal</MenuItem>
+                <MenuItem value="semi_formal">Semi formal</MenuItem>
+                <MenuItem value="casual">Casual</MenuItem>
+              </TextField>
+
+              <TextField
+                label="Detalles (opcional)"
+                multiline
+                rows={4}
+                helperText="Ayuda a tus invitados a saber cómo vestir"
+                placeholder={`Ej:
+Mujeres: vestido largo o cóctel
+Hombres: traje y corbata`}
+                value={formData.dress_code?.details || ""}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    dress_code: {
+                      ...prev.dress_code,
+                      details: e.target.value
+                    }
+                  }))
+                }
+                fullWidth
+                size="small"
+              />
+            </Stack>
+          </>
+        );
+
+
+      case 3:
+        return (
+          <>
+            <Typography variant="h6" mt={3}>
+              Mesa de regalos
+            </Typography>
+
+            {giftLinks.map((gift, index) => (
+              <Stack direction="row" spacing={2} key={index} mt={1}>
+
+                <TextField
+                  select
+                  label="Tipo"
+                  value={gift.type}
+                  onChange={(e) => {
+                    const updated = [...giftLinks];
+                    updated[index].type = e.target.value;
+                    setGiftLinks(updated);
+                  }}
+                  sx={{ minWidth: 120 }}
+                  size="small"
+                >
+                  <MenuItem value="amazon">Amazon</MenuItem>
+                  <MenuItem value="liverpool">Liverpool</MenuItem>
+                  <MenuItem value="mercadolibre">MercadoLibre</MenuItem>
+                </TextField>
+
+                <TextField
+                  label="URL"
+                  fullWidth
+                  size="small"
+                  value={gift.url}
+                  onChange={(e) => {
+                    const updated = [...giftLinks];
+                    updated[index].url = e.target.value;
+                    setGiftLinks(updated);
+                  }}
+                />
+
+                <Button
+                  color="error"
+                  onClick={() =>
+                    setGiftLinks(giftLinks.filter((_, i) => i !== index))
+                  }
+                >
+                  ✕
+                </Button>
+              </Stack>
+            ))}
+
+            <Button
+              variant="outlined"
+              sx={{ mt: 2 }}
+              onClick={() =>
+                setGiftLinks([...giftLinks, { type: "", url: "" }])
+              }
+            >
+              + Agregar enlace
+            </Button>
+          </>
+        );
+
+      case 4:
+        return (
+          <>
             <TextField
               label="Detalles adicionales"
               fullWidth
@@ -251,7 +387,7 @@ export default function NewWedding() {
 
   return (
     <Grid container justifyContent="center">
-      <Grid item xs={12} sm={8} md={5} lg={4} mt={4}>
+      <Grid item xs={12} sm={8} md={5} mt={4}>
         <PageTitle>Nueva Boda</PageTitle>
 
         <Stepper activeStep={activeStep} sx={{ mt: 2, mb: 3 }}>
