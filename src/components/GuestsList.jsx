@@ -20,7 +20,7 @@ const GuestsList = ({ search }) => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [row, setRow] = useState(null);
-  const { wedding_id } = useParams();
+  const { event_id } = useParams();
   const debouncedSearch = useDebounce(search, 300);
   const [selected, setSelected] = useState([]);
 
@@ -127,7 +127,7 @@ const GuestsList = ({ search }) => {
                     index={index}
                     page={page}
                     rowsPerPage={rowsPerPage}
-                    wedding_id={wedding_id}
+                    event_id={event_id}
                     openAlertConfirm={openAlertConfirm}
                     isSelected={isSelected}
                     handleSelectRow={handleSelectRow}

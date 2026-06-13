@@ -23,7 +23,7 @@ export const EventsProvider = ({ children }) => {
     setLoadingEvents(true);
     try {
       const { data, error } = await supabase
-        .from("weddings")
+        .from("events")
         .select("*")
         .order("created_at", { ascending: false });
 
@@ -52,7 +52,7 @@ export const EventsProvider = ({ children }) => {
 
       const payload = { ...wedding, user_id: user.id };
       const { data, error } = await supabase
-        .from("weddings")
+        .from("events")
         .insert([payload])
         .select();
 
@@ -73,7 +73,7 @@ export const EventsProvider = ({ children }) => {
     setLoadingEvents(true)
     try {
       const { data, error } = await supabase
-        .from("weddings")
+        .from("events")
         .update(updates)
         .eq("id", id)
         .select();
@@ -96,7 +96,7 @@ export const EventsProvider = ({ children }) => {
     setLoadingEvents(true);
     try {
       const { error } = await supabase
-        .from("weddings")
+        .from("events")
         .delete()
         .eq("id", id);
 
@@ -116,7 +116,7 @@ export const EventsProvider = ({ children }) => {
     setLoadingEvents(true);
     try {
       const { error } = await supabase
-        .from("weddings")
+        .from("events")
         .delete()
         .in("id", ids);
 
@@ -155,13 +155,13 @@ export const EventsProvider = ({ children }) => {
   // ========================
   //  IMAGES
   // ========================
-  const getImages = useCallback(async (wedding_id) => {
+  const getImages = useCallback(async (event_id) => {
     setLoadingImages(true);
     try {
       const { data, error } = await supabase
-        .from("wedding_photos")
+        .from("event_photos")
         .select("*")
-        .eq("wedding_id", wedding_id);
+        .eq("event_id", event_id);
 
       if (error) throw error;
 
@@ -219,7 +219,7 @@ export const EventsProvider = ({ children }) => {
     try {
       const { error } = await supabase
         .storage
-        .from("weddings")
+        .from("events")
         .remove(paths);
 
       if (error) {
@@ -236,10 +236,10 @@ export const EventsProvider = ({ children }) => {
     setLoadingImages(true);
     try {
       const { error } = await supabase
-        .from("wedding_photos")
+        .from("event_photos")
         .delete()
         .in("path", paths)
-        .eq("wedding_id", weddingId);
+        .eq("event_id", weddingId);
 
       if (error) {
         throw error;
@@ -262,10 +262,10 @@ export const EventsProvider = ({ children }) => {
 
     // Suscripción SOLO para Events
     const subscription = supabase
-      .channel("weddings")
+      .channel("events")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "weddings" },
+        { event: "*", schema: "public", table: "events" },
         (payload) => {
           console.log("Cambio en Events:", payload);
           getEvents();

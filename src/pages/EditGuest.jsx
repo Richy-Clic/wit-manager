@@ -9,7 +9,7 @@ import PageTitle from "../components/PageTitle.jsx";
 
 
 export default function EditGuest() {
-  const { guest_id, wedding_id } = useParams();
+  const { guest_id, event_id } = useParams();
   const { guests, mainGuests, updateGuest, deleteGroup, createGroup } = useGuests();
   const navigate = useNavigate();
   const [originalGroupId, setOriginalGroupId] = useState({});
@@ -74,7 +74,7 @@ export default function EditGuest() {
       let newIsMain = guest.is_main;
 
       if (guest.group_id == 2 && !guest.is_main) {
-        const newGroup = await createGroup(wedding_id);
+        const newGroup = await createGroup(event_id);
 
         newGroupId = newGroup.id;
         newIsMain = true;
@@ -95,7 +95,7 @@ export default function EditGuest() {
       if (changeMainGuest) await deleteGroup(originalGroupId.group_id);
 
       // 3. confirmation message and navigate back to guests list
-      navigate(`/weddings/${wedding_id}/guests`, {
+      navigate(`/events/${event_id}/guests`, {
         state: {
           status: true,
           message: "Invitado actualizado con éxito"
@@ -163,7 +163,7 @@ export default function EditGuest() {
           </Stack>
           <Grid item xs={12}>
             <Box mt={2} display="flex" justifyContent="flex-end">
-              <Link to={`/weddings/${wedding_id}/guests`}>
+              <Link to={`/events/${event_id}/guests`}>
                 <Button type="submit" style={{ marginRight: '10px' }}>
                   Cancelar
                 </Button>

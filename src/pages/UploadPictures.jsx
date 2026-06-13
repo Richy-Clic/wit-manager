@@ -9,7 +9,7 @@ import ImageUploader from "../components/ImageUploader";
 import getStoragePathFromUrl from "../utils/getStoragePathFromUrl.js";
 
 export default function UploadPictures() {
-  const { wedding_id } = useParams();
+  const { event_id } = useParams();
   const navigate = useNavigate();
 
   const [headerImage, setHeaderImage] = useState(null);
@@ -26,13 +26,13 @@ export default function UploadPictures() {
       // 🧹 DELETE
       if (deletedImages.length > 0) {
         await deleteImagesFromStorage(deletedImages);
-        await deleteImagesFromDB(deletedImages, wedding_id);
+        await deleteImagesFromDB(deletedImages, event_id);
         didDelete = true;
       }
 
       // 📤 UPLOAD
       const result = await uploadImages({
-        weddingId: wedding_id,
+        weddingId: event_id,
         headerImage,
         galleryImages
       });
@@ -45,7 +45,7 @@ export default function UploadPictures() {
 
       // 🔄 REFRESH
       if (didDelete || didUpload) {
-        await getImages(wedding_id);
+        await getImages(event_id);
       }
 
       // 🎯 SINGLE TOAST LOGIC
@@ -73,10 +73,10 @@ export default function UploadPictures() {
   };
   
   useEffect(() => {
-    if (!wedding_id) return;
-    if (wedding_id) getImages(wedding_id);
+    if (!event_id) return;
+    if (event_id) getImages(event_id);
 
-  }, [wedding_id, getImages]);
+  }, [event_id, getImages]);
 
   useEffect(() => {
     if (!images) return;
@@ -133,7 +133,7 @@ export default function UploadPictures() {
         </Box>
 
         <Box mt={4} display="flex" justifyContent="space-between">
-          <Button color="error" onClick={() => navigate("/weddings")}>
+          <Button color="error" onClick={() => navigate("/events")}>
             Cancelar
           </Button>
 

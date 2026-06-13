@@ -26,7 +26,7 @@ const Guests = () => {
   const [sent, setSent] = useState(0);
   const [total, setTotal] = useState(0);
 
-  const { wedding_id } = useParams();
+  const { event_id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -49,7 +49,7 @@ const Guests = () => {
       const { data: guests, error } = await supabase
         .from("guests")
         .select("id, name, phone")
-        .eq("wedding_id", wedding_id);
+        .eq("event_id", event_id);
 
       if (error) throw error;
 
@@ -133,7 +133,7 @@ const Guests = () => {
           <PageTitle>Lista de Invitados</PageTitle>
 
           <Box display="flex" gap={1}>
-            <Button component={Link} to="/weddings">
+            <Button component={Link} to="/events">
               Cancelar
             </Button>
 
@@ -149,7 +149,7 @@ const Guests = () => {
 
             <Button
               component={Link}
-              to={`/weddings/${wedding_id}/addguestslist`}
+              to={`/events/${event_id}/addguestslist`}
               variant="contained"
               color="success"
             >
@@ -158,7 +158,7 @@ const Guests = () => {
 
             <Button
               component={Link}
-              to={`/weddings/${wedding_id}/newguest`}
+              to={`/events/${event_id}/newguest`}
               variant="contained"
               color="info"
             >

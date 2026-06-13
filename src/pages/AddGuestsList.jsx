@@ -21,7 +21,7 @@ import PageTitle from "../components/PageTitle.jsx";
 
 const AddGuestsList = () => {
   const { importGuestsFromCSV, loading } = useGuests();
-  const { wedding_id } = useParams();
+  const { event_id } = useParams();
   const navigate = useNavigate();
 
   const [file, setfile] = useState({
@@ -51,7 +51,7 @@ const AddGuestsList = () => {
 
       await importGuestsFromCSV(normalizedGuests);
 
-      navigate(`/weddings/${wedding_id}/guests`, {
+      navigate(`/events/${event_id}/guests`, {
         state: {
           status: true,
           message: "Lista de invitados importada exitosamente"
@@ -181,7 +181,7 @@ const AddGuestsList = () => {
 
             {/* 🔘 Actions */}
             <Box display="flex" justifyContent="flex-end" gap={2}>
-              <Link to={`/weddings/${wedding_id}/guests`}>
+              <Link to={`/events/${event_id}/guests`}>
                 <Button disabled={loading}>
                   Cancelar
                 </Button>

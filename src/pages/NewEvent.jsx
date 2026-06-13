@@ -94,7 +94,7 @@ export default function NewWedding() {
 
       await createWedding(payload);
 
-      navigate("/weddings", {
+      navigate("/events", {
         state: {
           status: true,
           message: "Nuevo evento creada con éxito"
@@ -401,7 +401,7 @@ Hombres: traje y corbata`}
         <Box>{renderStep()}</Box>
 
         <Box mt={3} display="flex" justifyContent="space-between">
-          <Button color="error" onClick={() => navigate("/weddings")}>
+          <Button color="error" onClick={() => navigate("/events")}>
             Cancelar
           </Button>
 

@@ -82,7 +82,7 @@ function App() {
                 <Route path="/Events" element={<Events />} />
                 <Route path="/Events/addevent" element={<NewEvent />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/Events/:wedding_id/*" element={<GuestRoutes />} />
+                <Route path="/Events/:event_id/*" element={<GuestRoutes />} />
               </Route>
 
               {/* ❌ NOT FOUND */}

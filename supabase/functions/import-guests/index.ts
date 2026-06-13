@@ -12,7 +12,7 @@ console.log("METHOD:", req.method)
     return new Response("ok", { headers: corsHeaders })
   }
   
-  const { guests, wedding_id } = await req.json()
+  const { guests, event_id } = await req.json()
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL"),
@@ -21,9 +21,9 @@ console.log("METHOD:", req.method)
 
   const groupMap = getGroupMap(guests)
 
-  await insertGroups(supabase, groupMap, wedding_id)
+  await insertGroups(supabase, groupMap, event_id)
 
-  const guestsFormatted = getGuestsFormatted(guests, wedding_id, groupMap);
+  const guestsFormatted = getGuestsFormatted(guests, event_id, groupMap);
   console.log("guestsFormatted", guestsFormatted)
 
   const { error } = await supabase
@@ -62,7 +62,7 @@ function getGroupMap(guests) {
   return groupMap
 }
 
-function getGuestsFormatted(guests, wedding_id, groupMap) {
+function getGuestsFormatted(guests, event_id, groupMap) {
 
   return guests.map((g) => {
 
@@ -76,18 +76,18 @@ function getGuestsFormatted(guests, wedding_id, groupMap) {
       id: crypto.randomUUID(),
       name: g.nombre,
       phone: g.telefono,
-      wedding_id,
+      event_id,
       group_id: groupId,
       is_main: isMain
     }
   })
 }
 
-async function insertGroups(supabase, groupMap, wedding_id) {
+async function insertGroups(supabase, groupMap, event_id) {
 
   const groups = Object.values(groupMap).map((groupId) => ({
     id: groupId,
-    wedding_id
+    event_id
   }))
 
   await supabase

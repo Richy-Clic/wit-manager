@@ -10,11 +10,11 @@ export const GuestsProvider = ({ children }) => {
   const [guests, setGuests] = useState(null);
   const [mainGuests, setMainGuests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { wedding_id } = useParams();
+  const { event_id } = useParams();
 
 
   const getGuests = useCallback(async () => {
-  if (!wedding_id) throw new Error("No se proporcionó wedding_id");
+  if (!event_id) throw new Error("No se proporcionó event_id");
 
   setLoading(true);
 
@@ -36,7 +36,7 @@ export const GuestsProvider = ({ children }) => {
           )
         )
       `)
-      .eq("wedding_id", wedding_id)
+      .eq("event_id", event_id)
         
     if (error) throw error;
 
@@ -48,17 +48,17 @@ export const GuestsProvider = ({ children }) => {
   } finally {
     setLoading(false);
   }
-}, [wedding_id]);
+}, [event_id]);
 
   const getMainGuests = useCallback(async () => {
-    if (!wedding_id) return;
+    if (!event_id) return;
 
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from("guests")
         .select("*")
-        .eq("wedding_id", wedding_id)
+        .eq("event_id", event_id)
         .eq("is_main", true);
 
       if (error) throw error;
@@ -70,7 +70,7 @@ export const GuestsProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [wedding_id]);
+  }, [event_id]);
 
   const addGuest = async (guest) => {
     try {
@@ -97,7 +97,7 @@ export const GuestsProvider = ({ children }) => {
       const { data, error } = await supabase.functions.invoke("import-guests", {
         body: {
           guests,
-          wedding_id
+          event_id
         }
       })
 
@@ -135,7 +135,7 @@ export const GuestsProvider = ({ children }) => {
             )
           )
         `)
-        .eq("wedding_id", wedding_id)
+        .eq("event_id", event_id)
         .eq("groups.guests.is_main", true);
 
       if (error) throw error;
@@ -154,7 +154,7 @@ export const GuestsProvider = ({ children }) => {
       .from("guests")
       .update(updates)
       .eq("id", id)
-      .eq("wedding_id", wedding_id)
+      .eq("event_id", event_id)
       .select();
 
     if (error) throw error;
@@ -203,11 +203,11 @@ export const GuestsProvider = ({ children }) => {
   setGuests((prev) => prev.filter((g) => !ids.includes(g.id)));
 };
 
-  const createGroup = async (wedding_id) => {
+  const createGroup = async (event_id) => {
     try {
       const { data, error } = await supabase
         .from("groups")
-        .insert({ wedding_id })
+        .insert({ event_id })
         .select()
         .single();
 
@@ -243,18 +243,18 @@ export const GuestsProvider = ({ children }) => {
     getGuests();
     getMainGuests();
 
-    if (!wedding_id) throw new Error("No se proporcionó wedding_id");
+    if (!event_id) throw new Error("No se proporcionó event_id");
 
     // Suscripción SOLO para los invitados de este evento
     const subscription = supabase
-      .channel(`guests-${wedding_id}`)
+      .channel(`guests-${event_id}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "guests",
-          filter: `wedding_id=eq.${wedding_id}`,
+          filter: `event_id=eq.${event_id}`,
         },
         (payload) => {
           console.log("Cambio en guests:", payload);
@@ -267,7 +267,7 @@ export const GuestsProvider = ({ children }) => {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [wedding_id, getGuests]);
+  }, [event_id, getGuests]);
 
   return (
     <GuestsContext.Provider

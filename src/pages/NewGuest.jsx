@@ -13,7 +13,7 @@ export default function NewGuestForm() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [groupid, setGroupId] = useState("");
-  const { wedding_id } = useParams();
+  const { event_id } = useParams();
   const { addGuest, getMainGuests, mainGuests, createGroup, getGuests} = useGuests();
 
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ export default function NewGuestForm() {
       console.log(groupid);
       
       if (groupid === "new") {
-        let createdGroupId = await createGroup(wedding_id);
+        let createdGroupId = await createGroup(event_id);
         newGroupId = createdGroupId.id;
         is_main = true;
       }
@@ -36,13 +36,13 @@ export default function NewGuestForm() {
         name,
         phone,
         group_id: newGroupId,
-        wedding_id,
+        event_id,
         is_main
       });
       
       await getGuests();
 
-      navigate(`/weddings/${wedding_id}/guests`, {
+      navigate(`/events/${event_id}/guests`, {
         state: {
           status: true,
           message: "Invitado creado con éxito"
@@ -54,9 +54,9 @@ export default function NewGuestForm() {
   };
 
   useEffect(() => {
-    if (!wedding_id) return;
-    getMainGuests(wedding_id);
-  }, [getMainGuests, wedding_id]);
+    if (!event_id) return;
+    getMainGuests(event_id);
+  }, [getMainGuests, event_id]);
 
   useEffect(() => {
   }, [mainGuests]);
@@ -110,7 +110,7 @@ export default function NewGuestForm() {
           </TextField>
           <Grid item xs={12}>
             <Box mt={2} display="flex" justifyContent="flex-end">
-              <Link to={`/weddings/${wedding_id}/guests`}>
+              <Link to={`/events/${event_id}/guests`}>
                 <Button style={{ marginRight: '10px' }}>
                   Cancelar
                 </Button>

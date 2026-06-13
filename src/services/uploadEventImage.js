@@ -26,14 +26,14 @@ export const uploadEventImage = async ({
   try {
     // 🔥 1. Upload (overwrite safe)
     const { error: uploadError } = await supabase.storage
-      .from("weddings")
+      .from("events")
       .upload(path, file, { upsert: true });
 
     if (uploadError) throw uploadError;
 
     // 🔥 2. URL (cache busting)
     const { data } = supabase.storage
-      .from("weddings")
+      .from("events")
       .getPublicUrl(path);
 
     const publicUrl = data.publicUrl;
@@ -44,9 +44,9 @@ export const uploadEventImage = async ({
         data: existing,
         error: selectError
       } = await supabase
-        .from("wedding_photos")
+        .from("event_photos")
         .select("id")
-        .eq("wedding_id", weddingId)
+        .eq("event_id", weddingId)
         .eq("type", "header")
         .maybeSingle();
 
@@ -54,7 +54,7 @@ export const uploadEventImage = async ({
 
       if (existing) {
         const { error: updateError } = await supabase
-          .from("wedding_photos")
+          .from("event_photos")
           .update({ url: publicUrl })
           .eq("id", existing.id)
           .select();
@@ -62,9 +62,9 @@ export const uploadEventImage = async ({
         if (updateError) throw updateError;
       } else {
         const { error: insertError } = await supabase
-          .from("wedding_photos")
+          .from("event_photos")
           .insert({
-            wedding_id: weddingId,
+            event_id: weddingId,
             type,
             url: publicUrl,
             path: path
@@ -74,9 +74,9 @@ export const uploadEventImage = async ({
       }
     } else {
       const { error: insertError } = await supabase
-        .from("wedding_photos")
+        .from("event_photos")
         .insert({
-          wedding_id: weddingId,
+          event_id: weddingId,
           type,
           url: publicUrl,
           path: path
@@ -91,7 +91,7 @@ export const uploadEventImage = async ({
     console.error("🔴 uploadEventImage:", error);
 
     // 🔥 rollback storage si falla DB
-    await supabase.storage.from("weddings").remove([path]);
+    await supabase.storage.from("events").remove([path]);
 
     throw error;
   }

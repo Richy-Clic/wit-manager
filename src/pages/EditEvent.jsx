@@ -10,9 +10,9 @@ import PlacesAutocompleteInput from "../components/PlacesAutocompleteInput.jsx";
 import PageTitle from "../components/PageTitle.jsx";
 
 export default function EditEvent() {
-  const { wedding_id } = useParams();
+  const { event_id } = useParams();
   const navigate = useNavigate();
-  const { weddings, updateWedding, loadingTemplates, templates } = useEvents();
+  const { events, updateWedding, loadingTemplates, templates } = useEvents();
   const [weddingData, setWeddingData] = useState({
     title_event: "",
     boyfriend: "",
@@ -29,8 +29,8 @@ export default function EditEvent() {
   });
 
   useEffect(() => {
-    if (weddings && weddings.length > 0) {
-      const w = weddings.find((w) => w.id === wedding_id);
+    if (events && events.length > 0) {
+      const w = events.find((w) => w.id === event_id);
       if (w) {
         setWeddingData({
           ...w,
@@ -38,7 +38,7 @@ export default function EditEvent() {
         });
       }
     }
-  }, [wedding_id, weddings]);
+  }, [event_id, events]);
 
   const handleChange = (id, value) => {
     setWeddingData({ ...weddingData, [id]: value });
@@ -57,9 +57,9 @@ export default function EditEvent() {
         ...weddingData
       };
 
-      await updateWedding(wedding_id, updatedData);
+      await updateWedding(event_id, updatedData);
 
-      navigate(`/weddings`, {
+      navigate(`/events`, {
         state: {
           status: true,
           message: "Evento actualizado con éxito"
@@ -245,7 +245,7 @@ export default function EditEvent() {
 
             <Grid item xs={12}>
               <Box mt={2} display="flex" justifyContent="flex-end">
-                <Link to="/weddings">
+                <Link to="/events">
                   <Button type="submit" style={{ marginRight: '10px' }}>
                     Cancelar
                   </Button>

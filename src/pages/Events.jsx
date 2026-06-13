@@ -39,7 +39,7 @@ const Events = () => {
           alignItems="center"
         >
           <PageTitle>Mis Eventos</PageTitle>
-          <Link to="/weddings/addwedding" style={{ textDecoration: "none" }}>
+          <Link to="/events/addevent" style={{ textDecoration: "none" }}>
             <Button variant="contained" color="primary">
               + Nuevo Evento
             </Button>

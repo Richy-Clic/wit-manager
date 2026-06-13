@@ -15,7 +15,7 @@ import RowActions from "./RowActions";
 // const USE_TEMPLATE = import.meta.env.VITE_USE_TEMPLATE === "true";
 const WHATSAPP_SANDBOX = import.meta.env.VITE_WHATSAPP_SANDBOX === "true";
 
-const GuestRow = ({ g, wedding_id, openAlertConfirm, isSelected, handleSelectRow }) => {
+const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }) => {
   const [sending, setSending] = useState(false);
 
   const attendance = getStringAttendance(g);
@@ -31,7 +31,7 @@ const GuestRow = ({ g, wedding_id, openAlertConfirm, isSelected, handleSelectRow
 
       await sendWhatsAppInvite({
         guest: g,
-        weddingId: wedding_id,
+        weddingId: event_id,
         isSandbox: WHATSAPP_SANDBOX,
       });
 
@@ -90,7 +90,7 @@ const GuestRow = ({ g, wedding_id, openAlertConfirm, isSelected, handleSelectRow
             {
               label: "Editar",
               icon: <EditIcon fontSize="small" />,
-              to: () => `/events/${wedding_id}/guest/${g.id}`,
+              to: () => `/events/${event_id}/guest/${g.id}`,
             },
             {
               label: sending ? "Enviando..." : "Enviar WhatsApp",
@@ -116,7 +116,7 @@ GuestRow.propTypes = {
   index: PropTypes.number.isRequired,
   page: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
-  wedding_id: PropTypes.string.isRequired,
+  event_id: PropTypes.string.isRequired,
   openAlertConfirm: PropTypes.func.isRequired,
   isSelected: PropTypes.func.isRequired,
   handleSelectRow: PropTypes.func.isRequired,
