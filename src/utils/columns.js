@@ -1,4 +1,4 @@
-export const weddingColumns = [
+export const EventColumns = [
   { id: "title_event", label: "Titulo del evento", minWidth: 50 },
   { id: "novios", label: "Novios", minWidth: 220 },
   { id: "fecha", label: "Fecha" },

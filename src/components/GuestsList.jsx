@@ -72,9 +72,9 @@ const GuestsList = ({ search }) => {
   };
   
 
-  if (!loading && (!guests || guests.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
+  if (!loading && (!guests || guests.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes invitados registrados </div>;
   if (!loading && (!guests || guests.length === 0)) {
-    return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
+    return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes invitados registrados </div>;
   }
   if (!loading && !filteredGuests.length) {
     return <div style={{ textAlign: "center", marginTop: 50 }}> No se encontraron resultados </div>;

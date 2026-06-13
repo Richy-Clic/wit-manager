@@ -1,23 +1,26 @@
 import { useState, createContext, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import supabase from "../lib/supabaseClient";
-import { uploadWeddingImage } from "../services/uploadWeddingImage";
+import { uploadEventImage } from "../services/uploadEventImage";
 import convert2WebP from "../utils/convert2Webp";
 
-export const WeddingsContext = createContext();
+export const EventsContext = createContext();
 
-export const WeddingsProvider = ({ children }) => {
-  const [weddings, setWeddings] = useState(null);
-  const [loading, setLoading] = useState(true);
+export const EventsProvider = ({ children }) => {
+
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [loadingTemplates, setLoadingTemplates] = useState(true);
+  const [loadingImgages, setLoadingImages] = useState(true);
+  const [events, setEvents] = useState(null);
   const [templates, setTemplates] = useState([]);
   const [images, setImages] = useState([]);
-  const [loadingTemplates, setLoadingTemplates] = useState(true);
+
 
   // ========================
-  //  WEDDINGS
+  //  EVENTS
   // ========================
-  const getWeddings = async () => {
-    setLoading(true);
+  const getEvents = async () => {
+    setLoadingEvents(true);
     try {
       const { data, error } = await supabase
         .from("weddings")
@@ -26,16 +29,17 @@ export const WeddingsProvider = ({ children }) => {
 
       if (error) throw error;
 
-      setWeddings(data);
+      setEvents(data);
     } catch (err) {
-      console.error("Error fetching weddings:", err.message);
-      setWeddings([]);
+      console.error("Error fetching events:", err.message);
+      setEvents([]);
     } finally {
-      setLoading(false);
+      setLoadingEvents(false);
     }
   };
 
-  const createWedding = async (wedding) => {
+  const createEvent = async (wedding) => {
+    setLoadingEvents(true);
     try {
       const authData = localStorage.getItem("sb-kwawewgowfcxilsewbts-auth-token");
 
@@ -54,17 +58,19 @@ export const WeddingsProvider = ({ children }) => {
 
       if (error) throw error;
 
-      setWeddings(prev => [data[0], ...(prev || [])]);
+      setEvents(prev => [data[0], ...(prev || [])]);
 
       return data;
     } catch (error) {
-      console.error("Error creating wedding: ", error.message);
+      console.error("Error creating event: ", error.message);
       throw error
-
+    } finally {
+      setLoadingEvents(false);
     }
   };
 
-  const updateWedding = async (id, updates) => {
+  const updateEvent = async (id, updates) => {
+    setLoadingEvents(true)
     try {
       const { data, error } = await supabase
         .from("weddings")
@@ -74,17 +80,20 @@ export const WeddingsProvider = ({ children }) => {
 
       if (error) throw error;
 
-      setWeddings((prev) =>
+      setEvents((prev) =>
         prev.map((w) => (w.id === id ? data[0] : w))
       );
       return data[0];
     } catch (err) {
-      console.error("Error updating wedding: ", err.message);
-      throw new Error("Error updating wedding: ", err.message);
+      console.error("Error updating event: ", err.message);
+      throw new Error("Error updating event: ", err.message);
+    } finally {
+      setLoadingEvents(false);
     }
   };
 
-  const deleteWedding = async (id) => {
+  const deleteEvent = async (id) => {
+    setLoadingEvents(true);
     try {
       const { error } = await supabase
         .from("weddings")
@@ -93,15 +102,18 @@ export const WeddingsProvider = ({ children }) => {
 
       if (error) throw error;
 
-      setWeddings((prev) => prev.filter((w) => w.id !== id));
+      setEvents((prev) => prev.filter((w) => w.id !== id));
       return true;
     } catch (err) {
-      console.error("Error deleting wedding:", err.message);
+      console.error("Error deleting event:", err.message);
       return false;
+    } finally {
+      setLoadingEvents(false);
     }
   };
 
-  const deleteWeddingsBulk = async (ids) => {
+  const deleteEventsBulk = async (ids) => {
+    setLoadingEvents(true);
     try {
       const { error } = await supabase
         .from("weddings")
@@ -110,11 +122,13 @@ export const WeddingsProvider = ({ children }) => {
 
       if (error) throw error;
 
-      setWeddings((prev) => prev.filter((w) => !ids.includes(w.id)));
+      setEvents((prev) => prev.filter((w) => !ids.includes(w.id)));
       return true;
     } catch (err) {
-      console.error("Error deleting weddings:", err.message);
+      console.error("Error deleting events:", err.message);
       return false;
+    } finally {
+      setLoadingEvents(false);
     }
   };
 
@@ -142,7 +156,7 @@ export const WeddingsProvider = ({ children }) => {
   //  IMAGES
   // ========================
   const getImages = useCallback(async (wedding_id) => {
-    setLoading(true);
+    setLoadingImages(true);
     try {
       const { data, error } = await supabase
         .from("wedding_photos")
@@ -156,12 +170,12 @@ export const WeddingsProvider = ({ children }) => {
       console.error("Error fetching images:", err.message);
       setImages([]);
     } finally {
-      setLoading(false);
+      setLoadingImages(false);
     }
   }, []);
 
   const uploadImages = async ({ weddingId, headerImage, galleryImages }) => {
-    setLoading(true);
+    setLoadingImages(true);
 
     try {
       if (!(headerImage instanceof File) && !galleryImages.some(img => img instanceof File)) {
@@ -171,7 +185,7 @@ export const WeddingsProvider = ({ children }) => {
       if (headerImage instanceof File) {
         const headerOptimized = await convert2WebP(headerImage);
 
-        await uploadWeddingImage({
+        await uploadEventImage({
           file: headerOptimized,
           weddingId,
           type: "header"
@@ -182,7 +196,7 @@ export const WeddingsProvider = ({ children }) => {
       for (const img of galleryImgFiles) {
         const imgOptimized = await convert2WebP(img);
 
-        await uploadWeddingImage({
+        await uploadEventImage({
           file: imgOptimized,
           weddingId,
           type: "gallery"
@@ -196,30 +210,44 @@ export const WeddingsProvider = ({ children }) => {
     } catch (error) {
       return { success: false, error };
     } finally {
-      setLoading(false);
+      setLoadingImages(false);
     }
   };
 
   const deleteImagesFromStorage = async (paths) => {
-    const { error } = await supabase
-      .storage
-      .from("weddings")
-      .remove(paths);
+    setLoadingImages(true);
+    try {
+      const { error } = await supabase
+        .storage
+        .from("weddings")
+        .remove(paths);
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
       console.error("Storage delete error:", error);
+    } finally {
+      setLoadingImages(false);
     }
   };
 
   const deleteImagesFromDB = async (paths, weddingId) => {
-    const { error } = await supabase
-      .from("wedding_photos")
-      .delete()
-      .in("path", paths)
-      .eq("wedding_id", weddingId);
+    setLoadingImages(true);
+    try {
+      const { error } = await supabase
+        .from("wedding_photos")
+        .delete()
+        .in("path", paths)
+        .eq("wedding_id", weddingId);
 
-    if (error) {
-      console.error("DB delete error:", error);
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      console.error("Storage delete error:", error);
+    } finally {
+      setLoadingImages(false);
     }
   };
 
@@ -229,18 +257,18 @@ export const WeddingsProvider = ({ children }) => {
   //  INIT
   // ========================
   useEffect(() => {
-    getWeddings();
+    getEvents();
     getTemplates();
 
-    // Suscripción SOLO para weddings
+    // Suscripción SOLO para Events
     const subscription = supabase
       .channel("weddings")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "weddings" },
         (payload) => {
-          console.log("Cambio en weddings:", payload);
-          getWeddings();
+          console.log("Cambio en Events:", payload);
+          getEvents();
         }
       )
       .subscribe();
@@ -251,19 +279,20 @@ export const WeddingsProvider = ({ children }) => {
   }, []);
 
   return (
-    <WeddingsContext.Provider
+    <EventsContext.Provider
       value={{
-        loading,
-        weddings,
-        getWeddings,
-        createWedding,
-        updateWedding,
-        deleteWedding,
-        deleteWeddingsBulk,
-        templates,
+        loadingEvents,
         loadingTemplates,
-        getTemplates,
+        loadingImgages,
+        events,
+        templates,
         images,
+        getEvents,
+        createEvent,
+        updateEvent,
+        deleteEvent,
+        deleteEventsBulk,
+        getTemplates,
         getImages,
         uploadImages,
         deleteImagesFromStorage,
@@ -271,10 +300,10 @@ export const WeddingsProvider = ({ children }) => {
       }}
     >
       {children}
-    </WeddingsContext.Provider>
+    </EventsContext.Provider>
   );
 };
 
-WeddingsProvider.propTypes = {
+EventsProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };

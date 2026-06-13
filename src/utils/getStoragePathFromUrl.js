@@ -4,8 +4,8 @@ const getStoragePathFromUrl = (url) => {
   // remove query params (?t=...)
   const cleanUrl = url.split("?")[0];
 
-  // split after '/weddings/'
-  const parts = cleanUrl.split("/weddings/");
+  // split after '/events/'
+  const parts = cleanUrl.split("/events/");
 
   return parts[1] || null;
 };

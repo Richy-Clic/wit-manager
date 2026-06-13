@@ -20,8 +20,8 @@ export async function sendWhatsAppInvite({
   }
 
   const inviteUrl = isSandbox
-    ? `http://localhost:5173/${weddingId}/${guest.id}`
-    : `https://wit.app/invite/${guest.id}`;
+    ? `http://localhost:5173/${weddingId}/${guest.id}/${guest.access_token}`
+    : `https://app,witinvitaciones.com/${weddingId}/${guest.id}/${guest.access_token}`;
 
   const phoneFormatted = parseMxPhone(guest.phone, isSandbox);
 

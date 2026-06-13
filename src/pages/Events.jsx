@@ -5,12 +5,12 @@ import { Link, useLocation } from "react-router-dom";
 import { Grid, Box, Button, Container } from "@mui/material";
 import { toast } from "sonner";
 
-import WeddingsList from "../components/WeddingsList.jsx";
-import SearchInput from "../components/SearchInput";
+import EventsList from "../components/EventsList.jsx";
+import SearchInput from "../components/SearchInput.jsx";
 import PageTitle from "../components/PageTitle.jsx";
 
 
-const Weddings = () => {
+const Events = () => {
   const [search, setSearch] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
@@ -38,10 +38,10 @@ const Weddings = () => {
           justifyContent="space-between"
           alignItems="center"
         >
-          <PageTitle>Mis Bodas</PageTitle>
+          <PageTitle>Mis Eventos</PageTitle>
           <Link to="/weddings/addwedding" style={{ textDecoration: "none" }}>
             <Button variant="contained" color="primary">
-              + Nueva Boda
+              + Nuevo Evento
             </Button>
           </Link>
         </Box>
@@ -51,16 +51,16 @@ const Weddings = () => {
           <SearchInput
             value={search}
             onChange={setSearch}
-            placeholder="Buscar boda..."
+            placeholder="Buscar Evento..."
           />
         </Box>
 
         {/* Table */}
-        <WeddingsList search={search} />
+        <EventsList search={search} />
 
       </Container>
     </Grid>
   );
 };
 
-export default Weddings;
+export default Events;

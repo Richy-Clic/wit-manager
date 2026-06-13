@@ -245,7 +245,7 @@ export const GuestsProvider = ({ children }) => {
 
     if (!wedding_id) throw new Error("No se proporcionó wedding_id");
 
-    // Suscripción SOLO para los invitados de esta boda
+    // Suscripción SOLO para los invitados de este evento
     const subscription = supabase
       .channel(`guests-${wedding_id}`)
       .on(

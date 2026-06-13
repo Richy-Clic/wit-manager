@@ -1,29 +1,29 @@
 import { Grid, Card, CardContent, Typography } from "@mui/material";
 import { useDashboardStats } from "../hooks/useDashboardStats";
 
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import PeopleIcon from "@mui/icons-material/People";
-import EventIcon from "@mui/icons-material/Event";
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import PauseCircleFilledIcon from '@mui/icons-material/PauseCircleFilled';
+import CelebrationIcon from '@mui/icons-material/Celebration';
 
 
 const StatsCards = () => {
-  const { weddingsCount, guestsCount, confirmedGuests } = useDashboardStats();
+  const { eventsCount, guestsCount, confirmedGuests } = useDashboardStats();
 
   const cards = [
     {
-      title: "Bodas",
-      value: weddingsCount,
-      icon: <FavoriteIcon color="error" />
+      title: "Eventos",
+      value: eventsCount,
+      icon: <CelebrationIcon color="error" />
     },
     {
-      title: "Invitados",
+      title: "Eventos pendientes",
       value: guestsCount,
-      icon: <PeopleIcon color="primary" />
+      icon: <PauseCircleFilledIcon color="warning" />
     },
     {
-      title: "Confirmados",
+      title: "Eventos en curso",
       value: confirmedGuests,
-      icon: <EventIcon color="success" />
+      icon: <ThumbUpIcon color="success" />
     }
   ];
 

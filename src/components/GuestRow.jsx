@@ -90,7 +90,7 @@ const GuestRow = ({ g, wedding_id, openAlertConfirm, isSelected, handleSelectRow
             {
               label: "Editar",
               icon: <EditIcon fontSize="small" />,
-              to: () => `/weddings/${wedding_id}/guest/${g.id}`,
+              to: () => `/events/${wedding_id}/guest/${g.id}`,
             },
             {
               label: sending ? "Enviando..." : "Enviar WhatsApp",

@@ -2,17 +2,17 @@ import { useState, useEffect } from "react";
 import { TextField, Box, Button, Grid, MenuItem, Paper, Stack } from "@mui/material";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { DatePicker, TimePicker } from '@mui/x-date-pickers';
-import { useWeddings } from "../hooks/useWeddings.js";
+import { useEvents } from "../hooks/useEvents.js";
 import { toast } from "sonner";
 
 import dayjs from "dayjs";
 import PlacesAutocompleteInput from "../components/PlacesAutocompleteInput.jsx";
 import PageTitle from "../components/PageTitle.jsx";
 
-export default function EditWedding() {
+export default function EditEvent() {
   const { wedding_id } = useParams();
   const navigate = useNavigate();
-  const { weddings, updateWedding, loadingTemplates, templates } = useWeddings();
+  const { weddings, updateWedding, loadingTemplates, templates } = useEvents();
   const [weddingData, setWeddingData] = useState({
     title_event: "",
     boyfriend: "",
@@ -62,11 +62,11 @@ export default function EditWedding() {
       navigate(`/weddings`, {
         state: {
           status: true,
-          message: "Boda actualizada con éxito"
+          message: "Evento actualizado con éxito"
         }
       });
     } catch (error) {
-      toast.error("Error al actualizar la boda: " + error.message);
+      toast.error("Error al actualizar el evento: " + error.message);
     }
   };
 
@@ -232,7 +232,7 @@ export default function EditWedding() {
                   />
 
                   <TextField
-                    label="Detalles de la boda"
+                    label="Detalles del evento"
                     multiline
                     rows={5}
                     value={weddingData.details || ""}

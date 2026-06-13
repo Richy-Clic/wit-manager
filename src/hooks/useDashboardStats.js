@@ -1,18 +1,18 @@
-import { useWeddings } from "./useWeddings";
+import { useEvents } from "./useEvents";
 
 export const useDashboardStats = () => {
-  const { weddings } = useWeddings();
+  const { events } = useEvents();
 
-  const safeWeddings = weddings ?? [];
+  const safeEvents = events ?? [];
 
-  const weddingsCount = safeWeddings.length;
+  const eventsCount = safeEvents.length;
 
   let guestsCount = 0;
   let confirmedGuests = 0;
   let pendingGuests = 0;
   let declinedGuests = 0;
 
-  safeWeddings.forEach((w) => {
+  safeEvents.forEach((w) => {
     if (!w.guests) return;
 
     guestsCount += w.guests.length;
@@ -25,7 +25,7 @@ export const useDashboardStats = () => {
   });
 
   return {
-    weddingsCount,
+    eventsCount,
     guestsCount,
     confirmedGuests,
     pendingGuests,

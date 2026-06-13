@@ -1,6 +1,6 @@
 import supabase from "../lib/supabaseClient";
 
-export const uploadWeddingImage = async ({
+export const uploadEventImage = async ({
   file,
   weddingId,
   type
@@ -88,7 +88,7 @@ export const uploadWeddingImage = async ({
     return publicUrl;
 
   } catch (error) {
-    console.error("🔴 uploadWeddingImage:", error);
+    console.error("🔴 uploadEventImage:", error);
 
     // 🔥 rollback storage si falla DB
     await supabase.storage.from("weddings").remove([path]);

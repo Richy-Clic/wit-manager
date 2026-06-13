@@ -22,8 +22,8 @@ import {
   AppBar,
 } from "@mui/material";
 
-const pages = ["Dashboard", "Weddings", "Users"];
-const settings = ["Profile", "Logout"];
+const pages = ["DASHBOARD", "MIS EVENTOS"];
+const settings = ["Perfil", "Cerrar Sesión"];
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);

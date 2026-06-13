@@ -1,18 +1,18 @@
 import { useState } from "react";
-import { useDebounce } from "../hooks/useDebounce";
-import { useWeddings } from "../hooks/useWeddings.js";
+import { useDebounce } from "../hooks/useDebounce.js";
+import { useEvents } from "../hooks/useEvents.js";
 
 import { Paper, Table, Tooltip, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, Chip } from "@mui/material";
 import { StyledTableCell } from "../styles/index.js";
 
-import { weddingStates } from "../utils/states.js";
-import { weddingColumns } from "../utils/columns.js";
+import { eventStates } from "../utils/states.js";
+import { EventColumns } from "../utils/columns.js";
 
 import PropTypes from "prop-types";
-import RowActions from "./RowActions";
+import RowActions from "./RowActions.jsx";
 import AlertConfirm from "./AlertConfirm.jsx";
 import SkeletonTable from "./skeletons/STable.jsx";
-import renderDateChip from "../utils/renderDateChip";
+import renderDateChip from "../utils/renderDateChip.jsx";
 
 import { IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -26,8 +26,8 @@ import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 
 
-const WeddingsList = ({ search }) => {
-  const { weddings, loading } = useWeddings();
+const EventsList = ({ search }) => {
+  const { events, loading } = useEvents();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
@@ -35,14 +35,14 @@ const WeddingsList = ({ search }) => {
   const debouncedSearch = useDebounce(search, 300);
   const [selected, setSelected] = useState([]);
 
-  const filteredWeddings = (weddings || []).filter((wedding) =>
-    `${wedding.boyfriend} ${wedding.girlfriend} ${wedding.location} ${wedding.state}`
+  const filteredEvents = (events || []).filter((event) =>
+    `${event.boyfriend} ${event.girlfriend} ${event.location} ${event.state}`
       .toLowerCase()
       .includes(debouncedSearch.toLowerCase())
   );
 
-  const openAlertConfirm = (wedding) => {
-    setRow(wedding);
+  const openAlertConfirm = (event) => {
+    setRow(event);
     setOpenModal(true);
   };
 
@@ -64,7 +64,7 @@ const WeddingsList = ({ search }) => {
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      const newSelected = filteredWeddings.map((w) => w.id);
+      const newSelected = filteredEvents.map((w) => w.id);
       setSelected(newSelected);
     } else {
       setSelected([]);
@@ -80,14 +80,14 @@ const WeddingsList = ({ search }) => {
   };
 
   const getStringState = (state) => {
-    return weddingStates.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
+    return eventStates.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
   }
 
-  if (!loading && (!weddings || weddings.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
-  if (!loading && (!weddings || weddings.length === 0)) {
-    return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes bodas registradas </div>;
+  if (!loading && (!events || events.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes eventos registrados </div>;
+  if (!loading && (!events || events.length === 0)) {
+    return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes eventos registrados </div>;
   }
-  if (!loading && !filteredWeddings.length) {
+  if (!loading && !filteredEvents.length) {
     return <div style={{ textAlign: "center", marginTop: 50 }}> No se encontraron resultados </div>;
   }
 
@@ -110,16 +110,16 @@ const WeddingsList = ({ search }) => {
               <TableCell padding="checkbox">
                 <Checkbox
                   indeterminate={
-                    selected.length > 0 && selected.length < filteredWeddings.length
+                    selected.length > 0 && selected.length < filteredEvents.length
                   }
                   checked={
-                    filteredWeddings.length > 0 &&
-                    selected.length === filteredWeddings.length
+                    filteredEvents.length > 0 &&
+                    selected.length === filteredEvents.length
                   }
                   onChange={handleSelectAll}
                 />
               </TableCell>
-              {weddingColumns.map((column) => (
+              {EventColumns.map((column) => (
                 <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
                   {column.label}
                 </StyledTableCell>
@@ -130,7 +130,7 @@ const WeddingsList = ({ search }) => {
             {loading ? (
               <SkeletonTable rows={rowsPerPage} />
             ) : (
-              filteredWeddings
+              filteredEvents
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((w) => {
                   const locationURL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(w.location)}&query_place_id=${w.location_id}`;
@@ -192,17 +192,17 @@ const WeddingsList = ({ search }) => {
                             {
                               label: "Editar",
                               icon: <EditIcon fontSize="small" />,
-                              to: (row) => `/weddings/${row.id}`
+                              to: (row) => `/events/${row.id}`
                             },
                             {
                               label: "Invitados",
                               icon: <PeopleIcon fontSize="small" />,
-                              to: (row) => `/weddings/${row.id}/guests`
+                              to: (row) => `/events/${row.id}/guests`
                             },
                             {
                               label: "Subir Imágenes",
                               icon: <FileUploadIcon fontSize="small" />,
-                              to: (row) => `/weddings/${row.id}/pictures`
+                              to: (row) => `/events/${row.id}/pictures`
                             },
                             {
                               label: "Ver Invitación",
@@ -230,7 +230,7 @@ const WeddingsList = ({ search }) => {
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, 100]}
         component="div"
-        count={filteredWeddings.length}
+        count={filteredEvents.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
@@ -250,8 +250,8 @@ const WeddingsList = ({ search }) => {
   );
 }
 
-WeddingsList.propTypes = {
+EventsList.propTypes = {
   search: PropTypes.string.isRequired,
 };
 
-export default WeddingsList;
+export default EventsList;

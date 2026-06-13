@@ -7,7 +7,7 @@ import { StyleSonnar } from "./styles/index.js";
 
 // Providers
 import { AuthProvider } from "./context/AuthProvider.jsx";
-import { WeddingsProvider } from "./context/WeddingsProvider.jsx";
+import { EventsProvider } from "./context/EventsProvider.jsx";
 import { GuestsProvider } from "./context/GuestsProvider.jsx";
 
 // Layout & Guards
@@ -17,9 +17,9 @@ import MainLayout from "./layouts/MainLayout";
 // Pages
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
-import Weddings from "./pages/Weddings.jsx";
-import NewWedding from "./pages/NewWedding.jsx";
-import EditWedding from "./pages/EditWedding.jsx";
+import Events from "./pages/Events.jsx";
+import NewEvent from "./pages/NewEvent.jsx";
+import EditEvent from "./pages/EditEvent.jsx";
 import Guests from "./pages/Guests.jsx";
 import NewGuest from "./pages/NewGuest.jsx";
 import EditGuest from "./pages/EditGuest.jsx";
@@ -28,12 +28,12 @@ import UploadPictures from "./pages/UploadPictures.jsx";
 import Profile from "./pages/Profile.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
-// 👇 Sub-rutas de wedding
+// 👇 Sub-rutas de events
 function GuestRoutes() {
   return (
     <GuestsProvider>
       <Routes>
-        <Route index element={<EditWedding />} />
+        <Route index element={<EditEvent />} />
         <Route path="guests" element={<Guests />} />
         <Route path="newguest" element={<NewGuest />} />
         <Route path="guest/:guest_id" element={<EditGuest />} />
@@ -48,7 +48,7 @@ function App() {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <AuthProvider>
-        <WeddingsProvider>
+        <EventsProvider>
           <BrowserRouter
             future={{
               v7_startTransition: true,
@@ -79,10 +79,10 @@ function App() {
                 }
               >
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/weddings" element={<Weddings />} />
-                <Route path="/weddings/addwedding" element={<NewWedding />} />
+                <Route path="/Events" element={<Events />} />
+                <Route path="/Events/addevent" element={<NewEvent />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/weddings/:wedding_id/*" element={<GuestRoutes />} />
+                <Route path="/Events/:wedding_id/*" element={<GuestRoutes />} />
               </Route>
 
               {/* ❌ NOT FOUND */}
@@ -91,7 +91,7 @@ function App() {
             </Routes>
 
           </BrowserRouter>
-        </WeddingsProvider>
+        </EventsProvider>
       </AuthProvider>
     </LocalizationProvider>
   );

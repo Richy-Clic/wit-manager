@@ -3,7 +3,7 @@ import { TextField, Box, Button, Grid, MenuItem, Stepper, Step, StepLabel, Typog
 import { useNavigate } from "react-router-dom";
 
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
-import { useWeddings } from "../hooks/useWeddings.js";
+import { useEvents } from "../hooks/useEvents.js";
 import { toast } from "sonner";
 
 import dayjs from "dayjs";
@@ -19,7 +19,7 @@ const presets = {
 };
 
 export default function NewWedding() {
-  const { createWedding, templates, loadingTemplates } = useWeddings();
+  const { createWedding, templates, loadingTemplates } = useEvents();
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [giftLinks, setGiftLinks] = useState([
@@ -97,11 +97,11 @@ export default function NewWedding() {
       navigate("/weddings", {
         state: {
           status: true,
-          message: "Nueva boda creada con éxito"
+          message: "Nuevo evento creada con éxito"
         }
       });
     } catch (error) {
-      toast.error("Error al crear la boda: " + error.message);
+      toast.error("Error al crear el evento: " + error.message);
     }
   };
 
@@ -388,7 +388,7 @@ Hombres: traje y corbata`}
   return (
     <Grid container justifyContent="center">
       <Grid item xs={12} sm={8} md={5} mt={4}>
-        <PageTitle>Nueva Boda</PageTitle>
+        <PageTitle>Nuevo Evento</PageTitle>
 
         <Stepper activeStep={activeStep} sx={{ mt: 2, mb: 3 }}>
           {steps.map((label) => (
@@ -412,7 +412,7 @@ Hombres: traje y corbata`}
 
             <Button variant="contained" onClick={handleNext}>
               {activeStep === steps.length - 1
-                ? "Crear Boda"
+                ? "Crear Evento"
                 : "Siguiente"}
             </Button>
           </Box>

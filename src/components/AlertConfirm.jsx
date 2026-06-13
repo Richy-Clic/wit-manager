@@ -1,22 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-import { useWeddings } from "../hooks/useWeddings.js";
+import { useEvents } from "../hooks/useEvents.js";
 import { toast } from "sonner";
 
 export default function AlertConfirm(props) {
-  const { deleteWedding, deleteWeddingsBulk } = useWeddings();
+  const { deleteEvents, deleteEventsBulk } = useEvents();
 
   const isBulk = props.selected.length > 0;
 
   const handleDelete = async () => {
     try {
       if (isBulk) {
-        await deleteWeddingsBulk(props.selected);
-        toast.success(`${props.selected.length} bodas eliminadas con éxito`);
+        await deleteEventsBulk(props.selected);
+        toast.success(`${props.selected.length} Eventos eliminadas con éxito`);
       } else {
-        await deleteWedding(props.row.id);
-        toast.success("Boda eliminada con éxito");
+        await deleteEvents(props.row.id);
+        toast.success("Evento eliminada con éxito");
       }
 
       props.onHide();
@@ -40,8 +40,8 @@ export default function AlertConfirm(props) {
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             {isBulk
-              ? `¿Deseas eliminar ${props.selected.length} bodas? Esta acción no se puede deshacer.`
-              : `¿De verdad deseas eliminar la boda de ${props.row.boyfriend} & ${props.row.girlfriend}?`}
+              ? `¿Deseas eliminar ${props.selected.length} eventos? Esta acción no se puede deshacer.`
+              : `¿De verdad deseas eliminar el evento de ${props.row.boyfriend} & ${props.row.girlfriend}?`}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

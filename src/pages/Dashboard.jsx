@@ -2,10 +2,11 @@ import { Grid } from "@mui/material";
 import PageTitle from "../components/PageTitle.jsx";
 
 import StatsCards from "../components/StatsCards";
-import UpcomingWeddings from "../components/UpcomingWeddings";
+import UpcomingEvents from "../components/UpcomingEvents";
 import GuestsChart from "../components/GuestsChart";
 
 const Dashboard = () => {
+  
   return (
     <Grid container spacing={2} justifyContent="center">
       <Grid item xs={10} sm={8} mt={4} mx="auto">
@@ -21,7 +22,7 @@ const Dashboard = () => {
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <UpcomingWeddings />
+            <UpcomingEvents />
           </Grid>
         </Grid>
       </Grid>

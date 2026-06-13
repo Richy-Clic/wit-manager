@@ -1,4 +1,4 @@
-export const weddingStates = new Map([
+export const eventStates = new Map([
     ["en progreso", { label: "En progreso", color: "black", bg: "orange" }],
     ["finalizada", { label: "Finalizada", color: "white", bg: "green" }],
     ["cancelada", { label: "Cancelada", color: "white", bg: "red" }],

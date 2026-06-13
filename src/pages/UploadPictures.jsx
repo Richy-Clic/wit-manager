@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Box, Typography, Button, Paper } from "@mui/material";
 import { toast } from "sonner";
-import { useWeddings } from "../hooks/useWeddings.js";
+import { useEvents } from "../hooks/useEvents.js";
 import LinearProgress from "../components/LinearProgress.jsx";
 
 import ImageUploader from "../components/ImageUploader";
@@ -14,7 +14,7 @@ export default function UploadPictures() {
 
   const [headerImage, setHeaderImage] = useState(null);
   const [galleryImages, setGalleryImages] = useState([]);
-  const { images, getImages, uploadImages, deleteImagesFromStorage, deleteImagesFromDB, loading } = useWeddings();
+  const { images, getImages, uploadImages, deleteImagesFromStorage, deleteImagesFromDB, loading } = useEvents();
   const [deletedImages, setDeletedImages] = useState([]);
 
 
