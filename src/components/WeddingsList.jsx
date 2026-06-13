@@ -207,7 +207,7 @@ const WeddingsList = ({ search }) => {
                             {
                               label: "Ver Invitación",
                               icon: <VisibilityIcon fontSize="small" />,
-                              onClick: (row) => window.open(`http://localhost:5173/${row.id}/`, '_blank')
+                              onClick: (row) => window.open(`https://app.witinvitaciones.com/${row.id}/`, '_blank')
                             },
                             { divider: true },
                             {
