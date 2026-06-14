@@ -4,16 +4,21 @@ import { Link, useLocation } from "react-router-dom";
 
 import { Grid, Box, Button, Container } from "@mui/material";
 import { toast } from "sonner";
-
-import EventsList from "../components/EventsList.jsx";
 import SearchInput from "../components/SearchInput.jsx";
 import PageTitle from "../components/PageTitle.jsx";
+
+// import { useTheme, useMediaQuery } from "@mui/material";
+import EventsTable from "../components/EventsTable.jsx";
+// import EventsCards from "../components/EventsCards.jsx";  //todo
 
 
 const Events = () => {
   const [search, setSearch] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
+
+  // const theme = useTheme();
+  // const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
 
   useEffect(() => {
@@ -55,8 +60,13 @@ const Events = () => {
           />
         </Box>
 
-        {/* Table */}
-        <EventsList search={search} />
+
+        {/* //TODO implement a better view for mobile */}
+        {/* {isMobile ? (
+          <EventsCards search={search} />
+        ) : ( */}
+          <EventsTable search={search} />
+        {/* )} */}
 
       </Container>
     </Grid>

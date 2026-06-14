@@ -46,6 +46,7 @@ export const getTheme = (mode) =>
                   ? "1px solid #eee"
                   : "1px solid #333",
               overflow: "hidden",
+              margin: "20px"
             },
           },
         ],

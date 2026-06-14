@@ -12,11 +12,13 @@ import PageTitle from "../components/PageTitle.jsx";
 export default function EditEvent() {
   const { event_id } = useParams();
   const navigate = useNavigate();
-  const { events, updateWedding, loadingTemplates, templates } = useEvents();
-  const [weddingData, setWeddingData] = useState({
+  const { events, updateEvent, loadingTemplates, templates } = useEvents();
+  const [eventData, setWeddingData] = useState({
+    type_event: "",
     title_event: "",
     boyfriend: "",
     girlfriend: "",
+    host: "",
     event_date: null,
     location: "",
     location_id: null,
@@ -41,23 +43,23 @@ export default function EditEvent() {
   }, [event_id, events]);
 
   const handleChange = (id, value) => {
-    setWeddingData({ ...weddingData, [id]: value });
+    setWeddingData({ ...eventData, [id]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      if (!weddingData.boyfriend || !weddingData.girlfriend || !weddingData.event_date || !weddingData.title_event) {
+      if (!eventData.event_date || !eventData.title_event || !eventData.type_event) {
         alert("Por favor llena los campos obligatorios");
         return;
       }
 
       const updatedData = {
-        ...weddingData
+        ...eventData
       };
 
-      await updateWedding(event_id, updatedData);
+      await updateEvent(event_id, updatedData);
 
       navigate(`/events`, {
         state: {
@@ -82,32 +84,60 @@ export default function EditEvent() {
               <Grid item xs={12} md={6}>
                 <Stack spacing={2}>
                   <TextField
+                  select
+                    id="type_event"
+                    label="Tipo de evento"
+                    type="text"
+                    value={eventData.type_event || ""}
+                    onChange={(e) => handleChange("type_event", e.target.value)}
+                  >
+                    <MenuItem value="wedding">Boda</MenuItem>
+                    <MenuItem value="birthday">Cumpleaños</MenuItem>
+                    <MenuItem value="general">Evento General</MenuItem>
+                  </TextField>
+
+                  <TextField
                     id="title_event"
                     label="Titulo del evento"
                     type="text"
-                    value={weddingData.title_event || ""}
+                    value={eventData.title_event || ""}
                     onChange={(e) => handleChange("title_event", e.target.value)}
                   />
 
                   <Box height={8} />
+                  {eventData.type_event === "wedding" && (
+                    <>
+                      <TextField
+                        id="boyfriend"
+                        label="Nombre del Novio"
+                        type="text"
+                        value={eventData.boyfriend || ""}
+                        onChange={(e) => handleChange("boyfriend", e.target.value)}
+                      />
+                      <TextField
+                        id="girlfriend"
+                        label="Nombre del Novia"
+                        type="text"
+                        value={eventData.girlfriend || ""}
+                        onChange={(e) => handleChange("girlfriend", e.target.value)}
+                      />
+                    </>
+                  )}
 
-                  <TextField
-                    id="boyfriend"
-                    label="Nombre del Novio"
-                    type="text"
-                    value={weddingData.boyfriend || ""}
-                    onChange={(e) => handleChange("boyfriend", e.target.value)}
-                  />
-                  <TextField
-                    id="girlfriend"
-                    label="Nombre del Novia"
-                    type="text"
-                    value={weddingData.girlfriend || ""}
-                    onChange={(e) => handleChange("girlfriend", e.target.value)}
-                  />
+                  {eventData.type_event === "birthday" && (
+                    <TextField
+                      label="Nombre del Cumpleañero"
+                      fullWidth
+                      margin="normal"
+                      value={eventData.host || ""}
+                      onChange={(e) =>
+                        handleChange("host", e.target.value)
+                      }
+                    />
+                  )}
                   <DatePicker
                     label="Fecha del evento"
-                    value={weddingData.event_date ? dayjs(weddingData.event_date) : null}
+                    value={eventData.event_date ? dayjs(eventData.event_date) : null}
                     onChange={(date) => handleChange("event_date", date ? date.format("YYYY-MM-DD") : null)}
                     format="DD/MM/YYYY"
                     disablePast
@@ -125,7 +155,7 @@ export default function EditEvent() {
                     id="template_id"
                     select
                     label="Plantilla"
-                    value={weddingData.template_id || ""}
+                    value={eventData.template_id || ""}
                     onChange={(e) => handleChange("template_id", e.target.value)}
                   >
                     {loadingTemplates ? (
@@ -144,7 +174,7 @@ export default function EditEvent() {
                     id="state"
                     select
                     label="status"
-                    value={weddingData.state || ""}
+                    value={eventData.state || ""}
                     onChange={(e) => handleChange("state", e.target.value)}
                   >
                     <MenuItem key={1} value="en progreso">In progress</MenuItem>
@@ -161,7 +191,7 @@ export default function EditEvent() {
 
                   <PlacesAutocompleteInput
                     label="Iglesia"
-                    value={weddingData.church || ""}
+                    value={eventData.church || ""}
                     onChange={(value) =>
                       setWeddingData((prev) => ({
                         ...prev,
@@ -180,8 +210,8 @@ export default function EditEvent() {
                   <TimePicker
                     label="Hora de la ceremonia"
                     value={
-                      weddingData.ceremony_time
-                        ? dayjs(`2000-01-01T${weddingData.ceremony_time}`)
+                      eventData.ceremony_time
+                        ? dayjs(`2000-01-01T${eventData.ceremony_time}`)
                         : null
                     }
                     onChange={(time) =>
@@ -198,7 +228,7 @@ export default function EditEvent() {
 
                   <PlacesAutocompleteInput
                     label="Ubicación"
-                    value={weddingData.location || ""}
+                    value={eventData.location || ""}
                     onChange={(value) =>
                       setWeddingData((prev) => ({
                         ...prev,
@@ -217,8 +247,8 @@ export default function EditEvent() {
                   <TimePicker
                     label="Hora de la recepción"
                     value={
-                      weddingData.reception_time
-                        ? dayjs(`2000-01-01T${weddingData.reception_time}`)
+                      eventData.reception_time
+                        ? dayjs(`2000-01-01T${eventData.reception_time}`)
                         : null
                     }
                     onChange={(time) =>
@@ -235,7 +265,7 @@ export default function EditEvent() {
                     label="Detalles del evento"
                     multiline
                     rows={5}
-                    value={weddingData.details || ""}
+                    value={eventData.details || ""}
                     onChange={(e) => handleChange("details", e.target.value)}
                     fullWidth
                   />

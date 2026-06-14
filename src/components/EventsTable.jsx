@@ -26,7 +26,7 @@ import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 
 
-const EventsList = ({ search }) => {
+const EventsTable = ({ search }) => {
   const { events, loading } = useEvents();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -250,8 +250,8 @@ const EventsList = ({ search }) => {
   );
 }
 
-EventsList.propTypes = {
+EventsTable.propTypes = {
   search: PropTypes.string.isRequired,
 };
 
-export default EventsList;
+export default EventsTable;
