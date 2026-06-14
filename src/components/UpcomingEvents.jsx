@@ -33,7 +33,7 @@ const UpcomingEvents = () => {
     }
 
     const upcoming = [...safeEvents]
-        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .sort((a, b) => new Date(a.event_date) - new Date(b.event_date))
         .slice(0, 5);
 
 return (
@@ -54,7 +54,7 @@ return (
                                 <ListItemText
                                     primary={`${w.boyfriend} & ${w.girlfriend}`}
                                     secondary={format(
-                                        parseISO(w.date),
+                                        parseISO(w.event_date),
                                         "d MMMM yyyy",
                                         { locale: es }
                                     )}
