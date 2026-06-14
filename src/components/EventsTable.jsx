@@ -7,6 +7,7 @@ import { StyledTableCell } from "../styles/index.js";
 
 import { eventStates } from "../utils/states.js";
 import { EventColumns } from "../utils/columns.js";
+import { typeLabels } from "../utils/typeEventsLabel.js"
 
 import PropTypes from "prop-types";
 import RowActions from "./RowActions.jsx";
@@ -36,7 +37,7 @@ const EventsTable = ({ search }) => {
   const [selected, setSelected] = useState([]);
 
   const filteredEvents = (events || []).filter((event) =>
-    `${event.boyfriend} ${event.girlfriend} ${event.location} ${event.state}`
+    `${event.boyfriend} ${event.girlfriend} ${event.host} ${event.type_event} ${event.title_event} ${event.location} ${event.state}`
       .toLowerCase()
       .includes(debouncedSearch.toLowerCase())
   );
@@ -150,7 +151,7 @@ const EventsTable = ({ search }) => {
                         />
                       </TableCell>
                       <TableCell>{w.title_event}</TableCell>
-                      <TableCell>{w.boyfriend} & {w.girlfriend}</TableCell>
+                      <TableCell>{typeLabels[w.type_event]}</TableCell>
                       <TableCell>{renderDateChip(w.event_date)}</TableCell>
                       <TableCell>
                         <Tooltip title={`Evento: ${w.location}`}>

@@ -1,9 +1,9 @@
 export const EventColumns = [
-  { id: "title_event", label: "Titulo del evento", minWidth: 50 },
-  { id: "novios", label: "Novios", minWidth: 220 },
+  { id: "title_event", label: "Titulo del evento", minWidth: 70 },
+  { id: "Tipo", label: "Tipo de evento", minWidth: 50 },
   { id: "fecha", label: "Fecha" },
-  { id: "ubicacion", label: "Ubicación", minWidth: 70 },
-  { id: "estatus", label: "Estatus", minWidth: 100 },
+  { id: "ubicacion", label: "Ubicación", minWidth: 50 },
+  { id: "estatus", label: "Estatus", minWidth: 70 },
   { id: "acciones", minWidth: 40 },
 ];
 

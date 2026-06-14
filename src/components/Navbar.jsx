@@ -22,7 +22,16 @@ import {
   AppBar,
 } from "@mui/material";
 
-const pages = ["DASHBOARD", "MIS EVENTOS"];
+const pages = [
+  {
+    name: "DASHBOARD",
+    link: "dashboard"
+  },
+  {
+    name: "EVENTOS",
+    link: "events"
+  }
+];
 const settings = ["Perfil", "Cerrar Sesión"];
 
 function Navbar() {
@@ -76,12 +85,12 @@ function Navbar() {
           <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1 }}>
             {pages.map((page) => (
               <Button
-                key={page}
+                key={page.name}
                 component={Link}
-                to={`/${page.toLowerCase()}`}
+                to={`/${page.link}`}
                 sx={{ color: "inherit", textTransform: "none" }}
               >
-                {page}
+                {page.name}
               </Button>
             ))}
           </Box>
@@ -101,13 +110,13 @@ function Navbar() {
             transformOrigin={{ vertical: "top", horizontal: "left" }}
           >
             {pages.map((page) => (
-              <MenuItem key={page} onClick={handleCloseNavMenu}>
+              <MenuItem key={page.name} onClick={handleCloseNavMenu}>
                 <Typography
                   component={Link}
-                  to={`/${page.toLowerCase()}`}
+                  to={`/${page.link}`}
                   sx={{ textDecoration: "none", color: "inherit" }}
                 >
-                  {page}
+                  {page.name}
                 </Typography>
               </MenuItem>
             ))}
