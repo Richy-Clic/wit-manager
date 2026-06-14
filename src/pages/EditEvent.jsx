@@ -12,7 +12,7 @@ import PageTitle from "../components/PageTitle.jsx";
 export default function EditEvent() {
   const { event_id } = useParams();
   const navigate = useNavigate();
-  const { events, updateEvent, loadingTemplates, templates } = useEvents();
+  const { events, updateEvent, loadingTemplates, templates, loadingEvents } = useEvents();
   const [eventData, setWeddingData] = useState({
     type_event: "",
     title_event: "",
@@ -50,7 +50,7 @@ export default function EditEvent() {
     e.preventDefault();
 
     try {
-      if (!eventData.event_date || !eventData.title_event || !eventData.type_event) {
+      if (!events?.length) {
         alert("Por favor llena los campos obligatorios");
         return;
       }
@@ -72,6 +72,9 @@ export default function EditEvent() {
     }
   };
 
+if (loadingEvents) {
+  return <div>Cargando evento...</div>;
+}
 
   return (
     <Grid container justifyContent="center">
@@ -135,12 +138,23 @@ export default function EditEvent() {
                       }
                     />
                   )}
+
+                  {eventData.type_event === "general" && (
+                    <TextField
+                      label="Nombre del anfitrión"
+                      fullWidth
+                      margin="normal"
+                      value={eventData.host || ""}
+                      onChange={(e) =>
+                        handleChange("host", e.target.value)
+                      }
+                    />
+                  )}
                   <DatePicker
                     label="Fecha del evento"
                     value={eventData.event_date ? dayjs(eventData.event_date) : null}
                     onChange={(date) => handleChange("event_date", date ? date.format("YYYY-MM-DD") : null)}
                     format="DD/MM/YYYY"
-                    disablePast
                     slotProps={{
                       textField: {
                         required: true,
@@ -177,9 +191,9 @@ export default function EditEvent() {
                     value={eventData.state || ""}
                     onChange={(e) => handleChange("state", e.target.value)}
                   >
-                    <MenuItem key={1} value="en progreso">In progress</MenuItem>
-                    <MenuItem key={2} value="finalizada">Completed</MenuItem>
-                    <MenuItem key={3} value="cancelada">Cancelled</MenuItem>
+                    <MenuItem key={1} value="en progreso">En progreso</MenuItem>
+                    <MenuItem key={2} value="finalizada">Finalizada</MenuItem>
+                    <MenuItem key={3} value="cancelada">Cancelada</MenuItem>
                   </TextField>
                 </Stack>
               </Grid>
@@ -276,7 +290,7 @@ export default function EditEvent() {
             <Grid item xs={12}>
               <Box mt={2} display="flex" justifyContent="flex-end">
                 <Link to="/events">
-                  <Button type="submit" style={{ marginRight: '10px' }}>
+                  <Button type="button" style={{ marginRight: '10px' }}>
                     Cancelar
                   </Button>
                 </Link>
