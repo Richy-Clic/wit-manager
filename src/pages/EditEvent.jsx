@@ -13,7 +13,7 @@ export default function EditEvent() {
   const { event_id } = useParams();
   const navigate = useNavigate();
   const { events, updateEvent, loadingTemplates, templates, loadingEvents } = useEvents();
-  const [eventData, setWeddingData] = useState({
+  const [eventData, setEventData] = useState({
     type_event: "",
     title_event: "",
     boyfriend: "",
@@ -34,7 +34,7 @@ export default function EditEvent() {
     if (events && events.length > 0) {
       const w = events.find((w) => w.id === event_id);
       if (w) {
-        setWeddingData({
+        setEventData({
           ...w,
           event_date: w.event_date || w.date || null
         });
@@ -43,7 +43,7 @@ export default function EditEvent() {
   }, [event_id, events]);
 
   const handleChange = (id, value) => {
-    setWeddingData({ ...eventData, [id]: value });
+    setEventData({ ...eventData, [id]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -207,13 +207,13 @@ if (loadingEvents) {
                     label="Iglesia"
                     value={eventData.church || ""}
                     onChange={(value) =>
-                      setWeddingData((prev) => ({
+                      setEventData((prev) => ({
                         ...prev,
                         church: value
                       }))
                     }
                     onSelect={(place) =>
-                      setWeddingData((prev) => ({
+                      setEventData((prev) => ({
                         ...prev,
                         church: place.text,
                         church_id: place.place_id
@@ -244,13 +244,13 @@ if (loadingEvents) {
                     label="Ubicación"
                     value={eventData.location || ""}
                     onChange={(value) =>
-                      setWeddingData((prev) => ({
+                      setEventData((prev) => ({
                         ...prev,
                         location: value
                       }))
                     }
                     onSelect={(place) =>
-                      setWeddingData((prev) => ({
+                      setEventData((prev) => ({
                         ...prev,
                         location: place.text,
                         location_id: place.place_id

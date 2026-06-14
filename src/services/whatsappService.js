@@ -6,7 +6,7 @@ const FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-wha
 
 export async function sendWhatsAppInvite({
   guest,
-  weddingId,
+  eventId,
   isSandbox,
 }) {
   if (!guest.phone) {
@@ -20,8 +20,8 @@ export async function sendWhatsAppInvite({
   }
 
   const inviteUrl = isSandbox
-    ? `http://localhost:5173/${weddingId}/${guest.id}/${guest.access_token}`
-    : `https://app,witinvitaciones.com/${weddingId}/${guest.id}/${guest.access_token}`;
+    ? `http://localhost:5173/${eventId}/${guest.id}/${guest.access_token}`
+    : `https://app,witinvitaciones.com/${eventId}/${guest.id}/${guest.access_token}`;
 
   const phoneFormatted = parseMxPhone(guest.phone, isSandbox);
 

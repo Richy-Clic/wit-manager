@@ -2,7 +2,7 @@ import supabase from "../lib/supabaseClient";
 
 export const uploadEventImage = async ({
   file,
-  weddingId,
+  eventId,
   type
 }) => {
   if (!file) throw new Error("File is required");
@@ -20,8 +20,8 @@ export const uploadEventImage = async ({
 
   const path =
     type === "header"
-      ? `${weddingId}/${fileName}`
-      : `${weddingId}/gallery/${fileName}`;
+      ? `${eventId}/${fileName}`
+      : `${eventId}/gallery/${fileName}`;
 
   try {
     // 🔥 1. Upload (overwrite safe)
@@ -46,7 +46,7 @@ export const uploadEventImage = async ({
       } = await supabase
         .from("event_photos")
         .select("id")
-        .eq("event_id", weddingId)
+        .eq("event_id", eventId)
         .eq("type", "header")
         .maybeSingle();
 
@@ -64,7 +64,7 @@ export const uploadEventImage = async ({
         const { error: insertError } = await supabase
           .from("event_photos")
           .insert({
-            event_id: weddingId,
+            event_id: eventId,
             type,
             url: publicUrl,
             path: path
@@ -76,7 +76,7 @@ export const uploadEventImage = async ({
       const { error: insertError } = await supabase
         .from("event_photos")
         .insert({
-          event_id: weddingId,
+          event_id: eventId,
           type,
           url: publicUrl,
           path: path

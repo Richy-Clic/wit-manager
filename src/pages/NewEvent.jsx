@@ -18,7 +18,7 @@ const presets = {
   casual: `Vestimenta cómoda y fresca`
 };
 
-export default function NewWedding() {
+export default function NewEvent() {
   const { createEvent, templates, loadingTemplates } = useEvents();
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);

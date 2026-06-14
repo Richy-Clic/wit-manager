@@ -32,7 +32,7 @@ export default function UploadPictures() {
 
       // 📤 UPLOAD
       const result = await uploadImages({
-        weddingId: event_id,
+        eventId: event_id,
         headerImage,
         galleryImages
       });

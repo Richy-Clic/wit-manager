@@ -38,7 +38,7 @@ export const EventsProvider = ({ children }) => {
     }
   };
 
-  const createEvent = async (wedding) => {
+  const createEvent = async (event) => {
     setLoadingEvents(true);
     try {
       const authData = localStorage.getItem("sb-kwawewgowfcxilsewbts-auth-token");
@@ -50,7 +50,7 @@ export const EventsProvider = ({ children }) => {
 
       if (userError) throw userError;
 
-      const payload = { ...wedding, user_id: user.id };
+      const payload = { ...event, user_id: user.id };
       const { data, error } = await supabase
         .from("events")
         .insert([payload])
@@ -174,7 +174,7 @@ export const EventsProvider = ({ children }) => {
     }
   }, []);
 
-  const uploadImages = async ({ weddingId, headerImage, galleryImages }) => {
+  const uploadImages = async ({ eventId, headerImage, galleryImages }) => {
     setLoadingImages(true);
 
     try {
@@ -187,7 +187,7 @@ export const EventsProvider = ({ children }) => {
 
         await uploadEventImage({
           file: headerOptimized,
-          weddingId,
+          eventId,
           type: "header"
         });
       }
@@ -198,13 +198,13 @@ export const EventsProvider = ({ children }) => {
 
         await uploadEventImage({
           file: imgOptimized,
-          weddingId,
+          eventId,
           type: "gallery"
         });
         console.log("file uploaded");
       }
 
-      await getImages(weddingId);
+      await getImages(eventId);
 
       return { success: true };
     } catch (error) {
@@ -232,14 +232,14 @@ export const EventsProvider = ({ children }) => {
     }
   };
 
-  const deleteImagesFromDB = async (paths, weddingId) => {
+  const deleteImagesFromDB = async (paths, eventId) => {
     setLoadingImages(true);
     try {
       const { error } = await supabase
         .from("event_photos")
         .delete()
         .in("path", paths)
-        .eq("event_id", weddingId);
+        .eq("event_id", eventId);
 
       if (error) {
         throw error;

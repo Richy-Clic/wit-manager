@@ -31,7 +31,7 @@ const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }
 
       await sendWhatsAppInvite({
         guest: g,
-        weddingId: event_id,
+        eventId: event_id,
         isSandbox: WHATSAPP_SANDBOX,
       });
 
