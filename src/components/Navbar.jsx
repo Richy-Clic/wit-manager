@@ -3,9 +3,11 @@ import MenuIcon from "@mui/icons-material/Menu";
 import WidgetsIcon from "@mui/icons-material/Widgets";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PersonIcon from "@mui/icons-material/Person";
 
 import supabase from "../lib/supabaseClient";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 
@@ -20,6 +22,8 @@ import {
   Toolbar,
   Box,
   AppBar,
+  Divider,
+  ListItemIcon
 } from "@mui/material";
 
 const pages = [
@@ -32,18 +36,20 @@ const pages = [
     link: "events"
   }
 ];
-const settings = ["Perfil", "Cerrar Sesión"];
+
 
 function Navbar() {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
   const { mode, toggleTheme } = useContext(ThemeContext);
+
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleOpenNavMenu = (e) => setAnchorElNav(e.currentTarget);
-  const handleOpenUserMenu = (e) => setAnchorElUser(e.currentTarget);
   const handleCloseNavMenu = () => setAnchorElNav(null);
+
+  const handleOpenUserMenu = (e) => setAnchorElUser(e.currentTarget);
   const handleCloseUserMenu = () => setAnchorElUser(null);
 
   const handleLogout = async () => {
@@ -65,10 +71,54 @@ function Navbar() {
       >
         {/* 🔹 LEFT SECTION */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+
+          {/* 🔹 MOBILE MENU */}
+          <Box sx={{ display: { xs: "flex", md: "none" } }}>
+            <IconButton color="inherit" onClick={handleOpenNavMenu}>
+              <MenuIcon />
+            </IconButton>
+
+            <Menu
+              anchorEl={anchorElNav}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+            >
+              {pages.map((page) => {
+                const path = `/${page.link}`;
+                const active = location.pathname === path;
+
+                return (
+                  <MenuItem
+                    key={page.name}
+                    component={Link}
+                    to={path}
+                    onClick={handleCloseNavMenu}
+                    selected={active}
+                  >
+                    <Typography
+                      sx={{
+                        fontWeight: active ? 700 : 500,
+                        color: active ? "primary.main" : "inherit",
+                      }}
+                    >
+                      {page.name}
+                    </Typography>
+                  </MenuItem>
+                );
+              })}
+            </Menu>
+          </Box>
           <WidgetsIcon sx={{ display: { xs: "none", md: "flex" } }} />
 
           <Typography
-            variant="h6"
             component={Link}
             to="/dashboard"
             sx={{
@@ -76,6 +126,7 @@ function Navbar() {
               letterSpacing: ".2rem",
               color: "inherit",
               textDecoration: "none",
+              cursor: "pointer",
             }}
           >
             WIT
@@ -83,59 +134,39 @@ function Navbar() {
 
           {/* Desktop menu */}
           <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1 }}>
-            {pages.map((page) => (
-              <Button
-                key={page.name}
-                component={Link}
-                to={`/${page.link}`}
-                sx={{ color: "inherit", textTransform: "none" }}
-              >
-                {page.name}
-              </Button>
-            ))}
+            {pages.map((page) => {
+
+              const path = `/${page.link}`;
+              return (
+                <Button
+                  key={page.name}
+                  component={Link}
+                  to={path}
+                  sx={{
+                    color: "inherit",
+                    textTransform: "none",
+                    fontWeight: location.pathname === path ? 700 : 500,
+                    bgcolor: location.pathname === path
+                      ? "action.selected"
+                      : "transparent",
+                    borderRadius: 2,
+                    "&:hover": {
+                      bgcolor: "action.hover",
+                    },
+                  }}
+                >
+                  {page.name}
+                </Button>
+              );
+            })}
           </Box>
         </Box>
 
-        {/* 🔹 MOBILE MENU */}
-        <Box sx={{ display: { xs: "flex", md: "none" } }}>
-          <IconButton color="inherit" onClick={handleOpenNavMenu}>
-            <MenuIcon />
-          </IconButton>
 
-          <Menu
-            anchorEl={anchorElNav}
-            open={Boolean(anchorElNav)}
-            onClose={handleCloseNavMenu}
-            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-            transformOrigin={{ vertical: "top", horizontal: "left" }}
-          >
-            {pages.map((page) => (
-              <MenuItem key={page.name} onClick={handleCloseNavMenu}>
-                <Typography
-                  component={Link}
-                  to={`/${page.link}`}
-                  sx={{ textDecoration: "none", color: "inherit" }}
-                >
-                  {page.name}
-                </Typography>
-              </MenuItem>
-            ))}
-          </Menu>
-        </Box>
 
         {/* 🔹 RIGHT SECTION */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {/* Dark mode */}
-          <Tooltip
-            title={`Cambiar a ${mode === "light" ? "modo oscuro" : "modo claro"
-              }`}
-          >
-            <IconButton color="inherit" onClick={toggleTheme}>
-              {mode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
-            </IconButton>
-          </Tooltip>
 
-          {/* Avatar */}
           <Tooltip title="Configuración">
             <IconButton
               onClick={handleOpenUserMenu}
@@ -144,7 +175,6 @@ function Navbar() {
               <Avatar sx={{ width: 40, height: 40 }} />
             </IconButton>
           </Tooltip>
-
           <Menu
             anchorEl={anchorElUser}
             open={Boolean(anchorElUser)}
@@ -152,19 +182,51 @@ function Navbar() {
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             transformOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            {settings.map((setting) => (
-              <MenuItem
-                key={setting}
-                onClick={() => {
-                  handleCloseUserMenu();
-                  if (setting === "Logout") handleLogout();
-                  if (setting === "Profile") navigate("/profile");
-                }}
-              >
-                {setting}
-              </MenuItem>
-            ))}
+            <MenuItem
+              onClick={() => {
+                handleCloseUserMenu();
+                navigate("/profile");
+              }}
+            >
+              <ListItemIcon>
+                <PersonIcon fontSize="small" />
+              </ListItemIcon>
+              Perfil
+            </MenuItem>
+
+            <MenuItem
+              onClick={() => {
+                handleCloseUserMenu();
+                toggleTheme();
+              }}
+            >
+              <ListItemIcon>
+                {mode === "light" ? (
+                  <DarkModeIcon fontSize="small" />
+                ) : (
+                  <LightModeIcon fontSize="small" />
+                )}
+              </ListItemIcon>
+
+              {mode === "light" ? "Modo oscuro" : "Modo claro"}
+            </MenuItem>
+
+            <Divider />
+
+            <MenuItem
+              onClick={() => {
+                handleCloseUserMenu();
+                handleLogout();
+              }}
+              sx={{ color: "error.main" }}
+            >
+              <ListItemIcon>
+                <LogoutIcon fontSize="small" color="error" />
+              </ListItemIcon>
+              Cerrar sesión
+            </MenuItem>
           </Menu>
+
         </Box>
       </Toolbar>
     </AppBar>

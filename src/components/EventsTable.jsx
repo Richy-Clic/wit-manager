@@ -26,9 +26,11 @@ import ChurchIcon from "@mui/icons-material/Church";
 import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 
+import LoadingSpinner from "./LoadingSpinner.jsx";
+
 
 const EventsTable = ({ search }) => {
-  const { events, loading } = useEvents();
+  const { events, loadingEvents } = useEvents();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
@@ -84,13 +86,10 @@ const EventsTable = ({ search }) => {
     return eventStates.get(state) || { label: "Desconocido", color: "black", bg: "gray" };
   }
 
-  if (!loading && (!events || events.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes eventos registrados </div>;
-  if (!loading && (!events || events.length === 0)) {
-    return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes eventos registrados </div>;
-  }
-  if (!loading && !filteredEvents.length) {
-    return <div style={{ textAlign: "center", marginTop: 50 }}> No se encontraron resultados </div>;
-  }
+  if (loadingEvents) return <LoadingSpinner message="Cargando Eventos..." />
+  if (!loadingEvents && (!events || events.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes eventos registrados </div>;
+  if (!loadingEvents && !filteredEvents.length) return <div style={{ textAlign: "center", marginTop: 50 }}> No se encontraron resultados </div>;
+
 
   return (
     <Paper variant="card" sx={{ width: "100%" }}>
@@ -128,7 +127,7 @@ const EventsTable = ({ search }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {loading ? (
+            {loadingEvents ? (
               <SkeletonTable rows={rowsPerPage} />
             ) : (
               filteredEvents
