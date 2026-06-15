@@ -2,16 +2,17 @@ import { useState } from "react";
 import { useDebounce } from "../hooks/useDebounce.js";
 import { useEvents } from "../hooks/useEvents.js";
 
-import { Paper, Table, Tooltip, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell, Chip } from "@mui/material";
-import { StyledTableCell } from "../styles/index.js";
+import { Paper, Table, Tooltip, TableBody, TableContainer, TablePagination, TableRow, TableCell, Chip } from "@mui/material";
+
 
 import { eventStates } from "../utils/states.js";
 import { EventColumns } from "../utils/columns.js";
 import { typeLabels } from "../utils/typeEventsLabel.js"
+import { DeleteTableSection } from "./DeleteTableSection.jsx";
 
 import PropTypes from "prop-types";
 import RowActions from "./RowActions.jsx";
-import AlertConfirm from "./AlertConfirm.jsx";
+import AlertConfirm from "./modales/AlertConfirm.jsx";
 import SkeletonTable from "./skeletons/STable.jsx";
 import renderDateChip from "../utils/renderDateChip.jsx";
 
@@ -24,7 +25,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import ChurchIcon from "@mui/icons-material/Church";
 import Checkbox from "@mui/material/Checkbox";
-import Button from "@mui/material/Button";
+import TableHeader from "./tables/TableHeader.jsx";
 
 import LoadingSpinner from "./LoadingSpinner.jsx";
 
@@ -93,39 +94,14 @@ const EventsTable = ({ search }) => {
 
   return (
     <Paper variant="card" sx={{ width: "100%" }}>
-      {selected.length > 0 && (
-        <Button
-          color="error"
-          variant="contained"
-          sx={{ m: 2 }}
-          onClick={() => setOpenModal(true)}
-        >
-          Eliminar ({selected.length})
-        </Button>
-      )}
+
+      <DeleteTableSection selected={selected} setOpenModal={setOpenModal} />
+
       <TableContainer sx={{ maxHeight: 440 }}>
-        <Table stickyHeader size="small" aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  indeterminate={
-                    selected.length > 0 && selected.length < filteredEvents.length
-                  }
-                  checked={
-                    filteredEvents.length > 0 &&
-                    selected.length === filteredEvents.length
-                  }
-                  onChange={handleSelectAll}
-                />
-              </TableCell>
-              {EventColumns.map((column) => (
-                <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
-                  {column.label}
-                </StyledTableCell>
-              ))}
-            </TableRow>
-          </TableHead>
+        <Table stickyHeader size="small" aria-label="sticky table" >
+
+          <TableHeader selected={selected} filteredEvents={filteredEvents} handleSelectAll={handleSelectAll} columns={EventColumns} />
+
           <TableBody>
             {loadingEvents ? (
               <SkeletonTable rows={rowsPerPage} />
@@ -133,6 +109,7 @@ const EventsTable = ({ search }) => {
               filteredEvents
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((w) => {
+                  const stateConfig = getStringState(w.state);
                   const locationURL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(w.location)}&query_place_id=${w.location_id}`;
                   const churchURL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(w.church)}&query_place_id=${w.church_id}`;
                   return (
@@ -173,14 +150,14 @@ const EventsTable = ({ search }) => {
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={getStringState(w.state).label}
+                          label={stateConfig.label}
+                          size="small"
                           sx={{
-                            width: "100%",
-                            justifyContent: "center",
-                            backgroundColor: getStringState(w.state).bg,
-                            color: getStringState(w.state).color,
-                            fontWeight: 500,
-                            borderRadius: "8px"
+                            minWidth: 90,
+                            fontWeight: 600,
+                            borderRadius: 2,
+                            bgcolor: stateConfig.bg,
+                            color: stateConfig.color,
                           }}
                         />
                       </TableCell>

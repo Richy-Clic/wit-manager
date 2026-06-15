@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Link, useLocation } from "react-router-dom";
 
 import { Grid, Box, Button, Container } from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
 import { toast } from "sonner";
 import SearchInput from "../components/SearchInput.jsx";
 import PageTitle from "../components/PageTitle.jsx";
@@ -44,11 +45,15 @@ const Events = () => {
           alignItems="center"
         >
           <PageTitle>Mis Eventos</PageTitle>
-          <Link to="/events/addevent" style={{ textDecoration: "none" }}>
-            <Button variant="contained" color="primary">
-              + Nuevo Evento
-            </Button>
-          </Link>
+          <Button
+            component={Link}
+            to="/events/addevent"
+            variant="contained"
+            startIcon={<AddIcon />}
+            
+          >
+            Nuevo Evento
+          </Button>
         </Box>
 
         {/* Search */}
@@ -65,7 +70,7 @@ const Events = () => {
         {/* {isMobile ? (
           <EventsCards search={search} />
         ) : ( */}
-          <EventsTable search={search} />
+        <EventsTable search={search} />
         {/* )} */}
 
       </Container>

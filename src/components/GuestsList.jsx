@@ -3,16 +3,15 @@ import { useGuests } from "../hooks/useGuests.js";
 import { useDebounce } from "../hooks/useDebounce";
 import { useParams } from "react-router-dom";
 
-import { Paper, Table, TableBody, TableContainer, TableHead, TablePagination, TableRow, TableCell } from "@mui/material";
-import { StyledTableCell } from "../styles/index.js";
+import { Paper, Table, TableBody, TableContainer, TablePagination } from "@mui/material";
+import { DeleteTableSection } from "./DeleteTableSection.jsx";
 
-import DeleteGuestConfirm from "./DeleteGuestConfirm.jsx";
+import DeleteGuestConfirm from "./modales/DeleteGuestConfirm.jsx";
 import SkeletonTable from "./skeletons/STable.jsx";
-import Checkbox from "@mui/material/Checkbox";
-import Button from "@mui/material/Button";
 import GuestRow from "./GuestRow";
 import PropTypes from "prop-types";
 import { guestColumns } from "../utils/columns.js";
+import TableHeader from "./tables/TableHeader.jsx";
 
 const GuestsList = ({ search }) => {
   const { guests, loading } = useGuests();
@@ -81,39 +80,13 @@ const GuestsList = ({ search }) => {
   }
   return (
     <Paper variant="card" sx={{ width: "100%" }}>
-      {selected.length > 0 && (
-        <Button
-          color="error"
-          variant="contained"
-          sx={{ m: 2 }}
-          onClick={() => setOpenModal(true)}
-        >
-          Eliminar ({selected.length})
-        </Button>
-      )}
+     
+      <DeleteTableSection selected={selected} setOpenModal={setOpenModal} />
       <TableContainer sx={{ maxHeight: 520 }}>
         <Table stickyHeader size="small" aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  indeterminate={
-                    selected.length > 0 && selected.length < filteredGuests.length
-                  }
-                  checked={
-                    filteredGuests.length > 0 &&
-                    selected.length === filteredGuests.length
-                  }
-                  onChange={handleSelectAll}
-                />
-              </TableCell>
-              {guestColumns.map((column) => (
-                <StyledTableCell key={column.id} style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}>
-                  {column.label}
-                </StyledTableCell>
-              ))}
-            </TableRow>
-          </TableHead>
+
+          <TableHeader selected={selected} filteredEvents={filteredGuests} handleSelectAll={handleSelectAll} columns={guestColumns} />
+
           <TableBody>
             {loading ? (
               <SkeletonTable rows={rowsPerPage} />

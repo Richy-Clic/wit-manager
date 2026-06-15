@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-import { useEvents } from "../hooks/useEvents.js";
+import { useEvents } from "../../hooks/useEvents.js";
 import { toast } from "sonner";
 
 export default function AlertConfirm(props) {

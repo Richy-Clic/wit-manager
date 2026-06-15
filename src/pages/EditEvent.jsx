@@ -72,9 +72,9 @@ export default function EditEvent() {
     }
   };
 
-if (loadingEvents) {
-  return <div>Cargando evento...</div>;
-}
+  if (loadingEvents) {
+    return <div>Cargando evento...</div>;
+  }
 
   return (
     <Grid container justifyContent="center">
@@ -87,7 +87,7 @@ if (loadingEvents) {
               <Grid item xs={12} md={6}>
                 <Stack spacing={2}>
                   <TextField
-                  select
+                    select
                     id="type_event"
                     label="Tipo de evento"
                     type="text"
@@ -201,45 +201,45 @@ if (loadingEvents) {
               {/* DERECHA */}
               <Grid item xs={12} md={6}>
                 <Stack spacing={2}>
-                  {/* <Typography variant="h6">Ceremonia</Typography> */}
+                  {eventData.type_event === "wedding" && (
+                    <>
+                      <PlacesAutocompleteInput
+                        label="Iglesia"
+                        value={eventData.church || ""}
+                        onChange={(value) =>
+                          setEventData((prev) => ({
+                            ...prev,
+                            church: value
+                          }))
+                        }
+                        onSelect={(place) =>
+                          setEventData((prev) => ({
+                            ...prev,
+                            church: place.text,
+                            church_id: place.place_id
+                          }))
+                        }
+                      />
 
-                  <PlacesAutocompleteInput
-                    label="Iglesia"
-                    value={eventData.church || ""}
-                    onChange={(value) =>
-                      setEventData((prev) => ({
-                        ...prev,
-                        church: value
-                      }))
-                    }
-                    onSelect={(place) =>
-                      setEventData((prev) => ({
-                        ...prev,
-                        church: place.text,
-                        church_id: place.place_id
-                      }))
-                    }
-                  />
-
-                  <TimePicker
-                    label="Hora de la ceremonia"
-                    value={
-                      eventData.ceremony_time
-                        ? dayjs(`2000-01-01T${eventData.ceremony_time}`)
-                        : null
-                    }
-                    onChange={(time) =>
-                      handleChange(
-                        "ceremony_time",
-                        time ? time.format("HH:mm") : null
-                      )
-                    }
-                    ampm
-                    sx={{ width: "100%" }}
-                  />
-
-                  <Box height={8} />
-
+                      <TimePicker
+                        label="Hora de la ceremonia"
+                        value={
+                          eventData.ceremony_time
+                            ? dayjs(`2000-01-01T${eventData.ceremony_time}`)
+                            : null
+                        }
+                        onChange={(time) =>
+                          handleChange(
+                            "ceremony_time",
+                            time ? time.format("HH:mm") : null
+                          )
+                        }
+                        ampm
+                        sx={{ width: "100%" }}
+                      />
+                      <Box height={8} />
+                    </>
+                  )}
                   <PlacesAutocompleteInput
                     label="Ubicación"
                     value={eventData.location || ""}
@@ -275,6 +275,8 @@ if (loadingEvents) {
                     sx={{ width: "100%" }}
                   />
 
+                  <Box height={8} />
+
                   <TextField
                     label="Detalles del evento"
                     multiline
@@ -295,7 +297,7 @@ if (loadingEvents) {
                   </Button>
                 </Link>
                 <Button type="submit" variant="contained" >
-                  Guardar
+                  Actualizar Evento
                 </Button>
               </Box>
             </Grid>

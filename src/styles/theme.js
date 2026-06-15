@@ -31,6 +31,24 @@ export const getTheme = (mode) =>
             fontWeight: 600,
             paddingLeft: 24,
             paddingRight: 24,
+            paddingTop: 9.6,
+            paddingBottom: 9.6,
+          },
+
+          contained: {
+            boxShadow:
+              mode === "light"
+                ? "0 4px 12px rgba(0,0,0,0.12)"
+                : "0 4px 12px rgba(0,0,0,0.35)",
+            transition: "all 0.2s ease",
+
+            "&:hover": {
+              transform: "translateY(-2px)",
+              boxShadow:
+                mode === "light"
+                  ? "0 8px 20px rgba(0,0,0,0.18)"
+                  : "0 8px 20px rgba(0,0,0,0.45)",
+            },
           },
         },
       },

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useGuests } from "../hooks/useGuests.js";
+import { useGuests } from "../../hooks/useGuests.js";
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { toast } from 'sonner';
 
