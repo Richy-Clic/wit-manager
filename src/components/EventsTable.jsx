@@ -4,11 +4,11 @@ import { useEvents } from "../hooks/useEvents.js";
 
 import { Paper, Table, Tooltip, TableBody, TableContainer, TablePagination, TableRow, TableCell, Chip } from "@mui/material";
 
-
 import { eventStates } from "../utils/states.js";
 import { EventColumns } from "../utils/columns.js";
 import { typeLabels } from "../utils/typeEventsLabel.js"
 import { DeleteTableSection } from "./DeleteTableSection.jsx";
+import { getEventActions } from "../constants/eventActions.jsx";
 
 import PropTypes from "prop-types";
 import RowActions from "./RowActions.jsx";
@@ -17,11 +17,6 @@ import SkeletonTable from "./skeletons/STable.jsx";
 import renderDateChip from "../utils/renderDateChip.jsx";
 
 import { IconButton } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import PeopleIcon from "@mui/icons-material/People";
-import DeleteIcon from "@mui/icons-material/Delete";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import ChurchIcon from "@mui/icons-material/Church";
 import Checkbox from "@mui/material/Checkbox";
@@ -35,7 +30,7 @@ const EventsTable = ({ search }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
-  const [row, setRow] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const debouncedSearch = useDebounce(search, 300);
   const [selected, setSelected] = useState([]);
 
@@ -46,13 +41,13 @@ const EventsTable = ({ search }) => {
   );
 
   const openAlertConfirm = (event) => {
-    setRow(event);
+    setSelectedEvent(event);
     setOpenModal(true);
   };
 
   const closeAlertConfirm = () => {
     setOpenModal(false);
-    setRow(null);
+    setSelectedEvent(null);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -66,13 +61,8 @@ const EventsTable = ({ search }) => {
 
   const isSelected = (id) => selected.includes(id);
 
-  const handleSelectAll = (event) => {
-    if (event.target.checked) {
-      const newSelected = filteredEvents.map((w) => w.id);
-      setSelected(newSelected);
-    } else {
-      setSelected([]);
-    }
+  const handleSelectAll = ({ target: { checked } }) => {
+    setSelected(checked ? filteredEvents.map(({ id }) => id) : []);
   };
 
   const handleSelectRow = (id) => {
@@ -108,29 +98,29 @@ const EventsTable = ({ search }) => {
             ) : (
               filteredEvents
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((w) => {
-                  const stateConfig = getStringState(w.state);
-                  const locationURL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(w.location)}&query_place_id=${w.location_id}`;
-                  const churchURL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(w.church)}&query_place_id=${w.church_id}`;
+                .map((event) => {
+                  const stateConfig = getStringState(event.state);
+                  const locationURL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}&query_place_id=${event.location_id}`;
+                  const churchURL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.church)}&query_place_id=${event.church_id}`;
                   return (
                     <TableRow
-                      key={w.id}
+                      key={event.id}
                       hover
-                      selected={isSelected(w.id)}
-                      onClick={() => handleSelectRow(w.id)}
+                      selected={isSelected(event.id)}
+                      onClick={() => handleSelectRow(event.id)}
                       sx={{ cursor: "pointer" }}>
                       <TableCell padding="checkbox">
                         <Checkbox
-                          checked={isSelected(w.id)}
+                          checked={isSelected(event.id)}
                           onClick={(e) => e.stopPropagation()}
-                          onChange={() => handleSelectRow(w.id)}
+                          onChange={() => handleSelectRow(event.id)}
                         />
                       </TableCell>
-                      <TableCell>{w.title_event}</TableCell>
-                      <TableCell>{typeLabels[w.type_event]}</TableCell>
-                      <TableCell>{renderDateChip(w.event_date)}</TableCell>
+                      <TableCell>{event.title_event}</TableCell>
+                      <TableCell>{typeLabels[event.type_event]}</TableCell>
+                      <TableCell>{renderDateChip(event.event_date)}</TableCell>
                       <TableCell>
-                        <Tooltip title={`Evento: ${w.location}`}>
+                        <Tooltip title={`Evento: ${event.location}`}>
                           <IconButton
                             size="small"
                             onClick={() => window.open(locationURL, "_blank")}
@@ -139,7 +129,7 @@ const EventsTable = ({ search }) => {
                           </IconButton>
                         </Tooltip>
                         /
-                        <Tooltip title={`Ceremonia: ${w.church}`}>
+                        <Tooltip title={`Ceremonia: ${event.church}`}>
                           <IconButton
                             size="small"
                             onClick={() => window.open(churchURL, "_blank")}
@@ -164,36 +154,8 @@ const EventsTable = ({ search }) => {
 
                       <TableCell align="right">
                         <RowActions
-                          row={w}
-                          actions={[
-                            {
-                              label: "Editar",
-                              icon: <EditIcon fontSize="small" />,
-                              to: (row) => `/events/${row.id}`
-                            },
-                            {
-                              label: "Invitados",
-                              icon: <PeopleIcon fontSize="small" />,
-                              to: (row) => `/events/${row.id}/guests`
-                            },
-                            {
-                              label: "Subir Imágenes",
-                              icon: <FileUploadIcon fontSize="small" />,
-                              to: (row) => `/events/${row.id}/pictures`
-                            },
-                            {
-                              label: "Ver Invitación",
-                              icon: <VisibilityIcon fontSize="small" />,
-                              onClick: (row) => window.open(`https://app.witinvitaciones.com/${row.id}/`, '_blank')
-                            },
-                            { divider: true },
-                            {
-                              label: "Eliminar",
-                              icon: <DeleteIcon fontSize="small" />,
-                              danger: true,
-                              onClick: (row) => openAlertConfirm(row)
-                            }
-                          ]}
+                          row={event}
+                          actions={getEventActions({ openAlertConfirm })}
                         />
                       </TableCell>
                     </TableRow>
@@ -213,12 +175,13 @@ const EventsTable = ({ search }) => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+
       {
-        (row || selected.length > 0) && (
+        (selectedEvent || selected.length > 0) && (
           <AlertConfirm
             show={openModal}
             onHide={closeAlertConfirm}
-            row={row}
+            event={selectedEvent}
             selected={selected}
           />
         )

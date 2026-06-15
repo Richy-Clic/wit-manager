@@ -15,7 +15,7 @@ export default function AlertConfirm(props) {
         await deleteEventsBulk(props.selected);
         toast.success(`${props.selected.length} Eventos eliminadas con éxito`);
       } else {
-        await deleteEvents(props.row.id);
+        await deleteEvents(props.event.id);
         toast.success("Evento eliminada con éxito");
       }
 
@@ -41,7 +41,7 @@ export default function AlertConfirm(props) {
           <DialogContentText id="alert-dialog-description">
             {isBulk
               ? `¿Deseas eliminar ${props.selected.length} eventos? Esta acción no se puede deshacer.`
-              : `¿De verdad deseas eliminar el evento de ${props.row.boyfriend} & ${props.row.girlfriend}?`}
+              : `¿De verdad deseas eliminar el evento de ${props.event.boyfriend} & ${props.event.girlfriend}?`}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -59,6 +59,6 @@ export default function AlertConfirm(props) {
 AlertConfirm.propTypes = {
   show: PropTypes.bool.isRequired, // Asegúrate de que 'show' sea un booleano y sea requerido
   onHide: PropTypes.func.isRequired, // Asegúrate de que 'onHide' sea una función y sea requerida
-  row: PropTypes.object,
+  event: PropTypes.object,
   selected: PropTypes.array.isRequired
 };

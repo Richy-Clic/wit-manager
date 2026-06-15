@@ -12,7 +12,7 @@ import {
 
 import { toast } from "sonner";
 
-import GuestsList from "../components/GuestsList.jsx";
+import GuestsTable from "../components/GuestsTable.jsx";
 import SearchInput from "../components/SearchInput";
 import PageTitle from "../components/PageTitle.jsx";
 import supabase from "../lib/supabaseClient.js";
@@ -187,7 +187,7 @@ const Guests = () => {
         </Box>
 
         {/* Table */}
-        <GuestsList search={search} />
+        <GuestsTable search={search} />
       </Container>
     </Grid>
   );

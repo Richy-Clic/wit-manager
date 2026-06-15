@@ -4,10 +4,9 @@ import { toast } from "sonner";
 import { getMainGuestName, getStringAttendance } from "../utils/guestUtils.js";
 import { sendWhatsAppInvite } from "../services/whatsappService.js";
 
+import { getGuestActions } from "../constants/guestActions.jsx";
+
 import PropTypes from "prop-types";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import Checkbox from "@mui/material/Checkbox";
 import RowActions from "./RowActions";
 
@@ -23,7 +22,7 @@ const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }
 
   const handleSend = async () => {
     console.log(sending);
-    
+
     if (sending) return;
 
     try {
@@ -86,25 +85,13 @@ const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }
       <TableCell align="right">
         <RowActions
           row={g}
-          actions={[
-            {
-              label: "Editar",
-              icon: <EditIcon fontSize="small" />,
-              to: () => `/events/${event_id}/guest/${g.id}`,
-            },
-            {
-              label: sending ? "Enviando..." : "Enviar WhatsApp",
-              icon: <WhatsAppIcon fontSize="small" />,
-              onClick: () => handleSend(),
-            },
-            { divider: true },
-            {
-              label: "Eliminar",
-              icon: <DeleteIcon fontSize="small" />,
-              danger: true,
-              onClick: () => openAlertConfirm(g),
-            },
-          ]}
+          actions={getGuestActions({
+            guest: g,
+            eventId: event_id,
+            sending,
+            handleSend,
+            openAlertConfirm,
+          })}
         />
       </TableCell>
     </TableRow>

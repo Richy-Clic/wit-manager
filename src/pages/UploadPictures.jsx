@@ -14,7 +14,7 @@ export default function UploadPictures() {
 
   const [headerImage, setHeaderImage] = useState(null);
   const [galleryImages, setGalleryImages] = useState([]);
-  const { images, getImages, uploadImages, deleteImagesFromStorage, deleteImagesFromDB, loading } = useEvents();
+  const { images, getImages, uploadImages, deleteImagesFromStorage, deleteImagesFromDB, loadingImgages } = useEvents();
   const [deletedImages, setDeletedImages] = useState([]);
 
 
@@ -105,7 +105,7 @@ export default function UploadPictures() {
           Agrega una portada y hasta 5 imágenes para la galería
         </Typography>
         
-        {loading && <LinearProgress />}
+        {loadingImgages && <LinearProgress />}
 
         <Box mt={3}>
           <ImageUploader
@@ -140,9 +140,9 @@ export default function UploadPictures() {
           <Button
             variant="contained"
             onClick={handleUpload}
-            disabled={loading}
+            disabled={loadingImgages}
           >
-            {loading ? "Subiendo..." : "Guardar Imágenes"}
+            {loadingImgages ? "Subiendo..." : "Guardar Imágenes"}
           </Button>
         </Box>
       </Paper>

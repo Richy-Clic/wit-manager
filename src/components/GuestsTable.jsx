@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useGuests } from "../hooks/useGuests.js";
-import { useDebounce } from "../hooks/useDebounce";
+import { useDebounce } from "../hooks/useDebounce.js";
 import { useParams } from "react-router-dom";
 
 import { Paper, Table, TableBody, TableContainer, TablePagination } from "@mui/material";
@@ -8,12 +8,12 @@ import { DeleteTableSection } from "./DeleteTableSection.jsx";
 
 import DeleteGuestConfirm from "./modales/DeleteGuestConfirm.jsx";
 import SkeletonTable from "./skeletons/STable.jsx";
-import GuestRow from "./GuestRow";
+import GuestRow from "./GuestRow.jsx";
 import PropTypes from "prop-types";
 import { guestColumns } from "../utils/columns.js";
 import TableHeader from "./tables/TableHeader.jsx";
 
-const GuestsList = ({ search }) => {
+const GuestsTable = ({ search }) => {
   const { guests, loading } = useGuests();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -128,8 +128,8 @@ const GuestsList = ({ search }) => {
   );
 }
 
-GuestsList.propTypes = {
+GuestsTable.propTypes = {
   search: PropTypes.string.isRequired,
 };
 
-export default GuestsList;
+export default GuestsTable;
