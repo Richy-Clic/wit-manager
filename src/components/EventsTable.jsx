@@ -9,6 +9,7 @@ import { EventColumns } from "../utils/columns.js";
 import { typeLabels } from "../utils/typeEventsLabel.js"
 import { DeleteTableSection } from "./DeleteTableSection.jsx";
 import { getEventActions } from "../constants/eventActions.jsx";
+import { typeEventsLabel } from "../constants/typeEventsLabel.js";
 
 import PropTypes from "prop-types";
 import RowActions from "./RowActions.jsx";
@@ -35,7 +36,7 @@ const EventsTable = ({ search }) => {
   const [selected, setSelected] = useState([]);
 
   const filteredEvents = (events || []).filter((event) =>
-    `${event.boyfriend} ${event.girlfriend} ${event.host} ${event.type_event} ${event.title_event} ${event.location} ${event.state}`
+    `${event.boyfriend} ${event.girlfriend} ${event.host} ${typeEventsLabel[event.type_event] || ""} ${event.title_event} ${event.location} ${event.state}`
       .toLowerCase()
       .includes(debouncedSearch.toLowerCase())
   );

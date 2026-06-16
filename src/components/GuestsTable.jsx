@@ -8,7 +8,7 @@ import { DeleteTableSection } from "./DeleteTableSection.jsx";
 
 import DeleteGuestConfirm from "./modales/DeleteGuestConfirm.jsx";
 import SkeletonTable from "./skeletons/STable.jsx";
-import GuestRow from "./GuestRow.jsx";
+import GuestRow from "./tables/GuestRow.jsx";
 import PropTypes from "prop-types";
 import { guestColumns } from "../utils/columns.js";
 import TableHeader from "./tables/TableHeader.jsx";

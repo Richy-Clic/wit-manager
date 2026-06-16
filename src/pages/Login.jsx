@@ -1,124 +1,306 @@
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  CssBaseline,
+  IconButton,
+  InputAdornment,
+  Link,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
+
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { toast } from "sonner";
+
 import supabase from "../lib/supabaseClient";
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        www.wit.com
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+export default function Login() {
+  const navigate = useNavigate();
 
-const defaultTheme = createTheme();
+  const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
-export default function SignIn() {
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+
+      if (data.session) {
+        navigate("/dashboard", { replace: true });
+      } else {
+        setCheckingSession(false);
+      }
+    };
+
+    checkSession();
+  }, [navigate]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
 
-    const email = data.get("email");
-    const password = data.get("password");
+    if (loading) return;
 
-    const { data: sessionData, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const formData = new FormData(event.currentTarget);
 
-    if (error) {
-      console.error("Error al iniciar sesión:", error.message);
+    const email = formData.get("email")?.toString().trim();
+    const password = formData.get("password")?.toString();
+
+    if (!email || !password) {
+      toast.error("Ingresa tu correo y contraseña.");
       return;
     }
 
-    console.log("Usuario logueado:", sessionData.user);
-    console.log("Token:", sessionData.session?.access_token);
+    try {
+      setLoading(true);
 
-    window.location.href = "/dashboard";
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast.error("Correo o contraseña incorrectos.");
+        return;
+      }
+
+      toast.success("Bienvenido.");
+
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      console.error(err);
+      toast.error("Ocurrió un error al iniciar sesión.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
+  const handleForgotPassword = () => {
+    toast.info("Contacta al administrador para recuperar tu contraseña.");
+  };
+
+  if (checkingSession) {
+    return (
+      <>
         <CssBaseline />
         <Box
           sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            minHeight: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            background:
+              "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign In
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email"
-              name="email"
-              autoComplete="email"
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
+          <CircularProgress color="inherit" />
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
-      </Container>
-    </ThemeProvider>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <CssBaseline />
+
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          px: 2,
+          background:
+            "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        }}
+      >
+        <Container maxWidth="xs">
+          <Paper
+            elevation={10}
+            sx={{
+              p: 4,
+              borderRadius: 4,
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              {/* Logo */}
+              {!logoError ? (
+                <Box
+                  component="img"
+                  src="/logo-wit.png"
+                  alt="WIT"
+                  onError={() => setLogoError(true)}
+                  sx={{
+                    width: 90,
+                    height: 90,
+                    objectFit: "contain",
+                    mb: 2,
+                  }}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    width: 90,
+                    height: 90,
+                    borderRadius: "50%",
+                    bgcolor: "primary.main",
+                    color: "white",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    mb: 2,
+                    fontWeight: 700,
+                  }}
+                >
+                  <Typography variant="h5" fontWeight={700}>
+                    WIT
+                  </Typography>
+
+                  <Typography variant="caption">
+                    Manager
+                  </Typography>
+                </Box>
+              )}
+
+              <Typography
+                component="h1"
+                variant="h5"
+                fontWeight={700}
+              >
+                Manager de Invitaciones
+              </Typography>
+
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mt: 1, mb: 3, textAlign: "center" }}
+              >
+                Inicia sesión para administrar tus eventos.
+              </Typography>
+
+              <Box
+                component="form"
+                onSubmit={handleSubmit}
+                noValidate
+                sx={{ width: "100%" }}
+              >
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Correo electrónico"
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
+                  disabled={loading}
+                />
+
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Contraseña"
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  autoComplete="current-password"
+                  disabled={loading}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          edge="end"
+                          onClick={() =>
+                            setShowPassword((prev) => !prev)
+                          }
+                          disabled={loading}
+                        >
+                          {showPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    mt: 1,
+                  }}
+                >
+                  <Link
+                    component="button"
+                    type="button"
+                    underline="hover"
+                    onClick={handleForgotPassword}
+                    disabled={loading}
+                    sx={{
+                      fontSize: "0.875rem",
+                    }}
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </Box>
+
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  disabled={loading}
+                  sx={{
+                    mt: 3,
+                    mb: 2,
+                    py: 1.5,
+                    borderRadius: 3,
+                    textTransform: "none",
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                  }}
+                >
+                  {loading ? (
+                    <CircularProgress
+                      size={24}
+                      color="inherit"
+                    />
+                  ) : (
+                    "Ingresar al panel"
+                  )}
+                </Button>
+              </Box>
+            </Box>
+          </Paper>
+
+          <Typography
+            variant="body2"
+            color="rgba(255,255,255,0.7)"
+            align="center"
+            sx={{ mt: 3 }}
+          >
+            © {new Date().getFullYear()} WIT INVITACIONES. Todos los derechos reservados.
+          </Typography>
+        </Container>
+      </Box>
+    </>
   );
 }

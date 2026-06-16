@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { TableRow, TableCell } from "@mui/material";
 import { toast } from "sonner";
-import { getMainGuestName, getStringAttendance } from "../utils/guestUtils.js";
-import { sendWhatsAppInvite } from "../services/whatsappService.js";
+import { getMainGuestName, getStringAttendance } from "../../utils/guestUtils.js";
+import { sendWhatsAppInvite } from "../../services/whatsappService.js";
 
-import { getGuestActions } from "../constants/guestActions.jsx";
+import { getGuestActions } from "../../constants/guestActions.jsx";
 
 import PropTypes from "prop-types";
 import Checkbox from "@mui/material/Checkbox";
-import RowActions from "./RowActions";
+import RowActions from "../RowActions.jsx";
 
 
 // const USE_TEMPLATE = import.meta.env.VITE_USE_TEMPLATE === "true";
