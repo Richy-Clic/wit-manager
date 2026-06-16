@@ -69,7 +69,8 @@ const GuestsTable = ({ search }) => {
         : [...prev, id]
     );
   };
-  
+    console.log("desde guesttable", guests);
+    
 
   if (!loading && (!guests || guests.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes invitados registrados </div>;
   if (!loading && (!guests || guests.length === 0)) {

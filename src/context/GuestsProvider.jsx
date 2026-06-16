@@ -26,6 +26,7 @@ export const GuestsProvider = ({ children }) => {
         name,
         phone,
         attendance,
+        access_token,
         is_main,
         group_id,
         groups (

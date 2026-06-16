@@ -18,10 +18,10 @@ export async function sendWhatsAppInvite({
   if (!session) {
     throw new Error("NO_SESSION");
   }
-
+  console.log(guest)
   const inviteUrl = isSandbox
     ? `http://localhost:5173/${eventId}/${guest.id}/${guest.access_token}`
-    : `https://app,witinvitaciones.com/${eventId}/${guest.id}/${guest.access_token}`;
+    : `https://app.witinvitaciones.com/${eventId}/${guest.id}/${guest.access_token}`;
 
   const phoneFormatted = parseMxPhone(guest.phone, isSandbox);
 

@@ -19,10 +19,9 @@ const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }
 
   const attendance = getStringAttendance(g);
   const mate = getMainGuestName(g);
-
+  console.log(g);
+  
   const handleSend = async () => {
-    console.log(sending);
-
     if (sending) return;
 
     try {
