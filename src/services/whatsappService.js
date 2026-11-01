@@ -6,8 +6,7 @@ const FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-wha
 
 export async function sendWhatsAppInvite({
   guest,
-  eventId,
-  isSandbox,
+  eventId
 }) {
   if (!guest.phone) {
     throw new Error("NO_PHONE");
@@ -19,15 +18,12 @@ export async function sendWhatsAppInvite({
     throw new Error("NO_SESSION");
   }
   console.log(guest)
-  const inviteUrl = isSandbox
-    ? `http://localhost:5173/${eventId}/${guest.id}/${guest.access_token}`
-    : `https://app.witinvitaciones.com/${eventId}/${guest.id}/${guest.access_token}`;
-
-  const phoneFormatted = parseMxPhone(guest.phone, isSandbox);
+  const inviteUrl = `https://app.witinvitaciones.com/${eventId}/${guest.id}/${guest.access_token}`;
+  const phoneFormatted = parseMxPhone(guest.phone);
 
   const payload = {
         phone: phoneFormatted,
-        templateName: "ali_wit",
+        templateName: "ali_wit", //wit_invite_mx ali_wit
         params: [guest.name, inviteUrl],
     };
 

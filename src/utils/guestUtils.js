@@ -1,4 +1,4 @@
-import { guestStates } from "./states.js";
+import { guestStates } from "./states.jsx";
 
 
 export const getMainGuestName = (guest) => {

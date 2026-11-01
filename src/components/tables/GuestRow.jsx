@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { TableRow, TableCell } from "@mui/material";
+import { TableRow, TableCell, Chip } from "@mui/material";
 import { toast } from "sonner";
-import { getMainGuestName, getStringAttendance } from "../../utils/guestUtils.js";
+import { getStringAttendance } from "../../utils/guestUtils.js";
 import { sendWhatsAppInvite } from "../../services/whatsappService.js";
 
 import { getGuestActions } from "../../constants/guestActions.jsx";
@@ -11,14 +11,10 @@ import Checkbox from "@mui/material/Checkbox";
 import RowActions from "../RowActions.jsx";
 
 
-// const USE_TEMPLATE = import.meta.env.VITE_USE_TEMPLATE === "true";
-const WHATSAPP_SANDBOX = import.meta.env.VITE_WHATSAPP_SANDBOX === "true";
-
 const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }) => {
   const [sending, setSending] = useState(false);
 
   const attendance = getStringAttendance(g);
-  const mate = getMainGuestName(g);
 
   const handleSend = async () => {
     if (sending) return;
@@ -28,8 +24,7 @@ const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }
 
       await sendWhatsAppInvite({
         guest: g,
-        eventId: event_id,
-        isSandbox: WHATSAPP_SANDBOX,
+        eventId: event_id
       });
 
       toast.success("Mensaje enviado");
@@ -63,20 +58,23 @@ const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }
         />
       </TableCell>
       <TableCell>{g.name}</TableCell>
-      <TableCell><span style={{ fontSize: "1.2rem", paddingRight: "4px" }}>🇲🇽</span> {g.phone}</TableCell>
-      <TableCell>{mate}</TableCell>
-
       <TableCell>
-        <mark
-          style={{
+        <Chip
+          icon={attendance.icon}
+          label={attendance.label}
+          size="small"
+          sx={{
             backgroundColor: attendance.bg,
-            padding: "6px 8px",
-            borderRadius: "4px",
             color: attendance.color,
+            fontWeight: "bold",
+            borderRadius: "50px",
+            px: 0.5,
+            width: "120px",
+            "& .MuiChip-icon": {
+              color: "inherit",
+            },
           }}
-        >
-          {attendance.label}
-        </mark>
+        />
       </TableCell>
 
       {/* 🔥 ACTIONS */}

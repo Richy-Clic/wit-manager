@@ -9,9 +9,7 @@ export const EventColumns = [
 ];
 
 export const guestColumns = [
-  { id: "name", label: "Nombre Invitado", minWidth: 150 },
-  { id: "phone", label: "Teléfono" },
-  { id: "mate", label: "Invitado por" },
-  { id: "attendance", label: "Asistencia" },
-  { id: "acciones", minWidth: 20 }
+  { id: "name", label: "Nombre Invitado"},
+  { id: "attendance", label: "Asistencia"},
+  { id: "acciones" }
 ];

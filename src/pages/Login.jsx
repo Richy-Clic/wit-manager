@@ -140,14 +140,14 @@ export default function Login() {
               {!logoError ? (
                 <Box
                   component="img"
-                  src="/logo-wit.png"
+                  src="/public/WITComplet.png"
                   alt="WIT"
                   onError={() => setLogoError(true)}
                   sx={{
-                    width: 90,
-                    height: 90,
+                    width:290,
+                    height: 290,
                     objectFit: "contain",
-                    mb: 2,
+                    // mb: 2,
                   }}
                 />
               ) : (

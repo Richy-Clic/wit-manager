@@ -12,7 +12,8 @@ export default function PlacesAutocompleteInput({
   label,
   value,
   onChange,
-  onSelect
+  onSelect,
+  size = "medium"
 }) {
   const [open, setOpen] = useState(false);
   const results = usePlacesAutocomplete(value, open);
@@ -30,6 +31,7 @@ export default function PlacesAutocompleteInput({
         <TextField
           label={label}
           fullWidth
+          size={size}
           value={value}
           onFocus={() => setOpen(true)}
           onChange={(e) => {
@@ -68,5 +70,6 @@ PlacesAutocompleteInput.propTypes = {
   label: PropTypes.string,
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
-  onSelect: PropTypes.func
+  onSelect: PropTypes.func,
+  size: PropTypes.string
 };

@@ -13,7 +13,7 @@ import PropTypes from "prop-types";
 import { guestColumns } from "../utils/columns.js";
 import TableHeader from "./tables/TableHeader.jsx";
 
-const GuestsTable = ({ search }) => {
+const GuestsTable = ({ search, attendanceFilter }) => {
   const { guests, loading } = useGuests();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -24,12 +24,18 @@ const GuestsTable = ({ search }) => {
   const [selected, setSelected] = useState([]);
 
   const filteredGuests = useMemo(() => {
-    return (guests || []).filter((guest) =>
-      `${guest.name} ${guest.phone} ${guest.attendance}`
-        .toLowerCase()
-        .includes(debouncedSearch.toLowerCase())
-    );
-  }, [guests, debouncedSearch]);
+  return (guests || []).filter((guest) => {
+    const matchesSearch = `${guest.name} ${guest.phone} ${guest.attendance}`
+      .toLowerCase()
+      .includes(debouncedSearch.toLowerCase());
+
+    const matchesAttendance =
+      attendanceFilter === "all" ||
+      guest.attendance === attendanceFilter;
+
+    return matchesSearch && matchesAttendance;
+  });
+}, [guests, debouncedSearch, attendanceFilter]);
 
   const openAlertConfirm = (guest) => {
     setRow(guest);
@@ -69,21 +75,41 @@ const GuestsTable = ({ search }) => {
         : [...prev, id]
     );
   };
-    
+
 
   if (!loading && (!guests || guests.length === 0)) return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes invitados registrados </div>;
-  if (!loading && (!guests || guests.length === 0)) {
-    return <div style={{ textAlign: "center", marginTop: 50 }}> No tienes invitados registrados </div>;
-  }
   if (!loading && !filteredGuests.length) {
     return <div style={{ textAlign: "center", marginTop: 50 }}> No se encontraron resultados </div>;
   }
   return (
-    <Paper variant="card" sx={{ width: "100%" }}>
-     
-      <DeleteTableSection selected={selected} setOpenModal={setOpenModal} />
-      <TableContainer sx={{ maxHeight: 520 }}>
-        <Table stickyHeader size="small" aria-label="sticky table">
+    <Paper
+      variant="card"
+      sx={{
+        width: "100%",
+        maxWidth: 1100,
+        mx: "auto",
+        overflow: "hidden",
+      }}
+    >
+      <DeleteTableSection
+        selected={selected}
+        setOpenModal={setOpenModal}
+      />
+
+      <TableContainer
+        sx={{
+          width: "100%",
+          overflowX: "auto",
+        }}
+      >
+        <Table
+          stickyHeader
+          size="small"
+          aria-label="Lista de invitados"
+          sx={{
+            minWidth: 650,
+          }}
+        >
 
           <TableHeader selected={selected} filteredEvents={filteredGuests} handleSelectAll={handleSelectAll} columns={guestColumns} />
 
@@ -130,6 +156,7 @@ const GuestsTable = ({ search }) => {
 
 GuestsTable.propTypes = {
   search: PropTypes.string.isRequired,
+  attendanceFilter: PropTypes.string.isRequired,
 };
 
 export default GuestsTable;
