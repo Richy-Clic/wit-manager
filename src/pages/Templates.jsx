@@ -12,43 +12,61 @@ import {
   Container,
   Grid,
   IconButton,
-  InputAdornment,
   Skeleton,
   Stack,
-  TextField,
   Typography,
-  Dialog,
-  DialogContent,
-  DialogActions,
   Tooltip,
 } from "@mui/material";
 
-import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
 
 import { useEvents } from "../hooks/useEvents.js";
+import SearchInput from "../components/SearchInput";
+
+const CATEGORIES = [
+  { label: "Todos", value: "all" },
+  { label: "Bodas", value: "wedding" },
+  { label: "Cumpleaños", value: "birthday" },
+  { label: "Especiales", value: "special" },
+];
+
+const getTemplateCategory = (componentKey = "") => {
+  return componentKey.split("_")[0].toLowerCase();
+};
 
 const Templates = () => {
   const { templates, loadingTemplates } = useEvents();
 
   const [search, setSearch] = useState("");
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const navigate = useNavigate();
 
   const filteredTemplates = useMemo(() => {
-    return templates.filter((template) =>
-      `${template.name} ${template.description || ""}`
+    return templates.filter((template) => {
+      const searchTerm = search.trim().toLowerCase();
+
+      // Filtro por nombre y descripción
+      const matchesSearch = `${template.name} ${
+        template.description || ""
+      }`
         .toLowerCase()
-        .includes(search.toLowerCase())
-    );
-  }, [templates, search]);
+        .includes(searchTerm);
+
+      // Categoría obtenida directamente de component_key
+      const category = getTemplateCategory(template.component_key);
+
+      const matchesCategory =
+        selectedCategory === "all" || category === selectedCategory;
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [templates, search, selectedCategory]);
 
   const handlePreview = (template) => {
-    setSelectedTemplate(template);
+    window.open(`/demo/${template.id}`, "_blank");
   };
 
   const handleUseTemplate = (template) => {
@@ -58,7 +76,7 @@ const Templates = () => {
   };
 
   return (
-    <Container maxWidth="xl">
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       {/* Header */}
       <Stack
         direction={{ xs: "column", sm: "row" }}
@@ -79,32 +97,55 @@ const Templates = () => {
 
         <Chip
           icon={<AutoAwesomeOutlinedIcon />}
-          label={`${templates.length} plantillas disponibles`}
+          label={`${filteredTemplates.length} plantillas disponibles`}
           variant="outlined"
           sx={{ borderRadius: 2 }}
         />
       </Stack>
 
-      {/* Search */}
-      <Box mb={3}>
-        <TextField
-          fullWidth
-          size="small"
-          placeholder="Buscar plantilla..."
+      {/* Búsqueda y categorías */}
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        justifyContent="space-between"
+        alignItems={{ xs: "stretch", md: "center" }}
+        spacing={2}
+        mb={4}
+      >
+        <SearchInput
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          sx={{ maxWidth: 380 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchRoundedIcon color="action" />
-              </InputAdornment>
-            ),
-          }}
+          onChange={setSearch}
+          placeholder="Buscar plantilla..."
+          width={380}
         />
-      </Box>
 
-      {/* Templates grid */}
+        <Stack
+          direction="row"
+          spacing={1}
+          overflow="auto"
+          pb={{ xs: 1, md: 0 }}
+        >
+          {CATEGORIES.map((cat) => {
+            const isSelected = selectedCategory === cat.value;
+
+            return (
+              <Chip
+                key={cat.value}
+                label={cat.label}
+                onClick={() => setSelectedCategory(cat.value)}
+                color={isSelected ? "primary" : "default"}
+                variant={isSelected ? "filled" : "outlined"}
+                sx={{
+                  borderRadius: 2,
+                  fontWeight: isSelected ? 600 : 400,
+                  cursor: "pointer",
+                }}
+              />
+            );
+          })}
+        </Stack>
+      </Stack>
+
+      {/* Plantillas */}
       <Grid container spacing={2}>
         {loadingTemplates ? (
           Array.from({ length: 8 }).map((_, index) => (
@@ -139,7 +180,7 @@ const Templates = () => {
                 <Box sx={{ position: "relative" }}>
                   <CardMedia
                     component="img"
-                    image={`${template.img}`}
+                    image={template.img}
                     alt={template.name}
                     sx={{
                       height: 190,
@@ -188,7 +229,8 @@ const Templates = () => {
                       minHeight: 40,
                     }}
                   >
-                    {template.description || "Sin descripción disponible."}
+                    {template.description ||
+                      "Sin descripción disponible."}
                   </Typography>
 
                   <Button
@@ -222,72 +264,14 @@ const Templates = () => {
               <Typography fontWeight={600}>
                 No encontramos plantillas
               </Typography>
+
               <Typography variant="body2" color="text.secondary" mt={1}>
-                Intenta con otro nombre de búsqueda.
+                Intenta con otra búsqueda o categoría.
               </Typography>
             </Box>
           </Grid>
         )}
       </Grid>
-
-      {/* Preview dialog */}
-      <Dialog
-        open={Boolean(selectedTemplate)}
-        onClose={() => setSelectedTemplate(null)}
-        maxWidth="md"
-        fullWidth
-      >
-        {selectedTemplate && (
-          <>
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-              px={3}
-              pt={2}
-            >
-              <Typography variant="h6" fontWeight={600}>
-                {selectedTemplate.name}
-              </Typography>
-
-              <IconButton onClick={() => setSelectedTemplate(null)}>
-                <CloseRoundedIcon />
-              </IconButton>
-            </Box>
-
-            <DialogContent>
-              <Box
-                component="img"
-                src={selectedTemplate.url}
-                alt={selectedTemplate.name}
-                sx={{
-                  width: "100%",
-                  maxHeight: 550,
-                  objectFit: "contain",
-                  borderRadius: 2,
-                }}
-              />
-
-              <Typography color="text.secondary" mt={2}>
-                {selectedTemplate.description}
-              </Typography>
-            </DialogContent>
-
-            <DialogActions sx={{ p: 2 }}>
-              <Button onClick={() => setSelectedTemplate(null)}>
-                Cerrar
-              </Button>
-
-              <Button
-                variant="contained"
-                onClick={() => handleUseTemplate(selectedTemplate)}
-              >
-                Usar plantilla
-              </Button>
-            </DialogActions>
-          </>
-        )}
-      </Dialog>
     </Container>
   );
 };
