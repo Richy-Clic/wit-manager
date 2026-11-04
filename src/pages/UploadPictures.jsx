@@ -94,7 +94,6 @@ export default function UploadPictures() {
       maxWidth: 900,
       mx: "auto",
       mt: 1,
-      px: 3
     }}>
       <Paper elevation={3} sx={{ borderRadius: 4, p: 4 }} >
         <Typography variant="h5" fontWeight={600}>

@@ -112,26 +112,6 @@ export const EventsProvider = ({ children }) => {
     }
   };
 
-  const deleteEventsBulk = async (ids) => {
-    setLoadingEvents(true);
-    try {
-      const { error } = await supabase
-        .from("events")
-        .delete()
-        .in("id", ids);
-
-      if (error) throw error;
-
-      setEvents((prev) => prev.filter((w) => !ids.includes(w.id)));
-      return true;
-    } catch (err) {
-      console.error("Error deleting events:", err.message);
-      return false;
-    } finally {
-      setLoadingEvents(false);
-    }
-  };
-
   // ========================
   //  TEMPLATES
   // ========================
@@ -291,7 +271,6 @@ export const EventsProvider = ({ children }) => {
         createEvent,
         updateEvent,
         deleteEvent,
-        deleteEventsBulk,
         getTemplates,
         getImages,
         uploadImages,

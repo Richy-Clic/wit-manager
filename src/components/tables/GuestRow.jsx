@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TableRow, TableCell, Chip } from "@mui/material";
+import { TableRow, TableCell } from "@mui/material";
 import { toast } from "sonner";
 import { getStringAttendance } from "../../utils/guestUtils.js";
 import { sendWhatsAppInvite } from "../../services/whatsappService.js";
@@ -9,6 +9,7 @@ import { getGuestActions } from "../../constants/guestActions.jsx";
 import PropTypes from "prop-types";
 import Checkbox from "@mui/material/Checkbox";
 import RowActions from "../RowActions.jsx";
+import ChipState from "../ChipState.jsx";
 
 
 const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }) => {
@@ -59,22 +60,9 @@ const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }
       </TableCell>
       <TableCell>{g.name}</TableCell>
       <TableCell>
-        <Chip
-          icon={attendance.icon}
-          label={attendance.label}
-          size="small"
-          sx={{
-            backgroundColor: attendance.bg,
-            color: attendance.color,
-            fontWeight: "bold",
-            borderRadius: "50px",
-            px: 0.5,
-            width: "120px",
-            "& .MuiChip-icon": {
-              color: "inherit",
-            },
-          }}
-        />
+
+      <ChipState state={attendance} />
+
       </TableCell>
 
       {/* 🔥 ACTIONS */}

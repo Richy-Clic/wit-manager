@@ -1,15 +1,58 @@
-import DoneIcon from '@mui/icons-material/Done';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import CloseIcon from '@mui/icons-material/Close';
 
-export const eventStates = new Map([
-    ["en progreso", { label: "En progreso", color: "black", bg: "orange" , icon: <AccessTimeIcon fontSize="small" /> }],
-    ["finalizada", { label: "Finalizada", color: "white", bg: "green" , icon: <DoneIcon fontSize="small" /> }],
-    ["cancelada", { label: "Cancelada", color: "white", bg: "red" , icon: <CloseIcon fontSize="small" /> }],
-]);
+import DoneIcon from "@mui/icons-material/Done";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CloseIcon from "@mui/icons-material/Close";
 
 export const guestStates = new Map([
-  ["confirmado", { label: "Confirmado", color: "white", bg: "green", icon: <DoneIcon fontSize="small" /> }],
-  ["pendiente", { label: "Pendiente", color: "black", bg: "orange", icon: <AccessTimeIcon fontSize="small" /> }],
-  ["declinado", { label: "Declinado", color: "white", bg: "red", icon: <CloseIcon fontSize="small" /> }],
+  [
+    "confirmado",
+    {
+      label: "Confirmado",
+      status: "success",
+      icon: <DoneIcon fontSize="small" />,
+    },
+  ],
+  [
+    "pendiente",
+    {
+      label: "Pendiente",
+      status: "warning",
+      icon: <AccessTimeIcon fontSize="small" />,
+    },
+  ],
+  [
+    "declinado",
+    {
+      label: "Declinado",
+      status: "error",
+      icon: <CloseIcon fontSize="small" />,
+    },
+  ],
+]);
+
+export const eventStates = new Map([
+  [
+    "en progreso",
+    {
+      label: "En progreso",
+      status: "warning",
+      icon: <AccessTimeIcon fontSize="small" />,
+    },
+  ],
+  [
+    "finalizada",
+    {
+      label: "Finalizada",
+      status: "success",
+      icon: <DoneIcon fontSize="small" />,
+    },
+  ],
+  [
+    "cancelada",
+    {
+      label: "Cancelada",
+      status: "error",
+      icon: <CloseIcon fontSize="small" />,
+    },
+  ],
 ]);

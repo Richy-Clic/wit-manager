@@ -106,9 +106,7 @@ const GuestsTable = ({ search, attendanceFilter }) => {
           stickyHeader
           size="small"
           aria-label="Lista de invitados"
-          sx={{
-            minWidth: 650,
-          }}
+          
         >
 
           <TableHeader selected={selected} filteredEvents={filteredGuests} handleSelectAll={handleSelectAll} columns={guestColumns} />

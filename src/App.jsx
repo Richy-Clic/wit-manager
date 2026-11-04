@@ -27,6 +27,7 @@ import AddGuestsList from "./pages/AddGuestsList.jsx";
 import UploadPictures from "./pages/UploadPictures.jsx";
 import Profile from "./pages/Profile.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import Templates from "./pages/Templates.jsx";
 
 // 👇 Sub-rutas de events
 function GuestRoutes() {
@@ -80,6 +81,7 @@ function App() {
               >
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/Events" element={<Events />} />
+                <Route path="/Templates" element={<Templates />} />
                 <Route path="/Events/addevent" element={<NewEvent />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/Events/:event_id/*" element={<GuestRoutes />} />

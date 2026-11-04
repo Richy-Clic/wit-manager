@@ -1,19 +1,39 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
 import {
-  Paper,
+  Alert,
+  Box,
+  Button,
   Card,
   CardContent,
-  Stack,
-  Typography,
-  Box,
   Chip,
-  Tooltip,
-  IconButton,
-  TablePagination,
+  // Collapse,
+  Divider,
   Grid,
+  IconButton,
+  Paper,
+  Stack,
+  TablePagination,
+  Tooltip,
+  Typography,
+  useMediaQuery,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+
+import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
+import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
+import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import ChurchOutlinedIcon from "@mui/icons-material/ChurchOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import PhotoLibraryOutlinedIcon from "@mui/icons-material/PhotoLibraryOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
+import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 
 import { useDebounce } from "../hooks/useDebounce.js";
 import { useEvents } from "../hooks/useEvents.js";
@@ -23,45 +43,124 @@ import renderDateChip from "../utils/renderDateChip.jsx";
 
 import RowActions from "./RowActions.jsx";
 import AlertConfirm from "./modales/AlertConfirm.jsx";
-
-import EditIcon from "@mui/icons-material/Edit";
-import PeopleIcon from "@mui/icons-material/People";
-import DeleteIcon from "@mui/icons-material/Delete";
-
-import FileUploadIcon from "@mui/icons-material/FileUpload";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import ChurchIcon from "@mui/icons-material/Church";
+import ChipState from "./ChipState.jsx";
 
 const EventsCards = ({ search }) => {
   const { events, loading } = useEvents();
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const debouncedSearch = useDebounce(search, 300);
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(6);
+
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+
+  const [eventToDelete, setEventToDelete] = useState(null);
   const [openModal, setOpenModal] = useState(false);
 
-  const filteredEvents = (events || []).filter((event) =>
-    `${event.boyfriend} ${event.girlfriend} ${event.location} ${event.state}`
-      .toLowerCase()
-      .includes(debouncedSearch.toLowerCase())
-  );
+  const filteredEvents = useMemo(() => {
+    const term = (debouncedSearch || "").trim().toLowerCase();
 
-  const paginatedEvents = filteredEvents.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+    return (events || []).filter((event) => {
+      const searchableText = [
+        event.title_event,
+        event.boyfriend,
+        event.girlfriend,
+        event.host,
+        event.location,
+        event.church,
+        event.state,
+        event.type_event,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(term);
+    });
+  }, [events, debouncedSearch]);
+
+  const paginatedEvents = useMemo(() => {
+    const start = page * rowsPerPage;
+    return filteredEvents.slice(start, start + rowsPerPage);
+  }, [filteredEvents, page, rowsPerPage]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    if (
+      selectedEvent &&
+      !filteredEvents.some((event) => event.id === selectedEvent.id)
+    ) {
+      setSelectedEvent(null);
+      setShowDetails(false);
+    }
+  }, [filteredEvents, selectedEvent]);
+
+  const getStringState = (state) =>
+    eventStates.get(state) || {
+      label: "Desconocido",
+      color: "black",
+      bg: "gray",
+    };
+
+  const getEventType = (event) =>
+    event.type_event || event.tipo_evento || "";
+
+  const getEventName = (event) => {
+    if (event.type_event === "wedding") {
+      return [event.boyfriend, event.girlfriend]
+        .filter(Boolean)
+        .join(" & ");
+    }
+
+    return event.host || event.title_event || "Evento sin nombre";
+  };
+
+  const getGoogleMapsUrl = (location, placeId) => {
+    if (!location) return null;
+
+    const params = new URLSearchParams({
+      api: "1",
+      query: location,
+    });
+
+    if (placeId) {
+      params.set("query_place_id", placeId);
+    }
+
+    return `https://www.google.com/maps/search/?${params.toString()}`;
+  };
+
+  const openEvent = (event) => {
+    setSelectedEvent(event);
+    setShowDetails(true);
+  };
+
+  const closeDetails = () => {
+    setShowDetails(false);
+
+    // En mobile, regresar significa volver a la lista.
+    // En desktop se conserva la selección para poder abrirla nuevamente.
+    if (isMobile) {
+      setSelectedEvent(null);
+    }
+  };
 
   const openAlertConfirm = (event) => {
-    setSelectedEvent(event);
+    setEventToDelete(event);
     setOpenModal(true);
   };
 
   const closeAlertConfirm = () => {
     setOpenModal(false);
-    setSelectedEvent(null);
+    setEventToDelete(null);
   };
 
   const handleChangePage = (_, newPage) => {
@@ -69,246 +168,611 @@ const EventsCards = ({ search }) => {
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
+    setRowsPerPage(Number(event.target.value));
     setPage(0);
   };
 
-  const getStringState = (state) => {
+  const getEventActions = (event) => [
+    {
+      label: "Editar",
+      icon: <EditOutlinedIcon fontSize="small" />,
+      to: (row) => `/events/${row.id}`,
+    },
+    {
+      label: "Invitados",
+      icon: <PeopleAltOutlinedIcon fontSize="small" />,
+      to: (row) => `/events/${row.id}/guests`,
+    },
+    {
+      label: "Subir imágenes",
+      icon: <PhotoLibraryOutlinedIcon fontSize="small" />,
+      to: (row) => `/events/${row.id}/pictures`,
+    },
+    {
+      label: "Ver invitación",
+      icon: <VisibilityOutlinedIcon fontSize="small" />,
+      onClick: (row) =>
+        window.open(
+          `https://app.witinvitaciones.com/${row.id}/`,
+          "_blank",
+          "noopener,noreferrer"
+        ),
+    },
+    { divider: true },
+    {
+      label: "Eliminar",
+      icon: <DeleteOutlineRoundedIcon fontSize="small" />,
+      danger: true,
+      onClick: () => openAlertConfirm(event),
+    },
+  ];
+
+  const renderEventCard = (event) => {
+    const state = getStringState(event.state);
+    const eventType = getEventType(event);
+    const isSelected = selectedEvent?.id === event.id;
+
+    const locationUrl = getGoogleMapsUrl(
+      event.location,
+      event.location_id
+    );
+
+    const churchUrl = getGoogleMapsUrl(
+      event.church,
+      event.church_id
+    );
+
     return (
-      eventStates.get(state) || {
-        label: "Desconocido",
-        color: "black",
-        bg: "gray",
-      }
+      <Card
+        key={event.id}
+        onClick={() => openEvent(event)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openEvent(event);
+          }
+        }}
+        tabIndex={0}
+        role="button"
+        aria-pressed={isSelected}
+        elevation={0}
+        sx={{
+          width: "100%",
+          borderRadius: 3,
+          cursor: "pointer",
+          border: "1px solid",
+          borderColor: isSelected ? "primary.main" : "divider",
+          backgroundColor: isSelected
+            ? "action.selected"
+            : "background.paper",
+          transition: "border-color .2s ease, box-shadow .2s ease",
+          "&:hover": {
+            borderColor: "primary.main",
+            boxShadow: 2,
+          },
+          "&:focus-visible": {
+            outline: "2px solid",
+            outlineColor: "primary.main",
+            outlineOffset: 2,
+          },
+        }}
+      >
+        <CardContent sx={{ p: 2.25, "&:last-child": { pb: 2.25 } }}>
+          <Stack spacing={1.5}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="flex-start"
+              gap={1}
+            >
+              <Box minWidth={0} flex={1}>
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={700}
+                  noWrap
+                >
+                  {event.title_event || getEventName(event)}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  noWrap
+                >
+                  {getEventName(event)}
+                </Typography>
+              </Box>
+
+              <Box
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
+                <RowActions
+                  row={event}
+                  actions={getEventActions(event)}
+                />
+              </Box>
+            </Box>
+
+            <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+              {eventType && (
+                <Chip
+                  label={eventType}
+                  size="small"
+                  sx={{
+                    borderRadius: 2,
+                    backgroundColor: "secondary.light",
+                    color: "text.primary",
+                  }}
+                />
+              )}
+
+              <Box>{renderDateChip(event.event_date)}</Box>
+            </Box>
+
+            <Divider />
+
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              gap={1}
+            >
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                {event.location && (
+                  <Tooltip title={`Ubicación: ${event.location}`}>
+                    <IconButton
+                      size="small"
+                      component="a"
+                      href={locationUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <LocationOnOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+
+                {event.church && (
+                  <Tooltip title={`Ceremonia: ${event.church}`}>
+                    <IconButton
+                      size="small"
+                      component="a"
+                      href={churchUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <ChurchOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Stack>
+
+              <ChipState state={state} />
+            </Box>
+          </Stack>
+        </CardContent>
+      </Card>
     );
   };
 
-  if (!loading && (!events || events.length === 0)) {
+  const renderDetailItem = (label, value, icon) => {
+    if (!value) return null;
+
     return (
-      <Box textAlign="center" mt={5}>
-        No tienes eventos registrados
+      <Box display="flex" alignItems="flex-start" gap={1.5}>
+        <Box
+          sx={{
+            color: "primary.main",
+            display: "flex",
+            pt: 0.25,
+          }}
+        >
+          {icon}
+        </Box>
+
+        <Box minWidth={0}>
+          <Typography variant="caption" color="text.secondary">
+            {label}
+          </Typography>
+
+          <Typography variant="body2" fontWeight={500}>
+            {value}
+          </Typography>
+        </Box>
+      </Box>
+    );
+  };
+
+  const renderDetails = () => {
+    if (!selectedEvent) return null;
+
+    const event = selectedEvent;
+    const eventType = getEventType(event);
+    const state = getStringState(event.state);
+
+    const locationUrl = getGoogleMapsUrl(
+      event.location,
+      event.location_id
+    );
+
+    const churchUrl = getGoogleMapsUrl(
+      event.church,
+      event.church_id
+    );
+
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          height: "100%",
+          minHeight: 420,
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "divider",
+          overflow: "hidden",
+          backgroundColor: "background.paper",
+        }}
+      >
+        {/* Encabezado del detalle */}
+        <Box
+          sx={{
+            p: 2.5,
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: 2,
+          }}
+        >
+          <Box minWidth={0}>
+            <Typography variant="overline" color="text.secondary">
+              Información del evento
+            </Typography>
+
+            <Typography variant="h6" fontWeight={700}>
+              {event.title_event || getEventName(event)}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary">
+              {getEventName(event)}
+            </Typography>
+          </Box>
+
+          <Tooltip title="Cerrar información">
+            <IconButton
+              onClick={closeDetails}
+              aria-label="Cerrar información del evento"
+              sx={{
+                border: "1px solid",
+                borderColor: "divider",
+                flexShrink: 0,
+              }}
+            >
+              <ArrowBackIosNewRoundedIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
+
+        <Divider />
+
+        {/* Acciones superiores */}
+        <Box
+          sx={{
+            p: 2,
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 1,
+          }}
+        >
+          <Button
+            component={Link}
+            to={`/events/${event.id}`}
+            variant="contained"
+            startIcon={<EditOutlinedIcon />}
+            size="small"
+          >
+            Editar
+          </Button>
+
+          <Button
+            component={Link}
+            to={`/events/${event.id}/guests`}
+            variant="outlined"
+            startIcon={<PeopleAltOutlinedIcon />}
+            size="small"
+          >
+            Invitados
+          </Button>
+
+          <Button
+            component={Link}
+            to={`/events/${event.id}/pictures`}
+            variant="outlined"
+            startIcon={<PhotoLibraryOutlinedIcon />}
+            size="small"
+          >
+            Imágenes
+          </Button>
+
+          <Button
+            component="a"
+            href={`https://app.witinvitaciones.com/${event.id}/`}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="text"
+            startIcon={<VisibilityOutlinedIcon />}
+            size="small"
+          >
+            Invitación
+          </Button>
+        </Box>
+
+        <Divider />
+
+        {/* Información */}
+        <Box sx={{ p: 2.5 }}>
+          <Stack spacing={2.5}>
+            <Box display="flex" gap={1} flexWrap="wrap">
+              {eventType && (
+                <Chip
+                  label={eventType}
+                  size="small"
+                  sx={{
+                    backgroundColor: "secondary.light",
+                    borderRadius: 2,
+                  }}
+                />
+              )}
+
+              <ChipState state={state} />
+            </Box>
+
+            <Typography variant="subtitle2" fontWeight={700}>
+              Datos generales
+            </Typography>
+
+            <Grid container spacing={2.5}>
+              <Grid item xs={12} sm={6}>
+                {renderDetailItem(
+                  "Fecha del evento",
+                  event.event_date,
+                  <CalendarMonthOutlinedIcon fontSize="small" />
+                )}
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                {renderDetailItem(
+                  "Anfitrión",
+                  event.host,
+                  <PersonOutlineRoundedIcon fontSize="small" />
+                )}
+              </Grid>
+
+              <Grid item xs={12}>
+                {renderDetailItem(
+                  "Ubicación",
+                  event.location,
+                  <LocationOnOutlinedIcon fontSize="small" />
+                )}
+
+                {event.location && (
+                  <Button
+                    component="a"
+                    href={locationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    size="small"
+                    sx={{ mt: 0.5, ml: 3.5 }}
+                  >
+                    Ver en Google Maps
+                  </Button>
+                )}
+              </Grid>
+
+              {event.church && (
+                <Grid item xs={12}>
+                  {renderDetailItem(
+                    "Iglesia / Ceremonia",
+                    event.church,
+                    <ChurchOutlinedIcon fontSize="small" />
+                  )}
+
+                  <Button
+                    component="a"
+                    href={churchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    size="small"
+                    sx={{ mt: 0.5, ml: 3.5 }}
+                  >
+                    Ver en Google Maps
+                  </Button>
+                </Grid>
+              )}
+
+              <Grid item xs={12} sm={6}>
+                {renderDetailItem(
+                  "Hora de ceremonia",
+                  event.ceremony_time,
+                  <AccessTimeOutlinedIcon fontSize="small" />
+                )}
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                {renderDetailItem(
+                  "Hora de recepción",
+                  event.reception_time,
+                  <AccessTimeOutlinedIcon fontSize="small" />
+                )}
+              </Grid>
+            </Grid>
+
+            {event.details && (
+              <>
+                <Divider />
+
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={700} mb={1}>
+                    Detalles
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ whiteSpace: "pre-wrap" }}
+                  >
+                    {event.details}
+                  </Typography>
+                </Box>
+              </>
+            )}
+
+            {event.template_id && (
+              <>
+                <Divider />
+
+                {renderDetailItem(
+                  "Plantilla",
+                  event.template_id,
+                  <EventOutlinedIcon fontSize="small" />
+                )}
+              </>
+            )}
+          </Stack>
+        </Box>
+      </Paper>
+    );
+  };
+
+  if (loading) {
+    return (
+      <Box py={5} textAlign="center">
+        <Typography color="text.secondary">
+          Cargando tus eventos...
+        </Typography>
       </Box>
     );
   }
 
-  if (!loading && !filteredEvents.length) {
+  if (!events || events.length === 0) {
     return (
-      <Box textAlign="center" mt={5}>
-        No se encontraron resultados
-      </Box>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 5,
+          textAlign: "center",
+          borderRadius: 3,
+          border: "1px dashed",
+          borderColor: "divider",
+        }}
+      >
+        <EventOutlinedIcon
+          sx={{ fontSize: 42, color: "primary.main", mb: 1 }}
+        />
+
+        <Typography variant="h6" fontWeight={700}>
+          Aún no tienes eventos
+        </Typography>
+
+        <Typography color="text.secondary" variant="body2">
+          Crea tu primer evento para comenzar a organizar tus invitaciones.
+        </Typography>
+      </Paper>
     );
   }
+
+  if (filteredEvents.length === 0) {
+    return (
+      <Alert severity="info" sx={{ borderRadius: 2 }}>
+        No se encontraron eventos con ese criterio de búsqueda.
+      </Alert>
+    );
+  }
+
+  const showList = !isMobile || !showDetails;
+  const showDetailPanel = Boolean(selectedEvent) && showDetails;
 
   return (
-    <Paper
-      elevation={0}
+    <Box>
+      <Grid container spacing={2} alignItems="stretch">
+        {/* Lista de eventos */}
+        {showList && (
+          <Grid
+      item
+      xs={12}
+      md={showDetailPanel ? 5 : 12}
       sx={{
-        m: 0,
-        border: "none",
-        borderRadius: 4,
-        backgroundColor: (theme) =>
-          theme.palette.mode === "dark"
-            ? "rgba(255, 255, 255, 0.03)"
-            : "#f5f7fa",
-        overflow: "hidden",
+        minWidth: 0,
+        transition: "width .35s ease",
       }}
     >
-      <Box sx={{ p: 3 }}>
-        <Grid container spacing={2}>
-          {paginatedEvents.map((w) => {
-            const locationURL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-              w.location
-            )}&query_place_id=${w.location_id}`;
-
-            const churchURL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-              w.church
-            )}&query_place_id=${w.church_id}`;
-
-            const eventType = w.type_event || w.tipo_evento;
-
-            return (
-              <Grid item xs={12} sm={6} md={4} key={w.id}>
-                <Card
-                  elevation={1}
-                  sx={{
-                    borderRadius: 3,
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    boxShadow: (theme) =>
-                      theme.palette.mode === "dark"
-                        ? "0 4px 20px rgba(0, 0, 0, 0.4)"
-                        : "0 1px 3px rgba(0, 0, 0, 0.08)",
-                    transition: "all 0.2s ease-in-out",
-                    "&:hover": {
-                      boxShadow: (theme) =>
-                        theme.palette.mode === "dark"
-                          ? "0 6px 24px rgba(0, 0, 0, 0.83)"
-                          : "0 6px 16px rgba(0, 0, 0, 0.12)",
-                    },
-                    backgroundColor: (theme) =>
-                      theme.palette.mode === "dark"
-                        ? theme.palette.background.paper
-                        : "#ffffff",
-                  }}
-                >
-                  <CardContent>
-                    <Stack spacing={1.5}>
-                      {/* Header */}
-                      <Box
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="flex-start"
-                      >
-                        <Box flex={1}>
-                          <Typography variant="h6" component="div" noWrap>
-                            {w.title_event}
-                          </Typography>
-                        </Box>
-
-                        {/* Acciones */}
-                        <Box display="flex" justifyContent="flex-end" pt={0}>
-                          <RowActions
-                            row={w}
-                            actions={[
-                              {
-                                label: "Editar",
-                                icon: <EditIcon fontSize="small" />,
-                                to: (row) => `/events/${row.id}`,
-                              },
-                              {
-                                label: "Invitados",
-                                icon: <PeopleIcon fontSize="small" />,
-                                to: (row) => `/events/${row.id}/guests`,
-                              },
-                              {
-                                label: "Subir Imágenes",
-                                icon: <FileUploadIcon fontSize="small" />,
-                                to: (row) => `/events/${row.id}/pictures`,
-                              },
-                              {
-                                label: "Ver Invitación",
-                                icon: <VisibilityIcon fontSize="small" />,
-                                onClick: (row) =>
-                                  window.open(
-                                    `https://app.witinvitaciones.com/${row.id}/`,
-                                    "_blank"
-                                  ),
-                              },
-                              { divider: true },
-                              {
-                                label: "Eliminar",
-                                icon: <DeleteIcon fontSize="small" />,
-                                danger: true,
-                                onClick: (row) => openAlertConfirm(row),
-                              },
-                            ]}
-                          />
-                        </Box>
-                      </Box>
-
-                      {/* Tipo de evento */}
-                      {eventType && (
-                        <Box>
-                          <Chip
-                            label={eventType}
-                            size="small"
-                            sx={{
-                              borderRadius: "8px",
-                              backgroundColor: (theme) =>
-                                theme.palette.mode === "dark"
-                                  ? "rgba(255, 255, 255, 0.08)"
-                                  : "rgba(0, 0, 0, 0.04)",
-                              color: "text.secondary",
-                              border: (theme) =>
-                                `1px solid ${theme.palette.divider}`,
-                              fontWeight: 500,
-                            }}
-                          />
-                        </Box>
-                      )}
-
-                      {/* Fecha */}
-                      <Box>{renderDateChip(w.event_date)}</Box>
-
-                      {/* Ubicación y Estatus */}
-                      <Box
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        pt={0.5}
-                      >
-                        {/* Ubicaciones */}
-                        <Box display="flex" gap={0.5} alignItems="center">
-                          {w.location && (
-                            <Tooltip title={`Evento: ${w.location}`}>
-                              <IconButton
-                                size="small"
-                                onClick={() => window.open(locationURL, "_blank")}
-                              >
-                                <LocationOnIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-
-                          {w.church && (
-                            <Tooltip title={`Ceremonia: ${w.church}`}>
-                              <IconButton
-                                size="small"
-                                onClick={() => window.open(churchURL, "_blank")}
-                              >
-                                <ChurchIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                        </Box>
-
-                        {/* Estado */}
-                        <Chip
-                          icon={getStringState(w.state).icon}
-                          label={getStringState(w.state).label}
-                          size="small"
-                          sx={{
-                            backgroundColor: getStringState(w.state).bg,
-                            color: getStringState(w.state).color,
-                            fontWeight: "bold",
-                            borderRadius: "50px",
-                            px: 0.5,
-                            width: "120px",
-                            "& .MuiChip-icon": {
-                              color: "inherit",
-                            },
-                          }}
-                        />
-                      </Box>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Grid>
-            );
-          })}
-        </Grid>
-      </Box>
+      <Grid container spacing={2}>
+        {paginatedEvents.map((event) => (
+          <Grid
+            item
+            xs={12}
+            md={showDetailPanel ? 12 : 4}
+            key={event.id}
+          >
+            {renderEventCard(event)}
+          </Grid>
+        ))}
+      </Grid>
 
       <TablePagination
-        rowsPerPageOptions={[6, 12, 24]}
         component="div"
         count={filteredEvents.length}
-        rowsPerPage={rowsPerPage}
         page={page}
+        rowsPerPage={rowsPerPage}
+        rowsPerPageOptions={[6, 12, 24]}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        labelRowsPerPage="Eventos por página:"
+        sx={{
+          mt: 1,
+          borderBottom: 0,
+        }}
       />
+    </Grid>
+        )}
 
-      {selectedEvent && (
+        {/* Panel de información */}
+        {showDetailPanel && (
+          <Grid
+            item
+            xs={12}
+            md={showList ? 7 : 12}
+            sx={{
+              minWidth: 0,
+              animation: "detailEnter .35s ease",
+              "@keyframes detailEnter": {
+                from: {
+                  opacity: 0,
+                  transform: "translateX(35px)",
+                },
+                to: {
+                  opacity: 1,
+                  transform: "translateX(0)",
+                },
+              },
+            }}
+          >
+            {renderDetails()}
+          </Grid>
+        )}
+      </Grid>
+
+      {eventToDelete && (
         <AlertConfirm
           show={openModal}
           onHide={closeAlertConfirm}
-          event={selectedEvent}
+          event={eventToDelete}
         />
       )}
-    </Paper>
+    </Box>
   );
 };
 

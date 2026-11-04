@@ -5,19 +5,13 @@ import { useEvents } from "../../hooks/useEvents.js";
 import { toast } from "sonner";
 
 export default function AlertConfirm(props) {
-  const { deleteEvents, deleteEventsBulk } = useEvents();
+  const {deleteEvent} = useEvents();
 
-  const isBulk = props.selected.length > 0;
 
   const handleDelete = async () => {
     try {
-      if (isBulk) {
-        await deleteEventsBulk(props.selected);
-        toast.success(`${props.selected.length} Eventos eliminadas con éxito`);
-      } else {
-        await deleteEvents(props.event.id);
-        toast.success("Evento eliminada con éxito");
-      }
+      await deleteEvent(props.event.id);
+      toast.success("Evento eliminada con éxito");
 
       props.onHide();
     } catch (error) {
@@ -39,9 +33,7 @@ export default function AlertConfirm(props) {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            {isBulk
-              ? `¿Deseas eliminar ${props.selected.length} eventos? Esta acción no se puede deshacer.`
-              : `¿De verdad deseas eliminar el evento de ${props.event.boyfriend} & ${props.event.girlfriend}?`}
+            {`¿De verdad deseas eliminar el evento de ${props.event.title_event}?`}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -59,6 +51,5 @@ export default function AlertConfirm(props) {
 AlertConfirm.propTypes = {
   show: PropTypes.bool.isRequired, // Asegúrate de que 'show' sea un booleano y sea requerido
   onHide: PropTypes.func.isRequired, // Asegúrate de que 'onHide' sea una función y sea requerida
-  event: PropTypes.object,
-  selected: PropTypes.array.isRequired
+  event: PropTypes.object
 };
