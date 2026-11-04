@@ -139,7 +139,7 @@ const Templates = () => {
                 <Box sx={{ position: "relative" }}>
                   <CardMedia
                     component="img"
-                    image={template.url}
+                    image={`${template.img}`}
                     alt={template.name}
                     sx={{
                       height: 190,
