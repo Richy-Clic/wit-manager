@@ -66,7 +66,7 @@ const Templates = () => {
   }, [templates, search, selectedCategory]);
 
   const handlePreview = (template) => {
-    window.open(`/demo/${template.id}`, "_blank");
+    window.open(`https://app.witinvitaciones.com/demo/${template.id}`, "_blank");
   };
 
   const handleUseTemplate = (template) => {
