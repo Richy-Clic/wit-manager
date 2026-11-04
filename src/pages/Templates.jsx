@@ -21,6 +21,7 @@ import {
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
+import PageTitle from "../components/PageTitle.jsx";
 
 import { useEvents } from "../hooks/useEvents.js";
 import SearchInput from "../components/SearchInput";
@@ -86,9 +87,7 @@ const Templates = () => {
         mb={3}
       >
         <Box>
-          <Typography variant="h5" fontWeight={600}>
-            Plantillas
-          </Typography>
+          <PageTitle>Plantillas</PageTitle>
 
           <Typography variant="body2" color="text.secondary" mt={0.5}>
             Explora y selecciona el diseño ideal para tu evento.
@@ -105,45 +104,67 @@ const Templates = () => {
 
       {/* Búsqueda y categorías */}
       <Stack
-        direction={{ xs: "column", md: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "stretch", md: "center" }}
-        spacing={2}
-        mb={4}
-      >
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Buscar plantilla..."
-          width={380}
+  direction={{ xs: "column", md: "row" }}
+  justifyContent="space-between"
+  alignItems={{ xs: "stretch", md: "center" }}
+  spacing={2}
+  mb={4}
+  sx={{
+    width: "100%",
+    minWidth: 0,
+  }}
+>
+  <Box
+    sx={{
+      width: { xs: "100%", md: 380 },
+      maxWidth: "100%",
+      minWidth: 0,
+      flexShrink: 1,
+    }}
+  >
+    <SearchInput
+      value={search}
+      onChange={setSearch}
+      placeholder="Buscar plantilla..."
+      width="100%"
+    />
+  </Box>
+
+  <Stack
+    direction="row"
+    spacing={1}
+    sx={{
+      minWidth: 0,
+      maxWidth: "100%",
+      overflowX: "auto",
+      overflowY: "hidden",
+      pb: { xs: 1, md: 0 },
+      flexShrink: 1,
+      "& > *": {
+        flexShrink: 0,
+      },
+    }}
+  >
+    {CATEGORIES.map((cat) => {
+      const isSelected = selectedCategory === cat.value;
+
+      return (
+        <Chip
+          key={cat.value}
+          label={cat.label}
+          onClick={() => setSelectedCategory(cat.value)}
+          color={isSelected ? "primary" : "default"}
+          variant={isSelected ? "filled" : "outlined"}
+          sx={{
+            borderRadius: 2,
+            fontWeight: isSelected ? 600 : 400,
+            cursor: "pointer",
+          }}
         />
-
-        <Stack
-          direction="row"
-          spacing={1}
-          overflow="auto"
-          pb={{ xs: 1, md: 0 }}
-        >
-          {CATEGORIES.map((cat) => {
-            const isSelected = selectedCategory === cat.value;
-
-            return (
-              <Chip
-                key={cat.value}
-                label={cat.label}
-                onClick={() => setSelectedCategory(cat.value)}
-                color={isSelected ? "primary" : "default"}
-                variant={isSelected ? "filled" : "outlined"}
-                sx={{
-                  borderRadius: 2,
-                  fontWeight: isSelected ? 600 : 400,
-                  cursor: "pointer",
-                }}
-              />
-            );
-          })}
-        </Stack>
-      </Stack>
+      );
+    })}
+  </Stack>
+</Stack>
 
       {/* Plantillas */}
       <Grid container spacing={2}>

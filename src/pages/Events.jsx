@@ -43,7 +43,7 @@ const Events = () => {
         }}
       >
         <PageTitle>Mis Eventos</PageTitle>
-        
+
         <Box
           sx={{
             display: "flex",
@@ -53,13 +53,21 @@ const Events = () => {
             flexDirection: { xs: "column", sm: "row" },
           }}
         >
-          <Box sx={{ width: { xs: "100%", sm: 280 } }}>
-            <SearchInput
-              value={search}
-              onChange={setSearch}
-              placeholder="Buscar evento..."
-            />
-          </Box>
+          {/* Contenedor y SearchInput adaptados al 100% en mobile */}
+          <Box
+  sx={{
+    width: { xs: "100%", sm: 350, md: 420 },
+    minWidth: 0,
+    flexShrink: 0,
+  }}
+>
+  <SearchInput
+    value={search}
+    onChange={setSearch}
+    placeholder="Buscar evento..."
+    width="100%"
+  />
+</Box>
 
           <Button
             component={Link}
@@ -74,6 +82,7 @@ const Events = () => {
               textTransform: "none",
               px: 2.5,
               py: 1.1,
+              flexShrink: 0,
             }}
           >
             Nuevo evento
