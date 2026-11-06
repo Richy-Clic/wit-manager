@@ -16,7 +16,6 @@ import MainLayout from "./layouts/MainLayout";
 
 // Pages
 import Login from "./pages/Login.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
 import Events from "./pages/Events.jsx";
 import NewEvent from "./pages/NewEvent.jsx";
 import EditEvent from "./pages/EditEvent.jsx";
@@ -80,7 +79,6 @@ function App() {
                   </PrivateRoute>
                 }
               >
-                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/Events" element={<Events />} />
                 <Route path="/Templates" element={<Templates />} />
                 <Route path="/Events/addevent" element={<NewEvent />} />

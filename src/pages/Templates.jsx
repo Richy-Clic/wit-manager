@@ -19,7 +19,7 @@ import {
   Paper,
 } from "@mui/material";
 
-import DashboardCustomizeOutlined from "@mui/icons-material/DashboardCustomizeOutlined";
+
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
@@ -290,9 +290,6 @@ const Templates = () => {
               borderColor: "divider",
             }}
           >
-            <DashboardCustomizeOutlined
-              sx={{ fontSize: 42, color: "primary.main", mb: 1 }}
-            />
 
             <Typography fontWeight={600}>
               No encontramos plantillas

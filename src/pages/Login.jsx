@@ -33,7 +33,7 @@ export default function Login() {
       const { data } = await supabase.auth.getSession();
 
       if (data.session) {
-        navigate("/dashboard", { replace: true });
+        navigate("/events", { replace: true });
       } else {
         setCheckingSession(false);
       }
@@ -72,7 +72,7 @@ export default function Login() {
 
       toast.success("Bienvenido.");
 
-      navigate("/dashboard", { replace: true });
+      navigate("/events", { replace: true });
     } catch (err) {
       console.error(err);
       toast.error("Ocurrió un error al iniciar sesión.");
