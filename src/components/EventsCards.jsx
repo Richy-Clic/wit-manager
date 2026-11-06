@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   Chip,
-  // Collapse,
   Divider,
   Grid,
   IconButton,
@@ -58,9 +57,14 @@ const EventsCards = ({ search }) => {
 
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   const [eventToDelete, setEventToDelete] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+
+  // --------------------------------------------------
+  // Búsqueda y paginación
+  // --------------------------------------------------
 
   const filteredEvents = useMemo(() => {
     const term = (debouncedSearch || "").trim().toLowerCase();
@@ -100,8 +104,13 @@ const EventsCards = ({ search }) => {
     ) {
       setSelectedEvent(null);
       setShowDetails(false);
+      setIsClosing(false);
     }
   }, [filteredEvents, selectedEvent]);
+
+  // --------------------------------------------------
+  // Helpers
+  // --------------------------------------------------
 
   const getStringState = (state) =>
     eventStates.get(state) || {
@@ -138,20 +147,47 @@ const EventsCards = ({ search }) => {
     return `https://www.google.com/maps/search/?${params.toString()}`;
   };
 
+  // --------------------------------------------------
+  // Apertura y cierre del detalle
+  // --------------------------------------------------
+
   const openEvent = (event) => {
     setSelectedEvent(event);
+    setIsClosing(false);
     setShowDetails(true);
   };
 
   const closeDetails = () => {
-    setShowDetails(false);
+    if (!showDetails || isClosing) return;
 
-    // En mobile, regresar significa volver a la lista.
-    // En desktop se conserva la selección para poder abrirla nuevamente.
+    // No desmontamos el panel todavía.
+    // Esperamos a que termine la animación.
+    setIsClosing(true);
+  };
+
+  const handleDetailTransitionEnd = (event) => {
+    // Evita ejecutar el cierre por transiciones de elementos internos.
+    if (
+      event.target !== event.currentTarget ||
+      event.propertyName !== "transform" ||
+      !isClosing
+    ) {
+      return;
+    }
+
+    setShowDetails(false);
+    setIsClosing(false);
+
+    // En móvil, una vez terminada la animación,
+    // limpiamos la selección y regresamos a la lista.
     if (isMobile) {
       setSelectedEvent(null);
     }
   };
+
+  // --------------------------------------------------
+  // Modal de eliminación
+  // --------------------------------------------------
 
   const openAlertConfirm = (event) => {
     setEventToDelete(event);
@@ -163,6 +199,10 @@ const EventsCards = ({ search }) => {
     setEventToDelete(null);
   };
 
+  // --------------------------------------------------
+  // Paginación
+  // --------------------------------------------------
+
   const handleChangePage = (_, newPage) => {
     setPage(newPage);
   };
@@ -171,6 +211,10 @@ const EventsCards = ({ search }) => {
     setRowsPerPage(Number(event.target.value));
     setPage(0);
   };
+
+  // --------------------------------------------------
+  // Acciones de cada evento
+  // --------------------------------------------------
 
   const getEventActions = (event) => [
     {
@@ -206,6 +250,10 @@ const EventsCards = ({ search }) => {
       onClick: () => openAlertConfirm(event),
     },
   ];
+
+  // --------------------------------------------------
+  // Tarjeta del evento
+  // --------------------------------------------------
 
   const renderEventCard = (event) => {
     const state = getStringState(event.state);
@@ -301,7 +349,7 @@ const EventsCards = ({ search }) => {
                   size="small"
                   sx={{
                     borderRadius: 2,
-                    backgroundColor: "secondary.light",
+                    borderColor: "divider",
                     color: "text.primary",
                   }}
                 />
@@ -358,6 +406,10 @@ const EventsCards = ({ search }) => {
     );
   };
 
+  // --------------------------------------------------
+  // Elementos de información del detalle
+  // --------------------------------------------------
+
   const renderDetailItem = (label, value, icon) => {
     if (!value) return null;
 
@@ -386,6 +438,10 @@ const EventsCards = ({ search }) => {
     );
   };
 
+  // --------------------------------------------------
+  // Panel de detalle
+  // --------------------------------------------------
+
   const renderDetails = () => {
     if (!selectedEvent) return null;
 
@@ -407,8 +463,8 @@ const EventsCards = ({ search }) => {
       <Paper
         elevation={0}
         sx={{
-          height: "100%",
-          minHeight: 420,
+          height: "auto",
+          minHeight: 0,
           borderRadius: 3,
           border: "1px solid",
           borderColor: "divider",
@@ -416,7 +472,7 @@ const EventsCards = ({ search }) => {
           backgroundColor: "background.paper",
         }}
       >
-        {/* Encabezado del detalle */}
+        {/* Encabezado */}
         <Box
           sx={{
             p: 2.5,
@@ -427,11 +483,35 @@ const EventsCards = ({ search }) => {
           }}
         >
           <Box minWidth={0}>
-            <Typography variant="overline" color="text.secondary">
-              Información del evento
-            </Typography>
+            <Tooltip title="Regresar a mis eventos">
+              <Button
+                onClick={closeDetails}
+                aria-label="Volver a mis eventos"
+                color="inherit"
+                startIcon={
+                  <ArrowBackIosNewRoundedIcon sx={{ fontSize: 16 }} />
+                }
+                disabled={isClosing}
+                sx={{
+                  color: "text.secondary",
+                  textTransform: "none",
+                  fontWeight: 500,
+                  fontSize: "0.875rem",
+                  px: 1,
+                  py: 0.75,
+                  ml: -1,
+                  borderRadius: 2,
+                  "&:hover": {
+                    color: "primary.main",
+                    backgroundColor: "action.hover",
+                  },
+                }}
+              >
+                Volver a mis eventos
+              </Button>
+            </Tooltip>
 
-            <Typography variant="h6" fontWeight={700}>
+            <Typography variant="h6" fontWeight={700} mt={1}>
               {event.title_event || getEventName(event)}
             </Typography>
 
@@ -439,213 +519,273 @@ const EventsCards = ({ search }) => {
               {getEventName(event)}
             </Typography>
           </Box>
-
-          <Tooltip title="Cerrar información">
-            <IconButton
-              onClick={closeDetails}
-              aria-label="Cerrar información del evento"
-              sx={{
-                border: "1px solid",
-                borderColor: "divider",
-                flexShrink: 0,
-              }}
-            >
-              <ArrowBackIosNewRoundedIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
         </Box>
 
         <Divider />
 
-        {/* Acciones superiores */}
+        {/* Navegación y acciones */}
         <Box
-          sx={{
-            p: 2,
-            display: "flex",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 1,
-          }}
-        >
-          <Button
-            component={Link}
-            to={`/events/${event.id}`}
-            variant="contained"
-            startIcon={<EditOutlinedIcon />}
-            size="small"
-          >
-            Editar
-          </Button>
+  sx={{
+    px: { xs: 1, sm: 2 },
+    py: 1,
+    display: "flex",
+    alignItems: "center",
+    gap: { xs: 0.5, sm: 1 },
+    borderBottom: "1px solid",
+    borderColor: "divider",
+  }}
+>
+  <Button
+    component={Link}
+    to={`/events/${event.id}/guests`}
+    color="inherit"
+    startIcon={<PeopleAltOutlinedIcon />}
+    size="small"
+    sx={{
+      borderRadius: 0,
+      color: "text.secondary",
+      fontWeight: 500,
+      textTransform: "none",
+      px: { xs: 1, sm: 1.5 },
+      py: 1.5,
+      minWidth: { xs: 40, sm: "auto" },
+      "& .MuiButton-startIcon": {
+        mr: { xs: 0, sm: 1 },
+      },
+      "&:hover": {
+        color: "primary.main",
+        backgroundColor: "action.hover",
+      },
+    }}
+  >
+    {!isMobile && "Invitados"}
+  </Button>
 
-          <Button
-            component={Link}
-            to={`/events/${event.id}/guests`}
-            variant="outlined"
-            startIcon={<PeopleAltOutlinedIcon />}
-            size="small"
-          >
-            Invitados
-          </Button>
+  <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
 
-          <Button
-            component={Link}
-            to={`/events/${event.id}/pictures`}
-            variant="outlined"
-            startIcon={<PhotoLibraryOutlinedIcon />}
-            size="small"
-          >
-            Imágenes
-          </Button>
+  <Button
+    component={Link}
+    to={`/events/${event.id}/pictures`}
+    color="inherit"
+    startIcon={<PhotoLibraryOutlinedIcon />}
+    size="small"
+    sx={{
+      borderRadius: 0,
+      color: "text.secondary",
+      fontWeight: 500,
+      textTransform: "none",
+      px: { xs: 1, sm: 1.5 },
+      py: 1.5,
+      minWidth: { xs: 40, sm: "auto" },
+      "& .MuiButton-startIcon": {
+        mr: { xs: 0, sm: 1 },
+      },
+      "&:hover": {
+        color: "primary.main",
+        backgroundColor: "action.hover",
+      },
+    }}
+  >
+    {!isMobile && "Imágenes"}
+  </Button>
 
-          <Button
-            component="a"
-            href={`https://app.witinvitaciones.com/${event.id}/`}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="text"
-            startIcon={<VisibilityOutlinedIcon />}
-            size="small"
-          >
-            Invitación
-          </Button>
-        </Box>
+  <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+
+  <Button
+    component="a"
+    href={`https://app.witinvitaciones.com/${event.id}/`}
+    target="_blank"
+    rel="noopener noreferrer"
+    color="inherit"
+    startIcon={<VisibilityOutlinedIcon />}
+    size="small"
+    sx={{
+      borderRadius: 0,
+      color: "text.secondary",
+      fontWeight: 500,
+      textTransform: "none",
+      px: { xs: 1, sm: 1.5 },
+      py: 1.5,
+      minWidth: { xs: 40, sm: "auto" },
+      "& .MuiButton-startIcon": {
+        mr: { xs: 0, sm: 1 },
+      },
+      "&:hover": {
+        color: "primary.main",
+        backgroundColor: "action.hover",
+      },
+    }}
+  >
+    {!isMobile && "Vista"}
+  </Button>
+
+  <Box sx={{ flexGrow: 1 }} />
+
+  <Button
+    component={Link}
+    to={`/events/${event.id}`}
+    variant="contained"
+    startIcon={<EditOutlinedIcon />}
+    size="small"
+    sx={{
+      borderRadius: 2,
+      px: { xs: 1.5, sm: 2 },
+      fontWeight: 600,
+      textTransform: "none",
+      boxShadow: "none",
+      flexShrink: 0,
+    }}
+  >
+    Editar evento
+  </Button>
+</Box>
 
         <Divider />
 
         {/* Información */}
         <Box sx={{ p: 2.5 }}>
-          <Stack spacing={2.5}>
-            <Box display="flex" gap={1} flexWrap="wrap">
+          {/* Título y chips */}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            gap={2}
+            flexWrap="wrap"
+            mb={2}
+          >
+            <Typography variant="subtitle1"
+              color="text.primary"
+              fontWeight={600}>
+              Información del evento
+            </Typography>
+
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              flexWrap="wrap"
+            >
               {eventType && (
                 <Chip
                   label={eventType}
                   size="small"
                   sx={{
-                    backgroundColor: "secondary.light",
                     borderRadius: 2,
+                    borderColor: "divider",
+                    color: "text.primary",
                   }}
                 />
               )}
 
               <ChipState state={state} />
-            </Box>
+            </Stack>
+          </Box>
 
-            <Typography variant="subtitle2" fontWeight={700}>
-              Datos generales
-            </Typography>
-
-            <Grid container spacing={2.5}>
-              <Grid item xs={12} sm={6}>
-                {renderDetailItem(
-                  "Fecha del evento",
-                  event.event_date,
-                  <CalendarMonthOutlinedIcon fontSize="small" />
-                )}
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                {renderDetailItem(
-                  "Anfitrión",
-                  event.host,
-                  <PersonOutlineRoundedIcon fontSize="small" />
-                )}
-              </Grid>
-
-              <Grid item xs={12}>
-                {renderDetailItem(
-                  "Ubicación",
-                  event.location,
-                  <LocationOnOutlinedIcon fontSize="small" />
-                )}
-
-                {event.location && (
-                  <Button
-                    component="a"
-                    href={locationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    size="small"
-                    sx={{ mt: 0.5, ml: 3.5 }}
-                  >
-                    Ver en Google Maps
-                  </Button>
-                )}
-              </Grid>
-
-              {event.church && (
-                <Grid item xs={12}>
-                  {renderDetailItem(
-                    "Iglesia / Ceremonia",
-                    event.church,
-                    <ChurchOutlinedIcon fontSize="small" />
-                  )}
-
-                  <Button
-                    component="a"
-                    href={churchUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    size="small"
-                    sx={{ mt: 0.5, ml: 3.5 }}
-                  >
-                    Ver en Google Maps
-                  </Button>
-                </Grid>
+          {/* Datos del evento */}
+          <Grid container spacing={2.5}>
+            <Grid item xs={12} sm={6}>
+              {renderDetailItem(
+                "Fecha del evento",
+                event.event_date,
+                <CalendarMonthOutlinedIcon fontSize="small" />
               )}
-
-              <Grid item xs={12} sm={6}>
-                {renderDetailItem(
-                  "Hora de ceremonia",
-                  event.ceremony_time,
-                  <AccessTimeOutlinedIcon fontSize="small" />
-                )}
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                {renderDetailItem(
-                  "Hora de recepción",
-                  event.reception_time,
-                  <AccessTimeOutlinedIcon fontSize="small" />
-                )}
-              </Grid>
             </Grid>
 
-            {event.details && (
-              <>
-                <Divider />
+            <Grid item xs={12} sm={6}>
+              {renderDetailItem(
+                "Anfitrión",
+                event.host,
+                <PersonOutlineRoundedIcon fontSize="small" />
+              )}
+            </Grid>
 
-                <Box>
-                  <Typography variant="subtitle2" fontWeight={700} mb={1}>
-                    Detalles
-                  </Typography>
+            <Grid item xs={12}>
+              {renderDetailItem(
+                "Ubicación",
+                event.location,
+                <LocationOnOutlinedIcon fontSize="small" />
+              )}
 
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ whiteSpace: "pre-wrap" }}
-                  >
-                    {event.details}
-                  </Typography>
-                </Box>
-              </>
-            )}
+              {event.location && (
+                <Button
+                  component="a"
+                  href={locationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  size="small"
+                  sx={{ mt: 0.5, ml: 3.5 }}
+                >
+                  Ver en Google Maps
+                </Button>
+              )}
+            </Grid>
 
-            {event.template_id && (
-              <>
-                <Divider />
-
+            {event.church && (
+              <Grid item xs={12}>
                 {renderDetailItem(
-                  "Plantilla",
-                  event.template_id,
-                  <EventOutlinedIcon fontSize="small" />
+                  "Iglesia / Ceremonia",
+                  event.church,
+                  <ChurchOutlinedIcon fontSize="small" />
                 )}
-              </>
+
+                <Button
+                  component="a"
+                  href={churchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  size="small"
+                  sx={{ mt: 0.5, ml: 3.5 }}
+                >
+                  Ver en Google Maps
+                </Button>
+              </Grid>
             )}
-          </Stack>
+
+            <Grid item xs={12} sm={6}>
+              {renderDetailItem(
+                "Hora de ceremonia",
+                event.ceremony_time,
+                <AccessTimeOutlinedIcon fontSize="small" />
+              )}
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              {renderDetailItem(
+                "Hora de recepción",
+                event.reception_time,
+                <AccessTimeOutlinedIcon fontSize="small" />
+              )}
+            </Grid>
+          </Grid>
+
+          {/* Detalles adicionales */}
+          {event.details && (
+            <>
+              <Divider sx={{ my: 2 }} />
+
+              <Box>
+                <Typography variant="subtitle2" fontWeight={700} mb={1}>
+                  Detalles
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ whiteSpace: "pre-wrap" }}
+                >
+                  {event.details}
+                </Typography>
+              </Box>
+            </>
+          )}
         </Box>
       </Paper>
     );
   };
+
+  // --------------------------------------------------
+  // Estados de carga y vacíos
+  // --------------------------------------------------
 
   if (loading) {
     return (
@@ -692,51 +832,57 @@ const EventsCards = ({ search }) => {
     );
   }
 
-  const showList = !isMobile || !showDetails;
-  const showDetailPanel = Boolean(selectedEvent) && showDetails;
+  // --------------------------------------------------
+  // Distribución del layout
+  // --------------------------------------------------
+
+  const showList = !isMobile || (!showDetails && !isClosing);
+
+  // Mientras se anima el cierre, el panel sigue ocupando su columna.
+  const showDetailPanel = Boolean(selectedEvent) && (showDetails || isClosing);
 
   return (
     <Box>
-      <Grid container spacing={2} alignItems="stretch">
+      <Grid container spacing={2} alignItems="flex-start">
         {/* Lista de eventos */}
         {showList && (
           <Grid
-      item
-      xs={12}
-      md={showDetailPanel ? 5 : 12}
-      sx={{
-        minWidth: 0,
-        transition: "width .35s ease",
-      }}
-    >
-      <Grid container spacing={2}>
-        {paginatedEvents.map((event) => (
-          <Grid
             item
             xs={12}
-            md={showDetailPanel ? 12 : 4}
-            key={event.id}
+            md={showDetailPanel ? 5 : 12}
+            sx={{
+              minWidth: 0,
+              transition: "width .35s ease",
+            }}
           >
-            {renderEventCard(event)}
-          </Grid>
-        ))}
-      </Grid>
+            <Grid container spacing={2}>
+              {paginatedEvents.map((event) => (
+                <Grid
+                  item
+                  xs={12}
+                  md={showDetailPanel ? 12 : 4}
+                  key={event.id}
+                >
+                  {renderEventCard(event)}
+                </Grid>
+              ))}
+            </Grid>
 
-      <TablePagination
-        component="div"
-        count={filteredEvents.length}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        rowsPerPageOptions={[6, 12, 24]}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        labelRowsPerPage="Eventos por página:"
-        sx={{
-          mt: 1,
-          borderBottom: 0,
-        }}
-      />
-    </Grid>
+            <TablePagination
+              component="div"
+              count={filteredEvents.length}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              rowsPerPageOptions={[6, 12, 24]}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              labelRowsPerPage="Eventos por página:"
+              sx={{
+                mt: 1,
+                borderBottom: 0,
+              }}
+            />
+          </Grid>
         )}
 
         {/* Panel de información */}
@@ -747,24 +893,40 @@ const EventsCards = ({ search }) => {
             md={showList ? 7 : 12}
             sx={{
               minWidth: 0,
-              animation: "detailEnter .35s ease",
-              "@keyframes detailEnter": {
-                from: {
-                  opacity: 0,
-                  transform: "translateX(35px)",
-                },
-                to: {
-                  opacity: 1,
-                  transform: "translateX(0)",
-                },
-              },
             }}
           >
-            {renderDetails()}
+            <Box
+              onTransitionEnd={handleDetailTransitionEnd}
+              sx={{
+                width: "100%",
+                opacity: isClosing ? 0 : 1,
+                transform: isClosing
+                  ? "translateX(45px)"
+                  : "translateX(0)",
+                transition: "transform .35s ease, opacity .35s ease",
+                animation: isClosing
+                  ? "none"
+                  : "detailEnter .35s ease",
+                pointerEvents: isClosing ? "none" : "auto",
+                "@keyframes detailEnter": {
+                  from: {
+                    opacity: 0,
+                    transform: "translateX(35px)",
+                  },
+                  to: {
+                    opacity: 1,
+                    transform: "translateX(0)",
+                  },
+                },
+              }}
+            >
+              {renderDetails()}
+            </Box>
           </Grid>
         )}
       </Grid>
 
+      {/* Confirmación de eliminación */}
       {eventToDelete && (
         <AlertConfirm
           show={openModal}

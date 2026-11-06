@@ -123,7 +123,6 @@ export const EventsProvider = ({ children }) => {
         .select("*");
 
       if (error) throw error;
-      console.log("Templates fetched:", data);
       setTemplates(data);
     } catch (err) {
       console.error("Error fetching templates:", err.message);

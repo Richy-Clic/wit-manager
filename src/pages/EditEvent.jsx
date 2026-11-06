@@ -9,6 +9,8 @@ import dayjs from "dayjs";
 import PlacesAutocompleteInput from "../components/PlacesAutocompleteInput.jsx";
 import PageTitle from "../components/PageTitle.jsx";
 
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+
 export default function EditEvent() {
   const { event_id } = useParams();
   const navigate = useNavigate();
@@ -105,7 +107,27 @@ export default function EditEvent() {
   return (
     <Container maxWidth="lg">
 
-      <Box mt={4} mb={3}>
+      <Button
+        component={Link}
+        to="/events"
+        variant="text"
+        startIcon={<ArrowBackRoundedIcon />}
+        sx={{
+          textTransform: "none",
+          fontWeight: 600,
+          color: "text.secondary",
+          borderRadius: 2,
+          px: 1.5,
+          "&:hover": {
+            color: "text.primary",
+            bgcolor: "action.hover",
+          },
+        }}
+      >
+        Volver a mis eventos
+      </Button>
+
+      <Box mb={3}>
         <PageTitle>Editar Evento</PageTitle>
       </Box>
 

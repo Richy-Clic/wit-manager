@@ -16,8 +16,10 @@ import {
   Stack,
   Typography,
   Tooltip,
+  Paper,
 } from "@mui/material";
 
+import DashboardCustomizeOutlined from "@mui/icons-material/DashboardCustomizeOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import AutoAwesomeOutlinedIcon from "@mui/icons-material/AutoAwesomeOutlined";
@@ -50,9 +52,8 @@ const Templates = () => {
       const searchTerm = search.trim().toLowerCase();
 
       // Filtro por nombre y descripción
-      const matchesSearch = `${template.name} ${
-        template.description || ""
-      }`
+      const matchesSearch = `${template.name} ${template.description || ""
+        }`
         .toLowerCase()
         .includes(searchTerm);
 
@@ -77,7 +78,7 @@ const Templates = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container maxWidth="xl">
       {/* Header */}
       <Stack
         direction={{ xs: "column", sm: "row" }}
@@ -85,8 +86,13 @@ const Templates = () => {
         alignItems={{ xs: "flex-start", sm: "center" }}
         spacing={2}
         mb={3}
+        mt={{ xs: 0, md: 4 }}
       >
-        <Box>
+        <Box sx={{
+          
+        
+         
+        }}>
           <PageTitle>Plantillas</PageTitle>
 
           <Typography variant="body2" color="text.secondary" mt={0.5}>
@@ -104,67 +110,67 @@ const Templates = () => {
 
       {/* Búsqueda y categorías */}
       <Stack
-  direction={{ xs: "column", md: "row" }}
-  justifyContent="space-between"
-  alignItems={{ xs: "stretch", md: "center" }}
-  spacing={2}
-  mb={4}
-  sx={{
-    width: "100%",
-    minWidth: 0,
-  }}
->
-  <Box
-    sx={{
-      width: { xs: "100%", md: 380 },
-      maxWidth: "100%",
-      minWidth: 0,
-      flexShrink: 1,
-    }}
-  >
-    <SearchInput
-      value={search}
-      onChange={setSearch}
-      placeholder="Buscar plantilla..."
-      width="100%"
-    />
-  </Box>
-
-  <Stack
-    direction="row"
-    spacing={1}
-    sx={{
-      minWidth: 0,
-      maxWidth: "100%",
-      overflowX: "auto",
-      overflowY: "hidden",
-      pb: { xs: 1, md: 0 },
-      flexShrink: 1,
-      "& > *": {
-        flexShrink: 0,
-      },
-    }}
-  >
-    {CATEGORIES.map((cat) => {
-      const isSelected = selectedCategory === cat.value;
-
-      return (
-        <Chip
-          key={cat.value}
-          label={cat.label}
-          onClick={() => setSelectedCategory(cat.value)}
-          color={isSelected ? "primary" : "default"}
-          variant={isSelected ? "filled" : "outlined"}
+        direction={{ xs: "column", md: "row" }}
+        justifyContent="space-between"
+        alignItems={{ xs: "stretch", md: "center" }}
+        spacing={2}
+        mb={4}
+        sx={{
+          width: "100%",
+          minWidth: 0,
+        }}
+      >
+        <Box
           sx={{
-            borderRadius: 2,
-            fontWeight: isSelected ? 600 : 400,
-            cursor: "pointer",
+            width: { xs: "100%", md: 380 },
+            maxWidth: "100%",
+            minWidth: 0,
+            flexShrink: 1,
           }}
-        />
-      );
-    })}
-  </Stack>
-</Stack>
+        >
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Buscar plantilla..."
+            width="100%"
+          />
+        </Box>
+
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            minWidth: 0,
+            maxWidth: "100%",
+            overflowX: "auto",
+            overflowY: "hidden",
+            pb: { xs: 1, md: 0 },
+            flexShrink: 1,
+            "& > *": {
+              flexShrink: 0,
+            },
+          }}
+        >
+          {CATEGORIES.map((cat) => {
+            const isSelected = selectedCategory === cat.value;
+
+            return (
+              <Chip
+                key={cat.value}
+                label={cat.label}
+                onClick={() => setSelectedCategory(cat.value)}
+                color={isSelected ? "primary" : "default"}
+                variant={isSelected ? "filled" : "outlined"}
+                sx={{
+                  borderRadius: 2,
+                  fontWeight: isSelected ? 600 : 400,
+                  cursor: "pointer",
+                }}
+              />
+            );
+          })}
+        </Stack>
+      </Stack>
 
       {/* Plantillas */}
       <Grid container spacing={2}>
@@ -272,25 +278,30 @@ const Templates = () => {
             </Grid>
           ))
         ) : (
-          <Grid item xs={12}>
-            <Box
-              textAlign="center"
-              py={7}
-              sx={{
-                border: 1,
-                borderColor: "divider",
-                borderRadius: 3,
-              }}
-            >
-              <Typography fontWeight={600}>
-                No encontramos plantillas
-              </Typography>
+          <Paper
+            elevation={0}
+            sx={{
+              width: "100%",
+              boxSizing: "border-box",
+              p: 5,
+              textAlign: "center",
+              borderRadius: 3,
+              border: "1px dashed",
+              borderColor: "divider",
+            }}
+          >
+            <DashboardCustomizeOutlined
+              sx={{ fontSize: 42, color: "primary.main", mb: 1 }}
+            />
 
-              <Typography variant="body2" color="text.secondary" mt={1}>
-                Intenta con otra búsqueda o categoría.
-              </Typography>
-            </Box>
-          </Grid>
+            <Typography fontWeight={600}>
+              No encontramos plantillas
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary" mt={1}>
+              Intenta con otra búsqueda o categoría.
+            </Typography>
+          </Paper>
         )}
       </Grid>
     </Container>

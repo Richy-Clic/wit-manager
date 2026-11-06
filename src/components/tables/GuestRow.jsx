@@ -1,18 +1,22 @@
+
 import React, { useState } from "react";
-import { TableRow, TableCell } from "@mui/material";
+import { TableRow, TableCell, Checkbox } from "@mui/material";
 import { toast } from "sonner";
+import PropTypes from "prop-types";
+
 import { getStringAttendance } from "../../utils/guestUtils.js";
 import { sendWhatsAppInvite } from "../../services/whatsappService.js";
-
 import { getGuestActions } from "../../constants/guestActions.jsx";
 
-import PropTypes from "prop-types";
-import Checkbox from "@mui/material/Checkbox";
 import RowActions from "../RowActions.jsx";
 import ChipState from "../ChipState.jsx";
 
-
-const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }) => {
+const GuestRow = ({
+  g,
+  event_id,
+  isSelected,
+  handleSelectRow,
+}) => {
   const [sending, setSending] = useState(false);
 
   const attendance = getStringAttendance(g);
@@ -25,7 +29,7 @@ const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }
 
       await sendWhatsAppInvite({
         guest: g,
-        eventId: event_id
+        eventId: event_id,
       });
 
       toast.success("Mensaje enviado");
@@ -42,7 +46,17 @@ const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }
     }
   };
 
-
+  const actions = getGuestActions({
+    guest: g,
+    eventId: event_id,
+    sending,
+    handleSend,
+    openAlertConfirm: () => {},
+  }).filter(
+    (action) =>
+      !action.danger &&
+      !String(action.label || "").toLowerCase().includes("eliminar")
+  );
 
   return (
     <TableRow
@@ -54,28 +68,23 @@ const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }
       <TableCell padding="checkbox">
         <Checkbox
           checked={isSelected(g.id)}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
           onChange={() => handleSelectRow(g.id)}
         />
       </TableCell>
-      <TableCell>{g.name}</TableCell>
+
       <TableCell>
-
-      <ChipState state={attendance} />
-
+        {g.name}
       </TableCell>
 
-      {/* 🔥 ACTIONS */}
-      <TableCell align="right">
+      <TableCell>
+        <ChipState state={attendance} />
+      </TableCell>
+
+      <TableCell align="right" onClick={(event) => event.stopPropagation()}>
         <RowActions
           row={g}
-          actions={getGuestActions({
-            guest: g,
-            eventId: event_id,
-            sending,
-            handleSend,
-            openAlertConfirm,
-          })}
+          actions={actions}
         />
       </TableCell>
     </TableRow>
@@ -84,14 +93,9 @@ const GuestRow = ({ g, event_id, openAlertConfirm, isSelected, handleSelectRow }
 
 GuestRow.propTypes = {
   g: PropTypes.object.isRequired,
-  index: PropTypes.number.isRequired,
-  page: PropTypes.number.isRequired,
-  rowsPerPage: PropTypes.number.isRequired,
   event_id: PropTypes.string.isRequired,
-  openAlertConfirm: PropTypes.func.isRequired,
   isSelected: PropTypes.func.isRequired,
   handleSelectRow: PropTypes.func.isRequired,
 };
 
-const MemoizedGuestRow = React.memo(GuestRow);
-export default MemoizedGuestRow;
+export default React.memo(GuestRow);

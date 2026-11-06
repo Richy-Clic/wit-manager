@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import dayjs from "dayjs";
 import PageTitle from "../components/PageTitle.jsx";
 import PlacesAutocompleteInput from "../components/PlacesAutocompleteInput.jsx";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
 
 const steps = [
   "Datos",
@@ -346,7 +348,7 @@ export default function NewEvent() {
 
             {formData.type_event === "wedding" && (
               <>
-                
+
 
                 <Typography
                   variant="subtitle2"
@@ -807,7 +809,13 @@ Hombres: traje y corbata`}
             to="/events"
             variant="outlined"
             size="small"
-            sx={styles.button}
+            sx={{
+              ...styles.button,
+              border: "none",
+              "&:hover": {
+                border: "none",
+              },
+            }}
             disabled={submitting}
           >
             Cancelar
@@ -815,15 +823,28 @@ Hombres: traje y corbata`}
 
           <Stack direction="row" spacing={1.5}>
             {activeStep > 0 && (
+
               <Button
                 variant="outlined"
                 size="small"
                 onClick={handleBack}
                 disabled={submitting}
-                sx={styles.button}
+                startIcon={<ArrowBackRoundedIcon />}
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 600,
+                  color: "text.secondary",
+
+                  px: 1.5,
+                  "&:hover": {
+                    color: "text.primary",
+                    bgcolor: "action.hover",
+                  },
+                }}
               >
-                Regresar
+                Paso anterior
               </Button>
+
             )}
 
             <Button
@@ -832,12 +853,13 @@ Hombres: traje y corbata`}
               onClick={handleNext}
               disabled={submitting}
               sx={styles.button}
+              endIcon={<ArrowForwardRounded />}
             >
               {submitting
                 ? "Guardando..."
                 : activeStep === steps.length - 1
                   ? "Crear evento"
-                  : "Continuar"}
+                  : "Siguiente paso"}
             </Button>
           </Stack>
         </Box>

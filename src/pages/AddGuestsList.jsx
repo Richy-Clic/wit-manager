@@ -104,10 +104,11 @@ const AddGuestsList = () => {
 
   return (
     <Grid container justifyContent="center">
-      <Grid item xs={12} sm={8} md={5} mt={6}>
+      <Grid item xs={12} sm={9} md={7} lg={6} mt={{ xs: 0, md: 4 }}>
+
         <PageTitle>Agregar lista de invitados</PageTitle>
 
-        <Paper sx={{ p: 3, borderRadius: 3 }}>
+        <Paper sx={{ p: 3, borderRadius: 3, mt:1 }}>
 
           {/* 🔥 Loading */}
           {loading && <LinearProgress />}
@@ -169,11 +170,12 @@ const AddGuestsList = () => {
                   gap: 1,
                   p: 1.5,
                   borderRadius: 2,
-                  backgroundColor: "#f5f5f5"
+                  backgroundColor: "action.hover",
+                  color: "text.primary",
                 }}
               >
                 <InsertDriveFileIcon />
-                <Typography variant="body2">
+                <Typography variant="body2" color="text.primary">
                   {file.file.name}
                 </Typography>
               </Box>

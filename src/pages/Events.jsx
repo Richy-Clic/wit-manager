@@ -55,19 +55,19 @@ const Events = () => {
         >
           {/* Contenedor y SearchInput adaptados al 100% en mobile */}
           <Box
-  sx={{
-    width: { xs: "100%", sm: 350, md: 420 },
-    minWidth: 0,
-    flexShrink: 0,
-  }}
->
-  <SearchInput
-    value={search}
-    onChange={setSearch}
-    placeholder="Buscar evento..."
-    width="100%"
-  />
-</Box>
+            sx={{
+              width: { xs: "100%", sm: 350, md: 280, lg: 420 },
+              minWidth: 0,
+              flexShrink: 0,
+            }}
+          >
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Buscar evento..."
+              width="100%"
+            />
+          </Box>
 
           <Button
             component={Link}
